@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NoName Cycles | Independent Motorcycle Mechanics",
+  title: "Swafford Speed | Independent Motorcycle Mechanics",
   description:
     "Bumper-to-bumper motorcycle service — vintage to modern, electrical to full fabrication. Appointment-only shop taking new intake requests.",
 };

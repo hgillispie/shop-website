@@ -1,11 +1,13 @@
 export const siteConfig = {
-  shopName: "NoName Cycles",
+  shopName: "Swafford Speed",
   builderName: "James Gillispie",
   tagline: "Independent Harley-Davidson & metric mechanics.",
   phone: "(864) 400-1082",
   email: "huntergillispie1@proton.me",
-  city: "Travelers Rest, SC",
-  address: "279 Ballew Rd, Travelers Rest, SC 29690",
+  city: "Taylors, SC",
+  // Real drop-off address — sent only in the private approval email/SMS,
+  // never rendered on a public page (owner doesn't want walk-ins).
+  address: "529 E Darby Road, Taylors, SC 29687",
   navLinks: [
     { label: "About", href: "#about" },
     { label: "Services", href: "#services" },
