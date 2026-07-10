@@ -1,0 +1,31 @@
+import { put } from "@vercel/blob";
+
+const BLOB_CONFIGURED = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+
+// Uploads intake photos to Vercel Blob so only lightweight URLs (not raw
+// binaries) travel through the webhook payload to Zapier/Make.
+export async function uploadAppointmentPhotos(photos: File[]): Promise<string[]> {
+  if (photos.length === 0) return [];
+
+  if (!BLOB_CONFIGURED) {
+    console.warn(
+      "[storage] BLOB_READ_WRITE_TOKEN is not set — skipping photo upload. " +
+        `${photos.length} photo(s) submitted will not be forwarded.`,
+    );
+    return [];
+  }
+
+  const uploads = await Promise.all(
+    photos.map(async (photo, index) => {
+      const safeName = photo.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+      const pathname = `appointments/${Date.now()}-${index}-${safeName}`;
+      const blob = await put(pathname, photo, {
+        access: "public",
+        addRandomSuffix: true,
+      });
+      return blob.url;
+    }),
+  );
+
+  return uploads;
+}
