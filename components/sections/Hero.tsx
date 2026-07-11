@@ -31,9 +31,12 @@ export function Hero() {
       <div className="relative mx-auto w-full max-w-6xl px-6 py-16">
         <div>
           <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-            Harley-Davidson repair specialist
+            Upstate Harley-Davidson specialists
           </h1>
-          <h3>Proudly serving the Upstate and surrounding areas</h3>
+          <h3 className="mt-5 font-[Arial,sans-serif] font-semibold text-white opacity-100">
+            From seasonal maintainance to custom builds, no job too big or
+            small. Call today (828) 748-7178
+          </h3>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <ButtonLink href="#book" size="lg">
               Request an Appointment

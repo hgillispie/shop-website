@@ -11,11 +11,19 @@ export function BeforeAfterToggle({ project }: { project: Project }) {
   return (
     <div>
       <div className="overflow-hidden rounded-lg border border-border">
-        <BikeIllustration
-          variant={project.imageVariant}
-          tone={tone}
-          className="h-56 w-full sm:h-64"
-        />
+        {tone === "before" && project.beforeImage ? (
+          <img
+            src={project.beforeImage}
+            alt={`${project.title} — before`}
+            className="h-56 w-full object-cover sm:h-64"
+          />
+        ) : (
+          <BikeIllustration
+            variant={project.imageVariant}
+            tone={tone}
+            className="h-56 w-full sm:h-64"
+          />
+        )}
       </div>
 
       <div className="mt-3 inline-flex rounded-full border border-border p-1 text-xs font-medium">

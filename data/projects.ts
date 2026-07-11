@@ -5,6 +5,7 @@ export type Project = {
   request: string;
   breakdown: string[];
   imageVariant: "vintage" | "touring" | "bobber";
+  beforeImage?: string;
 };
 
 // Placeholder project write-ups. Swap in real client work — request quote,
@@ -22,6 +23,8 @@ export const projects: Project[] = [
       "Rebuilt the generator and replaced all terminal connections with soldered, weather-sealed ends.",
     ],
     imageVariant: "vintage",
+    beforeImage:
+      "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F06ea6170669045b4b7e373d5c9752b89",
   },
   {
     slug: "m8-touring-performance",
