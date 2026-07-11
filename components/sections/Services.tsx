@@ -5,8 +5,8 @@ export function Services() {
     <section id="services" className="scroll-mt-16 bg-surface py-24">
       <div className="mx-auto max-w-6xl px-6">
         <div className="max-w-2xl">
-          <p className="mb-4 text-xs font-medium uppercase tracking-[0.3em] text-accent">
-            Capabilities
+          <p className="mb-4 text-base font-medium uppercase tracking-[0.3em] text-accent">
+            Services offered
           </p>
         </div>
 

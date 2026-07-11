@@ -41,15 +41,17 @@ export const projects: Project[] = [
   },
   {
     slug: "big-twin-custom-bobber",
-    title: "Big Twin — Custom Bobber Build",
+    title: "Big Twin — Custom Chopper Build",
     engine: "Big Twin",
     request:
-      "Ground-up custom build request: strip a stock Softail down to a minimalist bobber with a fabricated subframe.",
+      "Custom build request: strip a stock Shovelhead down to a minimalist bobber with a fabricated subframe.",
     breakdown: [
       "Fabricated a bolt-on rear subframe and relocated the electronics into a hand-built underseat tray.",
       "Rewired the bike on a minimalist harness with a hidden battery box and solid-state relay panel.",
-      "Rebuilt the carburetor and tuned the exhaust for the new intake configuration.",
+      "Replaced and tuned carburetor & exhaust for the new configuration.",
     ],
     imageVariant: "bobber",
+    beforeImage:
+      "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Fa5c51da12a4049489fb0f1740e5f1784",
   },
 ];

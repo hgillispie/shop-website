@@ -15,18 +15,12 @@ export function ProjectCard({ project }: { project: Project }) {
         </h3>
 
         <div className="mt-5">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">
-            The Request
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-foreground/90">
+          <p className="text-sm leading-relaxed text-foreground/90">
             {project.request}
           </p>
         </div>
 
         <div className="mt-5">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">
-            The Work
-          </p>
           <ul className="mt-2 space-y-2">
             {project.breakdown.map((item) => (
               <li key={item} className="flex gap-2 text-sm leading-relaxed text-foreground/90">
