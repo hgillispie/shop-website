@@ -2,7 +2,7 @@ export const siteConfig = {
   shopName: "Swafford Speed",
   builderName: "James Gillispie",
   tagline: "Independent Harley-Davidson mechanics.",
-  phone: "(864) 400-1082",
+  phone: "(828) 748-7178",
   email: "huntergillispie1@proton.me",
   city: "Taylors, SC",
   // Real drop-off address — sent only in the private approval email/SMS,

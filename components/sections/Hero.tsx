@@ -1,5 +1,4 @@
 import { ButtonLink } from "@/components/ui/button";
-import { siteConfig } from "@/data/site-config";
 
 export function Hero() {
   return (
@@ -32,14 +31,8 @@ export function Hero() {
       <div className="relative mx-auto w-full max-w-6xl px-6 py-24">
         <div>
           <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-            Harley-Davidson repair, by appointment.
+            Harley-Davidson repair specialist
           </h1>
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-dark sm:text-lg">
-            {siteConfig.builderName} spent his career in Harley-Davidson dealership
-            service departments and now runs an independent shop focused
-            exclusively on Harleys — from Panhead-era bikes to the current M8.
-            No metric bikes, no dirt bikes.
-          </p>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <ButtonLink href="#book" size="lg">
               Request an Appointment

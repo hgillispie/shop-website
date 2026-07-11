@@ -37,11 +37,11 @@ export const projects: Project[] = [
     imageVariant: "touring",
   },
   {
-    slug: "metric-custom-bobber",
-    title: "Metric V-Twin — Custom Bobber Build",
-    engine: "Metric V-Twin",
+    slug: "big-twin-custom-bobber",
+    title: "Big Twin — Custom Bobber Build",
+    engine: "Big Twin",
     request:
-      "Ground-up custom build request: strip a stock metric cruiser down to a minimalist bobber with a fabricated subframe.",
+      "Ground-up custom build request: strip a stock Softail down to a minimalist bobber with a fabricated subframe.",
     breakdown: [
       "Fabricated a bolt-on rear subframe and relocated the electronics into a hand-built underseat tray.",
       "Rewired the bike on a minimalist harness with a hidden battery box and solid-state relay panel.",
