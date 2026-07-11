@@ -39,8 +39,9 @@ export default function PrivacyPolicyPage() {
             you consent to receive SMS text messages from {siteConfig.shopName} related to
             your appointment. Message and data rates may apply. Message frequency varies.
             You can reply <strong>STOP</strong> at any time to opt out of SMS messages, or{" "}
-            <strong>HELP</strong> for assistance. We do not sell or share your phone number
-            with third parties for marketing purposes.
+            <strong>HELP</strong> for assistance. We do not share, sell, or otherwise
+            provide your mobile phone number or messaging consent information to any
+            third parties or affiliates for marketing or promotional purposes.
           </p>
         </section>
 

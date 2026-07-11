@@ -33,7 +33,9 @@ export default function TermsPage() {
           <p className="mt-2">
             Reply <strong>STOP</strong> to any message to opt out at any time. Reply{" "}
             <strong>HELP</strong> for assistance. Carriers are not liable for delayed or
-            undelivered messages.
+            undelivered messages. We do not share, sell, or otherwise provide your mobile
+            phone number or messaging consent information to any third parties or
+            affiliates for marketing or promotional purposes.
           </p>
         </section>
 
