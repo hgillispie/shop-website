@@ -33,6 +33,7 @@ export function Hero() {
           <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl md:text-6xl">
             Harley-Davidson repair specialist
           </h1>
+          <h3>Proudly serving the Upstate and surrounding areas</h3>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <ButtonLink href="#book" size="lg">
               Request an Appointment
