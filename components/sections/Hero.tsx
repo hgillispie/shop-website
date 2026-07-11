@@ -4,7 +4,7 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative flex min-h-screen items-center overflow-hidden bg-surface-dark pt-16 text-foreground-dark"
+      className="relative overflow-hidden bg-surface-dark pt-16 text-foreground-dark"
     >
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06]"
@@ -28,7 +28,7 @@ export function Hero() {
         <rect width="100%" height="100%" fill="url(#grid)" />
       </svg>
 
-      <div className="relative mx-auto w-full max-w-6xl px-6 py-24">
+      <div className="relative mx-auto w-full max-w-6xl px-6 py-16">
         <div>
           <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl md:text-6xl">
             Harley-Davidson repair specialist
@@ -45,6 +45,14 @@ export function Hero() {
             </a>
           </div>
         </div>
+      </div>
+
+      <div className="relative h-[320px] w-full sm:h-[420px] md:h-[520px]">
+        <img
+          src="https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F9b40fe6b114a414b84925ca6d38bb07f"
+          alt="Harley-Davidson restoration work area"
+          className="h-full w-full object-cover"
+        />
       </div>
     </section>
   );
