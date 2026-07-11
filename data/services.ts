@@ -15,14 +15,14 @@ export const capabilities = [
       "Carburetor rebuilds, EFI tuning, and fuel delivery diagnostics for vintage and modern setups alike.",
   },
   {
-    title: "Custom Fabrication",
+    title: "Custom Builds & Fabrication",
     description:
-      "One-off brackets, exhaust work, and structural modifications, fabricated in-house.",
+      "Hardtail kit, One-off brackets, exhaust work, and structural modifications, done in-house. Call today for a consultation.",
   },
   {
     title: "Vintage Restoration",
     description:
-      "Sympathetic restoration of Panhead, Shovelhead, and Evolution-era bikes — correct-for-year parts and mechanical recommissioning done to match the bike's history, not erase it.",
+      "True to form restoration of Knucklehead, Panhead, Shovelhead-era bikes — correct-for-year parts and mechanical recommissioning done to match the bike's history, not erase it.",
   },
   {
     title: "Wreck & Structural Repair",

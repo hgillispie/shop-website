@@ -50,14 +50,6 @@ export function Hero() {
           </div>
         </div>
       </div>
-
-      <div className="relative h-[320px] w-full sm:h-[420px] md:h-[520px]">
-        <img
-          src="https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F9b40fe6b114a414b84925ca6d38bb07f"
-          alt="Harley-Davidson restoration work area"
-          className="h-full w-full object-cover"
-        />
-      </div>
     </section>
   );
 }

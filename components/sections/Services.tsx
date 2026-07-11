@@ -20,8 +20,15 @@ export function Services() {
             </div>
           ))}
         </div>
+
+        <div className="mt-10 overflow-hidden rounded-lg border border-border">
+          <img
+            src="https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F9b40fe6b114a414b84925ca6d38bb07f"
+            alt="Harley-Davidson restoration work area"
+            className="h-[320px] w-full object-cover sm:h-[420px]"
+          />
+        </div>
       </div>
-      <div><p>bottom text</p><img><img/></div>
     </section>
   );
 }
