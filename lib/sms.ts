@@ -2,6 +2,11 @@ import twilio from "twilio";
 import { siteConfig } from "@/data/site-config";
 import type { AppointmentRequestRow, JobRow } from "@/lib/db/schema";
 
+// SMS is paused until the A2P 10DLC campaign is approved — carriers reject
+// unregistered traffic, so sending would just fail. Set SMS_ENABLED=true once
+// the Standard brand/campaign clears to turn it back on with no code changes.
+const SMS_ENABLED = process.env.SMS_ENABLED === "true";
+
 const ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const API_KEY_SID = process.env.TWILIO_API_KEY_SID;
@@ -26,6 +31,10 @@ function createClient() {
 const client = createClient();
 
 export async function sendOwnerNewRequestSms(request: AppointmentRequestRow) {
+  if (!SMS_ENABLED) {
+    console.info("[sms] SMS_ENABLED is false — skipping owner SMS (email still sent).");
+    return;
+  }
   if (!client || !FROM_NUMBER || !OWNER_PHONE) {
     console.warn("[sms] Twilio not fully configured — skipping owner SMS.");
     return;
@@ -42,6 +51,10 @@ export async function sendCustomerApprovalSms(
   request: AppointmentRequestRow,
   job: JobRow,
 ) {
+  if (!SMS_ENABLED) {
+    console.info("[sms] SMS_ENABLED is false — skipping customer SMS (email still sent).");
+    return;
+  }
   if (!client || !FROM_NUMBER) {
     console.warn("[sms] Twilio not fully configured — skipping customer SMS.");
     return;
