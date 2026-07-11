@@ -7,7 +7,6 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { PhotoUpload } from "@/components/booking/PhotoUpload";
 import { SuccessState } from "@/components/booking/SuccessState";
@@ -15,7 +14,7 @@ import {
   appointmentFormSchema,
   type AppointmentFormValues,
 } from "@/lib/validations/appointment";
-import { ENGINE_TYPES, SERVICE_TYPES } from "@/types/appointment";
+import { SERVICE_TYPES } from "@/types/appointment";
 import { cn } from "@/lib/utils";
 
 export function IntakeForm() {
@@ -38,7 +37,6 @@ export function IntakeForm() {
       phone: "",
       email: "",
       bikeYearMakeModel: "",
-      engineType: undefined,
       serviceTypes: [],
       details: "",
       preferredDropoffDate: "",
@@ -63,7 +61,6 @@ export function IntakeForm() {
       formData.append("phone", values.phone);
       formData.append("email", values.email);
       formData.append("bikeYearMakeModel", values.bikeYearMakeModel);
-      formData.append("engineType", values.engineType);
       formData.append("serviceTypes", JSON.stringify(values.serviceTypes));
       formData.append("details", values.details);
       formData.append("preferredDropoffDate", values.preferredDropoffDate ?? "");
@@ -129,23 +126,6 @@ export function IntakeForm() {
         />
         {errors.bikeYearMakeModel && (
           <p className="mt-1 text-xs text-red-600">{errors.bikeYearMakeModel.message}</p>
-        )}
-      </div>
-
-      <div>
-        <Label htmlFor="engineType">Engine Type</Label>
-        <Select id="engineType" defaultValue="" {...register("engineType")}>
-          <option value="" disabled>
-            Select engine type
-          </option>
-          {ENGINE_TYPES.map((engine) => (
-            <option key={engine} value={engine}>
-              {engine}
-            </option>
-          ))}
-        </Select>
-        {errors.engineType && (
-          <p className="mt-1 text-xs text-red-600">{errors.engineType.message}</p>
         )}
       </div>
 

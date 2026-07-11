@@ -27,7 +27,6 @@ export async function POST(request: Request) {
     phone: formData.get("phone"),
     email: formData.get("email"),
     bikeYearMakeModel: formData.get("bikeYearMakeModel"),
-    engineType: formData.get("engineType"),
     serviceTypes,
     details: formData.get("details"),
     preferredDropoffDate: formData.get("preferredDropoffDate"),

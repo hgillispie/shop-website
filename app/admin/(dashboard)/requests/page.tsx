@@ -37,10 +37,7 @@ export default async function AdminRequestsPage() {
                   </Link>
                   <p className="text-xs text-muted">{request.phone}</p>
                 </td>
-                <td className="px-4 py-4 text-muted">
-                  {request.bikeYearMakeModel}
-                  <p className="text-xs">{request.engineType}</p>
-                </td>
+                <td className="px-4 py-4 text-muted">{request.bikeYearMakeModel}</td>
                 <td className="px-4 py-4 text-muted">
                   {request.serviceTypes.join(", ")}
                 </td>

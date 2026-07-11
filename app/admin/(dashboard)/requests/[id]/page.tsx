@@ -43,10 +43,6 @@ export default async function RequestDetailPage({
           <dd className="mt-1">{request.bikeYearMakeModel}</dd>
         </div>
         <div>
-          <dt className="text-xs uppercase text-muted">Engine</dt>
-          <dd className="mt-1">{request.engineType}</dd>
-        </div>
-        <div>
           <dt className="text-xs uppercase text-muted">Services</dt>
           <dd className="mt-1">{request.serviceTypes.join(", ")}</dd>
         </div>

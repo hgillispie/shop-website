@@ -37,7 +37,6 @@ export async function sendOwnerNewRequestEmail(request: AppointmentRequestRow) {
       `Phone: ${request.phone}`,
       `Email: ${request.email}`,
       `Bike: ${request.bikeYearMakeModel}`,
-      `Engine: ${request.engineType}`,
       `Services: ${request.serviceTypes.join(", ")}`,
       request.preferredDropoffAt
         ? `Preferred drop-off: ${request.preferredDropoffAt.toLocaleDateString()}`

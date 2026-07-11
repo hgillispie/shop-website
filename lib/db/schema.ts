@@ -28,7 +28,6 @@ export const appointmentRequests = pgTable("appointment_requests", {
   phone: text("phone").notNull(),
   email: text("email").notNull(),
   bikeYearMakeModel: text("bike_year_make_model").notNull(),
-  engineType: text("engine_type").notNull(),
   serviceTypes: text("service_types").array().notNull(),
   details: text("details").notNull(),
   photoUrls: text("photo_urls").array().notNull().default([]),

@@ -43,7 +43,7 @@ export async function sendOwnerNewRequestSms(request: AppointmentRequestRow) {
   await client.messages.create({
     from: FROM_NUMBER,
     to: OWNER_PHONE,
-    body: `New request: ${request.name} — ${request.bikeYearMakeModel} (${request.engineType}). Check the dashboard to review.`,
+    body: `New request: ${request.name} — ${request.bikeYearMakeModel}. Check the dashboard to review.`,
   });
 }
 

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ENGINE_TYPES, SERVICE_TYPES } from "@/types/appointment";
+import { SERVICE_TYPES } from "@/types/appointment";
 
 export const appointmentFormSchema = z.object({
   name: z.string().trim().min(2, "Enter your full name."),
@@ -13,9 +13,6 @@ export const appointmentFormSchema = z.object({
     .string()
     .trim()
     .min(3, "Enter the year, make, and model."),
-  engineType: z.enum(ENGINE_TYPES, {
-    message: "Select an engine type.",
-  }),
   serviceTypes: z
     .array(z.enum(SERVICE_TYPES))
     .min(1, "Select at least one service."),
