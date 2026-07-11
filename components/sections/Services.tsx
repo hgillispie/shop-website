@@ -21,6 +21,7 @@ export function Services() {
           ))}
         </div>
       </div>
+      <div><p>bottom text</p><img/></div>
     </section>
   );
 }
