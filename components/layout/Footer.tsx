@@ -15,7 +15,11 @@ export function Footer() {
         </div>
         <div className="text-xs text-muted-dark">
           <p>{siteConfig.phone}</p>
-          <p>{siteConfig.email}</p>
+          <p>
+            <a href={`mailto:${siteConfig.email}`} className="hover:text-foreground-dark hover:underline">
+              email
+            </a>
+          </p>
         </div>
         <div className="flex flex-col items-center gap-2 text-xs text-muted-dark sm:items-end">
           <p>
