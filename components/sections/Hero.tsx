@@ -33,7 +33,7 @@ export function Hero() {
           <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl md:text-6xl">
             Upstate Harley-Davidson specialists
           </h1>
-          <h3 className="mt-5 font-[Arial,sans-serif] font-semibold text-white opacity-100">
+          <h3 className="mt-5 text-base leading-relaxed text-muted-dark">
             From seasonal maintainance to custom builds, no job too big or
             small. Call today (828) 748-7178
           </h3>
