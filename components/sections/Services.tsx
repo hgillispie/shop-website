@@ -21,7 +21,7 @@ export function Services() {
           ))}
         </div>
       </div>
-      <div><p>bottom text</p><img/></div>
+      <div><p>bottom text</p><img><img/></div>
     </section>
   );
 }
