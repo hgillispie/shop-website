@@ -189,7 +189,7 @@ export function IntakeForm() {
 
       <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={isSubmitting}>
         {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-        Submit Appointment Request
+        Send My Details to James
       </Button>
     </form>
   );

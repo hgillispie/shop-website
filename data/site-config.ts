@@ -1,7 +1,7 @@
 export const siteConfig = {
   shopName: "Swafford Speed",
   builderName: "James Gillispie",
-  tagline: "Independent Harley-Davidson mechanics.",
+  tagline: "One mechanic, twenty years, no service adviser in between.",
   phone: "(828) 748-7178",
   email: "huntergillispie1@proton.me",
   city: "Taylors, SC",
@@ -12,6 +12,7 @@ export const siteConfig = {
     { label: "About", href: "#about" },
     { label: "Services", href: "#services" },
     { label: "Projects", href: "#projects" },
+    { label: "FAQ", href: "#faq" },
     { label: "Book", href: "#book" },
   ],
 } as const;

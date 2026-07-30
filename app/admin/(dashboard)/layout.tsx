@@ -11,6 +11,9 @@ const NAV_LINKS = [
   { label: "Requests", href: "/admin/requests" },
   { label: "Calendar", href: "/admin/calendar" },
   { label: "Board", href: "/admin/board" },
+  { label: "Customers", href: "/admin/crm" },
+  { label: "Analytics", href: "/admin/analytics" },
+  { label: "Presentation", href: "/admin/presentation" },
 ];
 
 export default async function AdminDashboardLayout({

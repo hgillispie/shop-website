@@ -7,13 +7,13 @@ export function SuccessState({ onReset }: { onReset: () => void }) {
         <CalendarCheck className="h-6 w-6" aria-hidden="true" />
       </div>
       <h3 className="mt-6 text-2xl font-semibold tracking-tight">
-        Request received.
+        Got it — James will be in touch.
       </h3>
       <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted">
-        This shop is <span className="font-medium text-foreground">appointment only</span>.
-        Your request will be reviewed personally — once your appointment slot
-        is approved, you&apos;ll receive a text confirmation with the shop&apos;s
-        address and drop-off time.
+        James reviews every request personally — this shop is{" "}
+        <span className="font-medium text-foreground">appointment only</span>,
+        so once your slot is approved, you&apos;ll get a text confirmation
+        with the shop&apos;s address and drop-off time.
       </p>
       <p className="mx-auto mt-3 max-w-md text-xs text-muted">
         No appointment is scheduled yet. If anything urgent comes up, keep an

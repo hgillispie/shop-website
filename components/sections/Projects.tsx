@@ -1,11 +1,12 @@
 import { projects } from "@/data/projects";
 import { ProjectCard } from "@/components/projects/ProjectCard";
+import { Reveal } from "@/components/Reveal";
 
 export function Projects() {
   return (
     <section id="projects" className="scroll-mt-16 bg-background py-24">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="max-w-2xl">
+        <Reveal className="max-w-2xl">
           <p className="mb-4 text-xs font-medium uppercase tracking-[0.3em] text-accent">
             Past Work
           </p>
@@ -16,11 +17,7 @@ export function Projects() {
             A sample of custom builds and major repairs. Toggle each project
             to compare before and after.
           </p>
-          <p className="mt-2 text-xs text-muted">
-            Illustrated placeholders shown below — real project photography
-            coming soon.
-          </p>
-        </div>
+        </Reveal>
 
         <div className="mt-8">
           {projects.map((project) => (

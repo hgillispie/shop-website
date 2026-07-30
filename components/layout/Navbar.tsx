@@ -30,7 +30,7 @@ export function Navbar() {
         </ul>
 
         <ButtonLink href="#book" size="sm" className="hidden md:inline-flex">
-          Request an Appointment
+          Talk to James
         </ButtonLink>
 
         <button
@@ -67,7 +67,7 @@ export function Navbar() {
               className="inline-flex h-11 w-full items-center justify-center rounded-full bg-accent text-sm font-medium text-white"
               onClick={() => setOpen(false)}
             >
-              Request an Appointment
+              Talk to James
             </a>
           </li>
         </ul>

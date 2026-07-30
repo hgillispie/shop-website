@@ -4,17 +4,23 @@ import { Hero } from "@/components/sections/Hero";
 import { About } from "@/components/sections/About";
 import { Services } from "@/components/sections/Services";
 import { Projects } from "@/components/sections/Projects";
+import { FAQ } from "@/components/sections/FAQ";
 import { Booking } from "@/components/sections/Booking";
+import { AnalyticsBeacon } from "@/components/AnalyticsBeacon";
+import { StructuredData } from "@/components/StructuredData";
 
 export default function Home() {
   return (
     <>
+      <AnalyticsBeacon />
+      <StructuredData />
       <Navbar />
       <main className="flex-1">
         <Hero />
         <About />
         <Services />
         <Projects />
+        <FAQ />
         <Booking />
       </main>
       <Footer />

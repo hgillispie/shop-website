@@ -12,10 +12,36 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const TITLE = "Harley-Davidson Mechanic in Taylors, SC | Swafford Speed";
+const DESCRIPTION =
+  "Independent Harley-Davidson mechanic in Taylors, SC. Engine rebuilds, EFI tuning, vintage restoration & custom fabrication. One mechanic, 20 years experience. By appointment.";
+
 export const metadata: Metadata = {
-  title: "Swafford Speed | Independent Motorcycle Mechanics",
-  description:
-    "Bumper-to-bumper motorcycle service — vintage to modern, electrical to full fabrication. Appointment-only shop taking new intake requests.",
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  keywords: [
+    "Harley-Davidson mechanic Taylors SC",
+    "independent Harley-Davidson repair Greenville SC",
+    "Harley mechanic Spartanburg SC",
+    "custom Harley fabrication",
+    "vintage Harley restoration",
+    "Milwaukee-Eight engine rebuild",
+  ],
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: "Swafford Speed",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 export default function RootLayout({

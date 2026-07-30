@@ -6,6 +6,8 @@ import { db } from "@/lib/db/client";
 import { appointmentRequests } from "@/lib/db/schema";
 import { sendOwnerNewRequestEmail } from "@/lib/email";
 import { sendOwnerNewRequestSms } from "@/lib/sms";
+import { findOrCreateCustomer, createTicketForRequest } from "@/lib/crm";
+import { checkIpAgainstRules, getClientIp } from "@/lib/ip-rules";
 
 export async function POST(request: Request) {
   let formData: FormData;
@@ -74,16 +76,37 @@ export async function POST(request: Request) {
 
   const { preferredDropoffDate, ...fields } = parsed.data;
 
+  const clientIp = getClientIp(request);
+  const ipCheck = await checkIpAgainstRules(clientIp);
+
   let created;
   try {
+    const customer = await findOrCreateCustomer({
+      name: fields.name,
+      phone: fields.phone,
+      email: fields.email,
+      source: "form",
+    });
+
     [created] = await db
       .insert(appointmentRequests)
       .values({
         ...fields,
+        customerId: customer.id,
         photoUrls,
         preferredDropoffAt: preferredDropoffDate ? new Date(preferredDropoffDate) : null,
+        ipAddress: clientIp,
+        flaggedReason: ipCheck.matched
+          ? `IP matched ${ipCheck.action} rule${ipCheck.note ? `: ${ipCheck.note}` : ""}`
+          : null,
       })
       .returning();
+
+    await createTicketForRequest({
+      customerId: customer.id,
+      subject: `New request — ${fields.bikeYearMakeModel}`,
+      details: fields.details,
+    });
   } catch (error) {
     console.error("[api/appointments] failed to save request:", error);
     return NextResponse.json(
