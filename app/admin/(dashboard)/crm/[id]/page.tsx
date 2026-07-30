@@ -7,10 +7,11 @@ import {
   getTicketsForCustomer,
 } from "@/lib/db/queries";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { DeleteButton } from "@/components/admin/DeleteButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createTicket, updateTicketStatus } from "../actions";
+import { createTicket, deleteCustomer, deleteTicket, updateTicketStatus } from "../actions";
 
 const TICKET_STATUSES = [
   "open",
@@ -48,9 +49,17 @@ export default async function CustomerDetailPage({
             {customer.phone} {customer.email ? `· ${customer.email}` : ""}
           </p>
         </div>
-        <span className="rounded-full bg-surface px-3 py-1 text-xs capitalize text-muted">
-          {customer.source}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="rounded-full bg-surface px-3 py-1 text-xs capitalize text-muted">
+            {customer.source}
+          </span>
+          <form action={deleteCustomer}>
+            <input type="hidden" name="customerId" value={customer.id} />
+            <DeleteButton
+              confirmText={`Delete ${customer.name} and all of their jobs and tickets? This can't be undone.`}
+            />
+          </form>
+        </div>
       </div>
 
       {(customer.address || customer.notes) && (
@@ -82,24 +91,31 @@ export default async function CustomerDetailPage({
                 </div>
                 <StatusBadge status={ticket.status} />
               </div>
-              <form action={updateTicketStatus} className="mt-3 flex items-center gap-2">
-                <input type="hidden" name="ticketId" value={ticket.id} />
-                <input type="hidden" name="customerId" value={customer.id} />
-                <select
-                  name="status"
-                  defaultValue={ticket.status}
-                  className="h-9 rounded-md border border-border bg-background px-2 text-xs"
-                >
-                  {TICKET_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {status.replace(/_/g, " ")}
-                    </option>
-                  ))}
-                </select>
-                <Button type="submit" size="sm" variant="outline">
-                  Update
-                </Button>
-              </form>
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <form action={updateTicketStatus} className="flex items-center gap-2">
+                  <input type="hidden" name="ticketId" value={ticket.id} />
+                  <input type="hidden" name="customerId" value={customer.id} />
+                  <select
+                    name="status"
+                    defaultValue={ticket.status}
+                    className="h-9 rounded-md border border-border bg-background px-2 text-xs"
+                  >
+                    {TICKET_STATUSES.map((status) => (
+                      <option key={status} value={status}>
+                        {status.replace(/_/g, " ")}
+                      </option>
+                    ))}
+                  </select>
+                  <Button type="submit" size="sm" variant="outline">
+                    Update
+                  </Button>
+                </form>
+                <form action={deleteTicket}>
+                  <input type="hidden" name="ticketId" value={ticket.id} />
+                  <input type="hidden" name="customerId" value={customer.id} />
+                  <DeleteButton confirmText={`Delete ticket #${ticket.ticketNumber}?`} />
+                </form>
+              </div>
             </div>
           ))}
           {tickets.length === 0 && <p className="text-sm text-muted">No tickets yet.</p>}

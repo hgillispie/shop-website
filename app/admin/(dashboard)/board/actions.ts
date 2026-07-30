@@ -3,7 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { jobs, jobStatusEnum } from "@/lib/db/schema";
+import { jobs, jobStatusEnum, tickets } from "@/lib/db/schema";
+
+export async function deleteJob(jobId: string) {
+  await db.update(tickets).set({ jobId: null }).where(eq(tickets.jobId, jobId));
+  await db.delete(jobs).where(eq(jobs.id, jobId));
+  revalidatePath("/admin/board");
+  revalidatePath("/admin/calendar");
+  revalidatePath("/admin/crm");
+}
 
 export async function updateJobStatus(
   jobId: string,

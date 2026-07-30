@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { getAllTickets, getCustomers } from "@/lib/db/queries";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { DeleteButton } from "@/components/admin/DeleteButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createCustomer } from "./actions";
+import { createCustomer, deleteCustomer } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -92,6 +93,7 @@ export default async function CrmPage() {
               <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Source</th>
               <th className="px-4 py-3">Added</th>
+              <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -111,11 +113,19 @@ export default async function CrmPage() {
                 <td className="px-4 py-4 text-muted">
                   {customer.createdAt.toLocaleDateString()}
                 </td>
+                <td className="px-4 py-4 text-right">
+                  <form action={deleteCustomer}>
+                    <input type="hidden" name="customerId" value={customer.id} />
+                    <DeleteButton
+                      confirmText={`Delete ${customer.name} and all of their jobs and tickets? This can't be undone.`}
+                    />
+                  </form>
+                </td>
               </tr>
             ))}
             {customers.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-muted">
+                <td colSpan={6} className="px-4 py-10 text-center text-muted">
                   No customers yet.
                 </td>
               </tr>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { X } from "lucide-react";
 import {
   DndContext,
   type DragEndEvent,
@@ -11,7 +12,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { updateJobStatus } from "@/app/admin/(dashboard)/board/actions";
+import { deleteJob, updateJobStatus } from "@/app/admin/(dashboard)/board/actions";
 import type { JobRow } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +26,7 @@ const COLUMNS: { key: JobStatus; label: string }[] = [
   { key: "complete", label: "Complete" },
 ];
 
-function JobCard({ job }: { job: JobWithRequest }) {
+function JobCard({ job, onDelete }: { job: JobWithRequest; onDelete: (id: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: job.id,
   });
@@ -41,11 +42,25 @@ function JobCard({ job }: { job: JobWithRequest }) {
           : undefined
       }
       className={cn(
-        "cursor-grab rounded-md border border-border bg-background p-3 text-sm shadow-sm active:cursor-grabbing",
+        "group relative cursor-grab rounded-md border border-border bg-background p-3 text-sm shadow-sm active:cursor-grabbing",
         isDragging && "z-10 opacity-70",
       )}
     >
-      <p className="font-medium">
+      <button
+        type="button"
+        aria-label="Delete job"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (confirm(`Delete job #${job.jobNumber} (${job.title})?`)) {
+            onDelete(job.id);
+          }
+        }}
+        className="absolute right-2 top-2 text-muted opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100"
+      >
+        <X className="h-3.5 w-3.5" aria-hidden="true" />
+      </button>
+      <p className="pr-4 font-medium">
         #{job.jobNumber} {job.title}
       </p>
       {job.description && (
@@ -67,10 +82,12 @@ function Column({
   status,
   label,
   jobs,
+  onDelete,
 }: {
   status: JobStatus;
   label: string;
   jobs: JobWithRequest[];
+  onDelete: (id: string) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
@@ -87,7 +104,7 @@ function Column({
       </p>
       <div className="flex flex-1 flex-col gap-2">
         {jobs.map((job) => (
-          <JobCard key={job.id} job={job} />
+          <JobCard key={job.id} job={job} onDelete={onDelete} />
         ))}
       </div>
     </div>
@@ -113,6 +130,14 @@ export function KanbanBoard({ jobs: initialJobs }: { jobs: JobWithRequest[] }) {
     });
   }
 
+  function handleDelete(jobId: string) {
+    const removed = jobs.find((j) => j.id === jobId);
+    setJobs((prev) => prev.filter((j) => j.id !== jobId));
+    deleteJob(jobId).catch(() => {
+      if (removed) setJobs((prev) => [...prev, removed]);
+    });
+  }
+
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -122,6 +147,7 @@ export function KanbanBoard({ jobs: initialJobs }: { jobs: JobWithRequest[] }) {
             status={column.key}
             label={column.label}
             jobs={jobs.filter((job) => job.status === column.key)}
+            onDelete={handleDelete}
           />
         ))}
       </div>
