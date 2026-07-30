@@ -16,10 +16,6 @@ export function StructuredData() {
           "Independent Harley-Davidson performance, custom fabrication, and vintage restoration shop serving Taylors, Greenville, and Spartanburg, SC. Appointment only.",
         url: SITE_URL,
         telephone: siteConfig.phone,
-        founder: {
-          "@type": "Person",
-          name: siteConfig.builderName,
-        },
         address: {
           "@type": "PostalAddress",
           addressLocality: "Taylors",
@@ -45,7 +41,7 @@ export function StructuredData() {
             "Friday",
             "Saturday",
           ],
-          description: "By appointment only — no walk-in hours.",
+          description: "By appointment only. No walk-in hours.",
         },
         hasOfferCatalog: {
           "@type": "OfferCatalog",

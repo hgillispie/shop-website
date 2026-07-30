@@ -21,12 +21,10 @@ export function About() {
               Dealership-trained. Independently run.
             </h2>
             <p className="mt-6 text-base leading-relaxed text-white">
-              {siteConfig.builderName} spent twenty years running
-              Harley-Davidson service departments before opening his own bay.
-              At {siteConfig.shopName}, you talk to the person actually
-              turning the wrench — not a service adviser relaying messages.
-              Same dealership-level standard. None of the overhead, none of
-              the layers.
+              20 years of experience working and running Harley-Davidson
+              service departments. At {siteConfig.shopName} you can expect
+              the same standard of work without the overhead of a big-box
+              floor.
             </p>
           </Reveal>
 
@@ -41,10 +39,10 @@ export function About() {
               Quality over quantity
             </h3>
             <p className="mt-6 text-base leading-relaxed text-muted">
-              One bike in the bay at a time, by appointment — because a
-              Harley engine deserves full attention, not a shared lift. The
-              goal isn&apos;t throughput. It&apos;s a bike that starts right,
-              runs right, and still runs right a year from now.
+              This shop takes one bike at a time, by appointment, so every job
+              gets the attention a dealership schedule rarely allows. The goal
+              isn&apos;t throughput — it&apos;s a bike that starts right,
+              runs right, and stays that way.
             </p>
           </Reveal>
         </div>

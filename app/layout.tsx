@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const TITLE = "Harley-Davidson Mechanic in Taylors, SC | Swafford Speed";
 const DESCRIPTION =
-  "Independent Harley-Davidson mechanic in Taylors, SC. Engine rebuilds, EFI tuning, vintage restoration & custom fabrication. One mechanic, 20 years experience. By appointment.";
+  "Independent Harley-Davidson shop in Taylors, SC. Engine rebuilds, EFI tuning, vintage restoration, and custom fabrication from dealership-trained technicians. By appointment only.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

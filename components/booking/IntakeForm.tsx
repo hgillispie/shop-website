@@ -170,7 +170,7 @@ export function IntakeForm() {
         <Label htmlFor="details">The Details</Label>
         <Textarea
           id="details"
-          placeholder="Describe the problem or project goals — the more detail, the better."
+          placeholder="Describe the problem or project goals. The more detail, the better."
           {...register("details")}
         />
         {errors.details && (
@@ -189,7 +189,7 @@ export function IntakeForm() {
 
       <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={isSubmitting}>
         {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-        Send My Details to James
+        Submit Appointment Request
       </Button>
     </form>
   );

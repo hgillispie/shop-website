@@ -75,7 +75,7 @@ export function PhotoUpload({ files, onChange }: PhotoUploadProps) {
           Drop photos here, or tap to upload from your phone
         </p>
         <p className="text-xs text-muted">
-          Bike overview, damage, or wiring — up to {PHOTO_LIMITS.maxFiles} photos, 8MB each
+          Bike overview, damage, or wiring. Up to {PHOTO_LIMITS.maxFiles} photos, 8MB each
         </p>
         <input
           ref={inputRef}

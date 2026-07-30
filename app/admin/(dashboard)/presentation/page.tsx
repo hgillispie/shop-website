@@ -29,7 +29,7 @@ const ONBOARDING_STEPS: FlowStep[] = [
   {
     title: "...or texts the shop directly",
     detail:
-      "No inbound-SMS integration yet — a text today just lands in James's personal messages, not the CRM.",
+      "No inbound-SMS integration yet. A text today just lands in the owner's personal messages, not the CRM.",
     status: "proposed",
     icon: <MessageSquare className={iconClass} />,
   },
@@ -42,7 +42,7 @@ const ONBOARDING_STEPS: FlowStep[] = [
   },
   {
     title: "Owner reviews & approves in the dashboard",
-    detail: "James opens the admin, reviews the request, and sets a drop-off time — this creates the official Job.",
+    detail: "The owner opens the admin, reviews the request, and sets a drop-off time. This creates the official Job.",
     status: "live",
     icon: <CheckCircle className={iconClass} />,
   },
@@ -68,7 +68,7 @@ const ONBOARDING_STEPS: FlowStep[] = [
   },
   {
     title: "...or a ticket is created via Telegram",
-    detail: "Not built — would need a small Telegram bot so James can log a walk-in or phone call by texting a bot.",
+    detail: "Not built yet. Would need a small Telegram bot so the owner can log a walk-in or phone call by texting a bot.",
     status: "proposed",
     icon: <Send className={iconClass} />,
   },
@@ -81,7 +81,7 @@ const ONBOARDING_STEPS: FlowStep[] = [
   },
   {
     title: "Ticket & customer record updated",
-    detail: "Status and history update any time James touches a job — a full record lives in the CRM.",
+    detail: "Status and history update any time the owner touches a job. A full record lives in the CRM.",
     status: "live",
     icon: <Users className={iconClass} />,
   },
@@ -163,7 +163,7 @@ const ARCHITECTURE_ZONES = [
 export default function PresentationPage() {
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Presentation</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Digital Rollout Plan</h1>
       <p className="mt-1 text-sm text-muted">
         Working diagrams for walking the owner through what&apos;s live, what&apos;s built-but-paused, and
         what&apos;s proposed next.

@@ -17,12 +17,12 @@ export const capabilities = [
   {
     title: "Custom Builds & Fabrication",
     description:
-      "Hardtail kit, One-off brackets, exhaust work, and structural modifications, done in-house. Call today for a consultation.",
+      "Hardtail kits, one-off brackets, exhaust work, and structural modifications, done in-house.",
   },
   {
     title: "Vintage Restoration",
     description:
-      "True to form restoration of Knucklehead, Panhead, Shovelhead-era bikes — correct-for-year parts and mechanical recommissioning done to match the bike's history, not erase it.",
+      "True to form restoration of Knucklehead, Panhead, Shovelhead-era bikes, with correct-for-year parts and mechanical recommissioning done to match the bike's history, not erase it.",
   },
   {
     title: "Wreck & Structural Repair",

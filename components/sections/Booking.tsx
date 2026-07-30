@@ -7,14 +7,14 @@ export function Booking() {
       <div className="mx-auto max-w-3xl px-6">
         <Reveal>
           <p className="mb-4 text-xs font-medium uppercase tracking-[0.3em] text-accent">
-            Get Started
+            Contact us
           </p>
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Tell James about your bike.
+            Schedule Appointment
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-dark">
-            Fill this out and James will get back to you personally — usually
-            the same day.
+            This shop works by appointment only. Submit the details below and
+            you&apos;ll hear back ASAP
           </p>
         </Reveal>
 

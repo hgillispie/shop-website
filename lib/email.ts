@@ -81,7 +81,7 @@ export async function sendCustomerApprovalEmail(
       `Drop off at: ${siteConfig.address}`,
       `Questions? Call or text ${siteConfig.phone}.`,
       "",
-      `— ${siteConfig.builderName}`,
+      `— ${siteConfig.shopName}`,
     ].join("\n"),
   });
 }
@@ -97,6 +97,6 @@ export async function sendCustomerResponseEmail(
     from: FROM,
     to: request.email,
     subject: `Re: your appointment request — ${siteConfig.shopName}`,
-    text: [`Hi ${request.name},`, "", message, "", `— ${siteConfig.builderName}`].join("\n"),
+    text: [`Hi ${request.name},`, "", message, "", `— ${siteConfig.shopName}`].join("\n"),
   });
 }

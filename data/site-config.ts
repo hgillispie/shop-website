@@ -1,7 +1,6 @@
 export const siteConfig = {
   shopName: "Swafford Speed",
-  builderName: "James Gillispie",
-  tagline: "One mechanic, twenty years, no service adviser in between.",
+  tagline: "Independent Harley-Davidson mechanics.",
   phone: "(828) 748-7178",
   email: "huntergillispie1@proton.me",
   city: "Taylors, SC",

@@ -10,7 +10,7 @@ export function Footer() {
             {siteConfig.shopName}
           </p>
           <p className="mt-1 text-xs text-muted-dark">
-            Appointment only — {siteConfig.city}
+            Appointment only, {siteConfig.city}
           </p>
         </div>
         <div className="text-xs text-muted-dark">
