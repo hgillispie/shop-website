@@ -8,7 +8,7 @@ export function About() {
       className="scroll-mt-16 bg-background bg-cover bg-center py-24"
       style={{
         backgroundImage:
-          "url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Ff273d1674aaf4bb18b81fc14b6b96324')",
+          "url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F6d9a2d5891244cf292384e4b183aba66')",
       }}
     >
       <div className="mx-auto max-w-6xl px-6">
@@ -39,10 +39,7 @@ export function About() {
               Quality over quantity
             </h3>
             <p className="mt-6 text-base leading-relaxed text-muted">
-              This shop takes one bike at a time, by appointment, so every job
-              gets the attention a dealership schedule rarely allows. The goal
-              isn&apos;t throughput — it&apos;s a bike that starts right,
-              runs right, and stays that way.
+              By appt only
             </p>
           </Reveal>
         </div>
