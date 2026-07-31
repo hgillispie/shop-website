@@ -39,7 +39,7 @@ export default async function AdminRequestsPage() {
                 </td>
                 <td className="px-4 py-4 text-muted">{request.bikeYearMakeModel}</td>
                 <td className="px-4 py-4 text-muted">
-                  {request.serviceTypes.join(", ")}
+                  {request.serviceTypes.length > 0 ? request.serviceTypes.join(", ") : "—"}
                 </td>
                 <td className="px-4 py-4 text-muted">
                   {request.createdAt.toLocaleDateString()}

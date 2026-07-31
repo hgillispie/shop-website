@@ -44,7 +44,9 @@ export default async function RequestDetailPage({
         </div>
         <div>
           <dt className="text-xs uppercase text-muted">Services</dt>
-          <dd className="mt-1">{request.serviceTypes.join(", ")}</dd>
+          <dd className="mt-1">
+            {request.serviceTypes.length > 0 ? request.serviceTypes.join(", ") : "See details"}
+          </dd>
         </div>
         <div>
           <dt className="text-xs uppercase text-muted">Preferred drop-off</dt>

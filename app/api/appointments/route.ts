@@ -17,19 +17,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid form submission." }, { status: 400 });
   }
 
-  let serviceTypes: unknown = [];
-  try {
-    serviceTypes = JSON.parse(String(formData.get("serviceTypes") ?? "[]"));
-  } catch {
-    return NextResponse.json({ error: "Invalid service selection." }, { status: 400 });
-  }
-
   const parsed = appointmentFormSchema.safeParse({
     name: formData.get("name"),
     phone: formData.get("phone"),
     email: formData.get("email"),
     bikeYearMakeModel: formData.get("bikeYearMakeModel"),
-    serviceTypes,
     details: formData.get("details"),
     preferredDropoffDate: formData.get("preferredDropoffDate"),
   });
@@ -92,6 +84,7 @@ export async function POST(request: Request) {
       .insert(appointmentRequests)
       .values({
         ...fields,
+        serviceTypes: [],
         customerId: customer.id,
         photoUrls,
         preferredDropoffAt: preferredDropoffDate ? new Date(preferredDropoffDate) : null,

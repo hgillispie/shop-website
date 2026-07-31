@@ -14,8 +14,6 @@ import {
   appointmentFormSchema,
   type AppointmentFormValues,
 } from "@/lib/validations/appointment";
-import { SERVICE_TYPES } from "@/types/appointment";
-import { cn } from "@/lib/utils";
 
 export function IntakeForm() {
   const [photos, setPhotos] = useState<File[]>([]);
@@ -25,9 +23,6 @@ export function IntakeForm() {
   const {
     register,
     handleSubmit,
-    watch,
-    getValues,
-    setValue,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<AppointmentFormValues>({
@@ -37,21 +32,10 @@ export function IntakeForm() {
       phone: "",
       email: "",
       bikeYearMakeModel: "",
-      serviceTypes: [],
       details: "",
       preferredDropoffDate: "",
     },
   });
-
-  const selectedServices = watch("serviceTypes") ?? [];
-
-  function toggleService(service: (typeof SERVICE_TYPES)[number]) {
-    const current = getValues("serviceTypes") ?? [];
-    const next = current.includes(service)
-      ? current.filter((s) => s !== service)
-      : [...current, service];
-    setValue("serviceTypes", next, { shouldValidate: true });
-  }
 
   async function onSubmit(values: AppointmentFormValues) {
     setSubmitError(null);
@@ -61,7 +45,6 @@ export function IntakeForm() {
       formData.append("phone", values.phone);
       formData.append("email", values.email);
       formData.append("bikeYearMakeModel", values.bikeYearMakeModel);
-      formData.append("serviceTypes", JSON.stringify(values.serviceTypes));
       formData.append("details", values.details);
       formData.append("preferredDropoffDate", values.preferredDropoffDate ?? "");
       photos.forEach((photo) => formData.append("photos", photo));
@@ -126,34 +109,6 @@ export function IntakeForm() {
         />
         {errors.bikeYearMakeModel && (
           <p className="mt-1 text-xs text-red-600">{errors.bikeYearMakeModel.message}</p>
-        )}
-      </div>
-
-      <div>
-        <Label>Service Type</Label>
-        <div className="flex flex-wrap gap-2">
-          {SERVICE_TYPES.map((service) => {
-            const active = selectedServices.includes(service);
-            return (
-              <button
-                key={service}
-                type="button"
-                aria-pressed={active}
-                onClick={() => toggleService(service)}
-                className={cn(
-                  "rounded-full border px-4 py-2 text-xs font-medium transition-colors",
-                  active
-                    ? "border-accent bg-accent text-white"
-                    : "border-border text-foreground hover:border-accent hover:text-accent",
-                )}
-              >
-                {service}
-              </button>
-            );
-          })}
-        </div>
-        {errors.serviceTypes && (
-          <p className="mt-1 text-xs text-red-600">{errors.serviceTypes.message}</p>
         )}
       </div>
 
