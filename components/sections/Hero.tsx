@@ -35,7 +35,7 @@ export function Hero() {
           </h1>
           <h3 className="mt-5 text-base leading-relaxed text-muted-dark">
             From seasonal maintainance to custom builds, no job too big or
-            small. Call today (828) 748-7178
+            small. Call today (843)-666-9451
           </h3>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <ButtonLink href="#book" size="lg">
