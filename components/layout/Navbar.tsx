@@ -11,7 +11,7 @@ export function Navbar() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-md">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between border px-6 [border-style:groove]">
         <a
           href="#top"
           className="text-left text-sm font-black italic tracking-widest uppercase"
