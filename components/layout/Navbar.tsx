@@ -15,7 +15,7 @@ export function Navbar() {
         <a
           href="#top"
           className="text-sm font-semibold tracking-widest uppercase"
-          style={{ fontFamily: "var(--font-aboreto), display" }}
+          style={{ fontFamily: "var(--font-bilbo-swash-caps), sans-serif" }}
         >
           {siteConfig.shopName}
         </a>

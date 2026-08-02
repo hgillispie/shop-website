@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Aboreto } from "next/font/google";
+import { Geist, Geist_Mono, Bilbo_Swash_Caps } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const aboreto = Aboreto({
-  variable: "--font-aboreto",
+const bilboSwashCaps = Bilbo_Swash_Caps({
+  variable: "--font-bilbo-swash-caps",
   subsets: ["latin"],
   weight: "400",
 });
@@ -58,7 +58,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${aboreto.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${bilboSwashCaps.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
