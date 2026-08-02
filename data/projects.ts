@@ -38,6 +38,7 @@ export const projects: Project[] = [
       "Serviced clutch and primary drive to handle the added torque cleanly.",
     ],
     imageVariant: "touring",
+    beforeImage: "https://placehold.co/800x600/1a1a1a/999999?text=Before+Photo",
   },
   {
     slug: "big-twin-custom-bobber",
