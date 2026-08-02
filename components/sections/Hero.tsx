@@ -4,7 +4,11 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative overflow-hidden bg-surface-dark pt-16 text-foreground-dark"
+      className="relative overflow-hidden bg-surface-dark bg-cover bg-center pt-16 text-foreground-dark"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Fcee12a5000a24d0292047a9e0e8181c1')",
+      }}
     >
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06]"
