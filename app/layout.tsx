@@ -4,7 +4,7 @@ import {
   Geist_Mono,
   Bilbo_Swash_Caps,
   Style_Script,
-  Babylonica,
+  Bagel_Fat_One,
   Architects_Daughter,
 } from "next/font/google";
 import "./globals.css";
@@ -31,8 +31,8 @@ const styleScript = Style_Script({
   weight: "400",
 });
 
-const babylonica = Babylonica({
-  variable: "--font-babylonica",
+const bagelFatOne = Bagel_Fat_One({
+  variable: "--font-bagel-fat-one",
   subsets: ["latin"],
   weight: "400",
 });
@@ -83,7 +83,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${bilboSwashCaps.variable} ${styleScript.variable} ${babylonica.variable} ${architectsDaughter.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${bilboSwashCaps.variable} ${styleScript.variable} ${bagelFatOne.variable} ${architectsDaughter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

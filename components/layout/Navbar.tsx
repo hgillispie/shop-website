@@ -19,7 +19,7 @@ export function Navbar() {
           href="#top"
           className="text-left text-xl font-black italic tracking-widest uppercase"
           style={{
-            fontFamily: "var(--font-babylonica), sans-serif",
+            fontFamily: "var(--font-bagel-fat-one), display",
             WebkitTextStroke: "0.5px currentColor",
             color: "#b3812f",
           }}
