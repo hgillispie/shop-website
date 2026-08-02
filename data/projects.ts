@@ -57,6 +57,7 @@ export const projects: Project[] = [
     imageVariant: "bobber",
     beforeImage:
       "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Fa5c51da12a4049489fb0f1740e5f1784",
-    afterImage: "https://placehold.co/800x600/1a1a1a/999999?text=After+Photo",
+    afterImage:
+      "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Fa5c51da12a4049489fb0f1740e5f1784",
   },
 ];
