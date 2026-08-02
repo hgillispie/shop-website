@@ -7,14 +7,15 @@ import type { Project } from "@/data/projects";
 
 export function BeforeAfterToggle({ project }: { project: Project }) {
   const [tone, setTone] = useState<"before" | "after">("before");
+  const image = tone === "before" ? project.beforeImage : project.afterImage;
 
   return (
     <div>
       <div className="overflow-hidden rounded-lg border border-border">
-        {tone === "before" && project.beforeImage ? (
+        {image ? (
           <img
-            src={project.beforeImage}
-            alt={`${project.title} — before`}
+            src={image}
+            alt={`${project.title} — ${tone}`}
             className="h-56 w-full object-cover sm:h-64"
           />
         ) : (
