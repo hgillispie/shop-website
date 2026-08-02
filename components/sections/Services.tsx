@@ -3,7 +3,14 @@ import { Reveal } from "@/components/Reveal";
 
 export function Services() {
   return (
-    <section id="services" className="scroll-mt-16 bg-surface py-24">
+    <section
+      id="services"
+      className="scroll-mt-16 bg-surface bg-cover bg-center py-24"
+      style={{
+        backgroundImage:
+          "url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Fcee12a5000a24d0292047a9e0e8181c1')",
+      }}
+    >
       <div className="mx-auto max-w-6xl px-6">
         <Reveal className="max-w-2xl">
           <p className="mb-4 text-base font-medium uppercase tracking-[0.3em] text-accent">
