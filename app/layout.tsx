@@ -4,7 +4,7 @@ import {
   Geist_Mono,
   Bilbo_Swash_Caps,
   Style_Script,
-  Big_Shoulders_Stencil_Text,
+  Big_Shoulders_Stencil,
   Architects_Daughter,
 } from "next/font/google";
 import "./globals.css";
@@ -31,7 +31,7 @@ const styleScript = Style_Script({
   weight: "400",
 });
 
-const bigShouldersStencilText = Big_Shoulders_Stencil_Text({
+const bigShouldersStencilText = Big_Shoulders_Stencil({
   variable: "--font-big-shoulders-stencil-text",
   subsets: ["latin"],
   weight: "400",
