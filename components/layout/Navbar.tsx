@@ -17,7 +17,7 @@ export function Navbar() {
       >
         <a
           href="#top"
-          className="text-left text-xl italic tracking-widest uppercase"
+          className="text-left text-xl font-semibold italic tracking-widest uppercase"
           style={{
             fontFamily: "var(--font-big-shoulders-stencil-text), display",
             WebkitTextStroke: "0.5px currentColor",
