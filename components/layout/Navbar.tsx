@@ -10,7 +10,10 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-md">
+    <header
+      className="fixed inset-x-0 top-0 z-50 border-b border-border/60 backdrop-blur-md"
+      style={{ backgroundColor: "#b3812f" }}
+    >
       <nav
         className="mx-auto flex h-16 max-w-6xl items-center justify-between border px-6 [border-style:groove]"
         style={{ color: "#232e37", backgroundColor: "rgba(0, 0, 0, 1)" }}
