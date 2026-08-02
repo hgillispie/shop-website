@@ -67,6 +67,7 @@ export function Navbar() {
               <a
                 href={link.href}
                 className="text-sm text-foreground/80"
+                style={{ color: "#b3812f" }}
                 onClick={() => setOpen(false)}
               >
                 {link.label}
