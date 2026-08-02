@@ -3,16 +3,30 @@ import { Reveal } from "@/components/Reveal";
 
 export function Services() {
   return (
-    <section id="services" className="scroll-mt-16 bg-surface py-24">
+    <section
+      id="services"
+      className="scroll-mt-16 bg-[#b3812f] py-24"
+      style={{ marginTop: "-2px" }}
+    >
       <div
         className="mx-auto max-w-6xl bg-cover bg-center bg-no-repeat px-6"
         style={{
           backgroundImage:
             "url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F6d9a2d5891244cf292384e4b183aba66')",
+          backgroundColor: "#b3812f",
         }}
       >
         <Reveal className="max-w-2xl">
-          <p className="mb-4 overflow-hidden rounded-lg bg-white text-base font-medium uppercase tracking-[0.3em] text-accent">
+          <p
+            className="mb-4 overflow-hidden rounded text-center text-base font-medium uppercase tracking-[0.3em]"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 1)",
+              borderWidth: "1px",
+              borderColor: "rgba(110, 110, 31, 1)",
+              borderStyle: "inset",
+              color: "#b3812f",
+            }}
+          >
             Services offered
           </p>
         </Reveal>

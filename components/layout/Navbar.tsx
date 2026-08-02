@@ -19,9 +19,9 @@ export function Navbar() {
           href="#top"
           className="text-left text-xl font-black italic tracking-widest uppercase"
           style={{
-            fontFamily: "var(--font-bilbo-swash-caps), sans-serif",
+            fontFamily: "var(--font-style-script), sans-serif",
             WebkitTextStroke: "0.5px currentColor",
-            color: "#b3812f",
+            color: "rgba(0, 0, 0, 1)",
           }}
         >
           {siteConfig.shopName}
