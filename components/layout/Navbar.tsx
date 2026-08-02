@@ -14,7 +14,7 @@ export function Navbar() {
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <a
           href="#top"
-          className="text-sm font-semibold tracking-widest uppercase"
+          className="text-left text-sm font-black italic tracking-widest uppercase"
           style={{ fontFamily: "var(--font-bilbo-swash-caps), sans-serif" }}
         >
           {siteConfig.shopName}
