@@ -33,22 +33,7 @@ export function Navbar() {
               <a
                 href={link.href}
                 className="text-sm text-foreground/80 transition-colors hover:text-accent"
-                style={
-                  link.href === "#about"
-                    ? {
-                        color: "#b3812f",
-                        boxShadow: "1px 1px 3px 0px rgba(0, 0, 0, 1)",
-                      }
-                    : link.href === "#book"
-                      ? {
-                          color: "#b3812f",
-                          borderWidth: "1px",
-                          borderColor: "#b3812f",
-                        }
-                      : link.href === "#services" || link.href === "#faq"
-                        ? { color: "#b3812f" }
-                        : undefined
-                }
+                style={{ color: "#b3812f" }}
               >
                 {link.label}
               </a>
