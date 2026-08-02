@@ -11,13 +11,17 @@ export function Navbar() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-md">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between border px-6 [border-style:groove]">
+      <nav
+        className="mx-auto flex h-16 max-w-6xl items-center justify-between border px-6 [border-style:groove]"
+        style={{ color: "#232e37" }}
+      >
         <a
           href="#top"
           className="text-left text-xl font-black italic tracking-widest uppercase"
           style={{
             fontFamily: "var(--font-bilbo-swash-caps), sans-serif",
             WebkitTextStroke: "0.5px currentColor",
+            color: "#b3812f",
           }}
         >
           {siteConfig.shopName}
