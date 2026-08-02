@@ -8,11 +8,11 @@ export function Services() {
         className="mx-auto max-w-6xl bg-cover bg-center bg-no-repeat px-6"
         style={{
           backgroundImage:
-            "url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F1c2c5e976ad449c68794a82ebc46acd1')",
+            "url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F6d9a2d5891244cf292384e4b183aba66')",
         }}
       >
         <Reveal className="max-w-2xl">
-          <p className="mb-4 text-base font-medium uppercase tracking-[0.3em] text-accent">
+          <p className="mb-4 overflow-hidden rounded-lg bg-white text-base font-medium uppercase tracking-[0.3em] text-accent">
             Services offered
           </p>
         </Reveal>
