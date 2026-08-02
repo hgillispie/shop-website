@@ -13,7 +13,7 @@ export function Navbar() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-md">
       <nav
         className="mx-auto flex h-16 max-w-6xl items-center justify-between border px-6 [border-style:groove]"
-        style={{ color: "#232e37" }}
+        style={{ color: "#232e37", backgroundColor: "rgba(0, 0, 0, 1)" }}
       >
         <a
           href="#top"
@@ -21,7 +21,7 @@ export function Navbar() {
           style={{
             fontFamily: "var(--font-style-script), sans-serif",
             WebkitTextStroke: "0.5px currentColor",
-            color: "rgba(0, 0, 0, 1)",
+            color: "#b3812f",
           }}
         >
           {siteConfig.shopName}
@@ -33,6 +33,16 @@ export function Navbar() {
               <a
                 href={link.href}
                 className="text-sm text-foreground/80 transition-colors hover:text-accent"
+                style={
+                  link.href === "#services"
+                    ? {
+                        color: "#b3812f",
+                        boxShadow: "1px 1px 3px 0px rgba(0, 0, 0, 1)",
+                      }
+                    : link.href === "#about" || link.href === "#faq"
+                      ? { color: "#b3812f" }
+                      : undefined
+                }
               >
                 {link.label}
               </a>
