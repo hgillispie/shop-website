@@ -36,7 +36,7 @@ export function Services() {
 
         <div className="mt-10 overflow-hidden rounded-lg border border-border bg-[#c41d1d] bg-[url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Ff3d655989a5749679be1ebbef870d703')] bg-cover bg-center bg-no-repeat">
           <img
-            src="https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F9b40fe6b114a414b84925ca6d38bb07f"
+            src="https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Ff3d655989a5749679be1ebbef870d703"
             alt="Harley-Davidson restoration work area"
             className="h-[320px] w-full object-cover sm:h-[420px]"
           />
