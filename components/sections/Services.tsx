@@ -5,7 +5,7 @@ export function Services() {
   return (
     <section
       id="services"
-      className="-mt-[2px] scroll-mt-16 bg-[#b3812f] bg-[url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F6d9a2d5891244cf292384e4b183aba66')] bg-cover bg-center bg-no-repeat py-24"
+      className="-mt-[2px] scroll-mt-16 bg-[#b3812f] bg-[url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F27b53bb4ca6041edac41a10af27fc3f7')] bg-cover bg-center bg-no-repeat py-24"
     >
       <div className="mx-auto max-w-6xl px-6">
         <Reveal className="max-w-2xl">
