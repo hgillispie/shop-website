@@ -4,7 +4,13 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative overflow-hidden bg-surface-dark pt-16 text-foreground-dark"
+      className="relative flex min-h-screen items-center overflow-hidden bg-surface-dark bg-cover bg-center pt-16 text-foreground-dark"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Ff34d3293ef974da897f5007b910db556')",
+        backgroundColor: "rgba(0, 0, 0, 1)",
+        fontFamily: "var(--font-architects-daughter), sans-serif",
+      }}
     >
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06]"
@@ -35,7 +41,7 @@ export function Hero() {
           </h1>
           <h3 className="mt-5 text-base leading-relaxed text-muted-dark">
             From seasonal maintainance to custom builds, no job too big or
-            small. Call today (828) 748-7178
+            small. Call today (843)-666-9451
           </h3>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <ButtonLink href="#book" size="lg">

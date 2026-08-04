@@ -8,19 +8,25 @@ export function About() {
       className="scroll-mt-16 bg-background bg-cover bg-center py-24"
       style={{
         backgroundImage:
-          "url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Ff273d1674aaf4bb18b81fc14b6b96324')",
+          "url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Fcee12a5000a24d0292047a9e0e8181c1')",
       }}
     >
       <div className="mx-auto max-w-6xl px-6">
         <div className="grid gap-16 md:grid-cols-2">
-          <Reveal>
+          <Reveal className="overflow-hidden rounded-lg border bg-white p-8 [border-style:groove]">
             <p className="mb-4 text-base font-medium uppercase tracking-[0.3em] text-accent">
               About
             </p>
-            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            <h2
+              className="text-3xl font-semibold tracking-tight sm:text-4xl"
+              style={{ color: "rgb(0, 0, 0)" }}
+            >
               Dealership-trained. Independently run.
             </h2>
-            <p className="mt-6 text-base leading-relaxed text-white">
+            <p
+              className="mt-6 text-base leading-relaxed"
+              style={{ color: "rgb(0, 0, 0)" }}
+            >
               20 years of experience working and running Harley-Davidson
               service departments. At {siteConfig.shopName} you can expect
               the same standard of work without the overhead of a big-box

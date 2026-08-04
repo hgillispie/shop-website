@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Bilbo_Swash_Caps,
+  Style_Script,
+  Big_Shoulders_Stencil,
+  Architects_Daughter,
+} from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,6 +17,30 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const bilboSwashCaps = Bilbo_Swash_Caps({
+  variable: "--font-bilbo-swash-caps",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const styleScript = Style_Script({
+  variable: "--font-style-script",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const bigShouldersStencilText = Big_Shoulders_Stencil({
+  variable: "--font-big-shoulders-stencil-text",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const architectsDaughter = Architects_Daughter({
+  variable: "--font-architects-daughter",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -52,7 +83,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${bilboSwashCaps.variable} ${styleScript.variable} ${bigShouldersStencilText.variable} ${architectsDaughter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

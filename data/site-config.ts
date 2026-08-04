@@ -1,7 +1,7 @@
 export const siteConfig = {
   shopName: "Swafford Speed",
   tagline: "Independent Harley-Davidson mechanics.",
-  phone: "(828) 748-7178",
+  phone: "(843)-666-9451",
   email: "huntergillispie1@proton.me",
   city: "Taylors, SC",
   // Real drop-off address — sent only in the private approval email/SMS,
@@ -10,7 +10,6 @@ export const siteConfig = {
   navLinks: [
     { label: "About", href: "#about" },
     { label: "Services", href: "#services" },
-    { label: "Projects", href: "#projects" },
     { label: "FAQ", href: "#faq" },
     { label: "Book", href: "#book" },
   ],
