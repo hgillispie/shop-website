@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { siteConfig } from "@/data/site-config";
 import { ButtonLink } from "@/components/ui/button";
@@ -18,8 +19,8 @@ export function Navbar() {
         className="mx-auto flex h-16 max-w-6xl items-center justify-between border px-6 [border-style:groove]"
         style={{ color: "#232e37", backgroundColor: "rgba(0, 0, 0, 1)" }}
       >
-        <a
-          href="#top"
+        <Link
+          href="/#top"
           className="text-left text-xl font-semibold italic tracking-widest uppercase"
           style={{
             fontFamily: "var(--font-big-shoulders-stencil-text), display",
@@ -28,7 +29,7 @@ export function Navbar() {
           }}
         >
           {siteConfig.shopName}
-        </a>
+        </Link>
 
         <ul className="hidden items-center gap-8 md:flex">
           {siteConfig.navLinks.map((link) => (
@@ -44,7 +45,7 @@ export function Navbar() {
           ))}
         </ul>
 
-        <ButtonLink href="#book" size="sm" className="hidden md:inline-flex">
+        <ButtonLink href="/#book" size="sm" className="hidden md:inline-flex">
           Request an Appointment
         </ButtonLink>
 
@@ -78,13 +79,13 @@ export function Navbar() {
             </li>
           ))}
           <li className="py-4">
-            <a
-              href="#book"
+            <Link
+              href="/#book"
               className="inline-flex h-11 w-full items-center justify-center rounded-full bg-accent text-sm font-medium text-white"
               onClick={() => setOpen(false)}
             >
               Request an Appointment
-            </a>
+            </Link>
           </li>
         </ul>
       </div>

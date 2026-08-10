@@ -12,6 +12,8 @@ const NAV_LINKS = [
   { label: "Calendar", href: "/admin/calendar" },
   { label: "Board", href: "/admin/board" },
   { label: "Customers", href: "/admin/crm" },
+  { label: "Orders", href: "/admin/orders" },
+  { label: "Terminal", href: "/admin/terminal" },
   { label: "Analytics", href: "/admin/analytics" },
   { label: "Digital Rollout Plan", href: "/admin/presentation" },
 ];

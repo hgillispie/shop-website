@@ -1,7 +1,15 @@
 import "server-only";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { appointmentRequests, customers, ipRules, jobs, pageViews, tickets } from "@/lib/db/schema";
+import {
+  appointmentRequests,
+  customers,
+  ipRules,
+  jobs,
+  pageViews,
+  storeOrders,
+  tickets,
+} from "@/lib/db/schema";
 
 export function getRequests() {
   return db.query.appointmentRequests.findMany({
@@ -78,5 +86,38 @@ export function getRecentPageViews(limit = 500) {
 export function getIpRules() {
   return db.query.ipRules.findMany({
     orderBy: [desc(ipRules.createdAt)],
+  });
+}
+
+export function getStoreOrders() {
+  return db.query.storeOrders.findMany({
+    orderBy: [desc(storeOrders.createdAt)],
+    with: { items: true },
+  });
+}
+
+// This is the real `getOrderByRef` the Stripe scaffold left stubbed out —
+// always look up by `id` (a UUID), never `orderNumber`. The order-
+// confirmation page is unauthenticated by design (guest checkout), so
+// whatever key looks up an order there is effectively a bearer token for
+// its name/address/items — a sequential integer would be trivially guessable.
+export function getStoreOrderById(id: string) {
+  return db.query.storeOrders.findFirst({
+    where: eq(storeOrders.id, id),
+    with: { items: true },
+  });
+}
+
+export function getStoreOrderByStripePaymentIntentId(paymentIntentId: string) {
+  return db.query.storeOrders.findFirst({
+    where: eq(storeOrders.stripePaymentIntentId, paymentIntentId),
+    with: { items: true },
+  });
+}
+
+export function getStoreOrderByPrintifyOrderId(printifyOrderId: string) {
+  return db.query.storeOrders.findFirst({
+    where: eq(storeOrders.printifyOrderId, printifyOrderId),
+    with: { items: true },
   });
 }

@@ -7,10 +7,13 @@ export const siteConfig = {
   // Real drop-off address — sent only in the private approval email/SMS,
   // never rendered on a public page (owner doesn't want walk-ins).
   address: "529 E Darby Road, Taylors, SC 29687",
+  // Root-relative so these work correctly from any route, not just "/" —
+  // a bare "#about" only scrolls when already on the homepage.
   navLinks: [
-    { label: "About", href: "#about" },
-    { label: "Services", href: "#services" },
-    { label: "FAQ", href: "#faq" },
-    { label: "Book", href: "#book" },
+    { label: "About", href: "/#about" },
+    { label: "Services", href: "/#services" },
+    { label: "FAQ", href: "/#faq" },
+    { label: "Store", href: "/store" },
+    { label: "Book", href: "/#book" },
   ],
 } as const;
