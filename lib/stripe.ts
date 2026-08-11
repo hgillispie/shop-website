@@ -55,3 +55,23 @@ export async function createPaymentIntentForOrder(
         }),
   });
 }
+
+/**
+ * Online checkout creates its PaymentIntent before the shipping address is
+ * known (see lib/validations/store.ts's startCheckoutSchema for why —
+ * mounting Elements that early is what lets Link autofill kick in), so the
+ * amount set at creation is provisional. Once shipping is priced, this
+ * updates the same PaymentIntent in place rather than creating a second
+ * one — one clientSecret, one Elements mount, for the whole checkout.
+ * Only valid while the intent hasn't been confirmed yet.
+ */
+export async function updatePaymentIntentAmountForOrder(order: StoreOrderRow) {
+  const stripe = getStripe();
+  if (!order.stripePaymentIntentId) {
+    throw new Error("Order has no PaymentIntent to update.");
+  }
+  return stripe.paymentIntents.update(order.stripePaymentIntentId, {
+    amount: order.totalCents,
+    receipt_email: order.email ?? undefined,
+  });
+}

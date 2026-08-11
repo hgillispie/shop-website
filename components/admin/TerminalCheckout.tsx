@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { loadStripeTerminal, type Terminal } from "@stripe/terminal-js";
 import type { PrintifyProduct } from "@/lib/printify";
+import type { InPersonLineItem } from "@/lib/validations/store";
 import { formatCents } from "@/lib/store/money";
 import {
   createConnectionToken,
@@ -12,15 +13,27 @@ import {
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-type CartLine = {
-  printifyProductId: string;
-  printifyVariantId: number;
-  title: string;
-  variantLabel: string | null;
-  unitPriceCents: number;
-  quantity: number;
-};
+type CartLine =
+  | {
+      kind: "merch";
+      printifyProductId: string;
+      printifyVariantId: number;
+      title: string;
+      variantLabel: string | null;
+      unitPriceCents: number;
+      quantity: number;
+    }
+  | {
+      kind: "manual";
+      memo: string;
+      priceCents: number;
+    };
+
+function lineTotalCents(line: CartLine) {
+  return line.kind === "merch" ? line.unitPriceCents * line.quantity : line.priceCents;
+}
 
 // Leave `simulated` true — Stripe's simulated reader fakes the entire
 // discover/connect/collect flow, so the whole in-person flow can be built
@@ -36,6 +49,15 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
   const [readerError, setReaderError] = useState<string | null>(null);
 
   const [cart, setCart] = useState<CartLine[]>([]);
+
+  // Service charge — the primary use of this page day to day (engine work,
+  // etc.), entered by hand rather than picked from the Printify catalog.
+  const [manualPrice, setManualPrice] = useState("");
+  const [manualMemo, setManualMemo] = useState("");
+  const [manualError, setManualError] = useState<string | null>(null);
+
+  // Merch — still available for the occasional shirt/hoodie sale at the
+  // counter, secondary to the service-charge flow above.
   const [selectedProductId, setSelectedProductId] = useState(products[0]?.id ?? "");
   const [selectedVariantId, setSelectedVariantId] = useState<number | undefined>(
     products[0]?.variants.find((v) => v.is_enabled)?.id,
@@ -100,18 +122,37 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
 
   const selectedProduct = products.find((p) => p.id === selectedProductId);
   const enabledVariants = selectedProduct?.variants.filter((v) => v.is_enabled) ?? [];
-  const totalCents = cart.reduce((sum, line) => sum + line.unitPriceCents * line.quantity, 0);
+  const totalCents = cart.reduce((sum, line) => sum + lineTotalCents(line), 0);
 
-  function addToCart() {
+  function addManualLine() {
+    setManualError(null);
+    const cents = Math.round(parseFloat(manualPrice) * 100);
+    if (!Number.isFinite(cents) || cents < 50) {
+      setManualError("Enter a price of at least $0.50.");
+      return;
+    }
+    if (!manualMemo.trim()) {
+      setManualError("Enter a description.");
+      return;
+    }
+
+    setCart((prev) => [...prev, { kind: "manual", priceCents: cents, memo: manualMemo.trim() }]);
+    setManualPrice("");
+    setManualMemo("");
+  }
+
+  function addMerchLine() {
     const variant = enabledVariants.find((v) => v.id === selectedVariantId);
     if (!selectedProduct || !variant) return;
 
     setCart((prev) => {
       const existing = prev.find(
         (line) =>
-          line.printifyProductId === selectedProduct.id && line.printifyVariantId === variant.id,
+          line.kind === "merch" &&
+          line.printifyProductId === selectedProduct.id &&
+          line.printifyVariantId === variant.id,
       );
-      if (existing) {
+      if (existing && existing.kind === "merch") {
         return prev.map((line) =>
           line === existing ? { ...line, quantity: line.quantity + quantity } : line,
         );
@@ -119,6 +160,7 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
       return [
         ...prev,
         {
+          kind: "merch",
           printifyProductId: selectedProduct.id,
           printifyVariantId: variant.id,
           title: selectedProduct.title,
@@ -141,13 +183,17 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
 
     try {
       setChargeStatus("creating-order");
-      const { orderRef } = await createInPersonOrder(
-        cart.map((line) => ({
-          printifyProductId: line.printifyProductId,
-          printifyVariantId: line.printifyVariantId,
-          quantity: line.quantity,
-        })),
+      const lineItems: InPersonLineItem[] = cart.map((line) =>
+        line.kind === "merch"
+          ? {
+              kind: "merch",
+              printifyProductId: line.printifyProductId,
+              printifyVariantId: line.printifyVariantId,
+              quantity: line.quantity,
+            }
+          : { kind: "manual", priceCents: line.priceCents, memo: line.memo },
       );
+      const { orderRef } = await createInPersonOrder(lineItems);
 
       setChargeStatus("creating-payment");
       const { clientSecret } = await createTerminalPaymentIntent(orderRef);
@@ -172,10 +218,6 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
     }
   }
 
-  if (products.length === 0) {
-    return <p className="text-sm text-muted">No products in the catalog yet.</p>;
-  }
-
   return (
     <div className="grid gap-8 lg:grid-cols-2">
       <div>
@@ -186,46 +228,89 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
         {readerError && <p className="mt-1 text-xs text-red-600">{readerError}</p>}
 
         <div className="mt-6 space-y-3 rounded-lg border border-border bg-surface p-4">
-          <Select
-            value={selectedProductId}
-            onChange={(e) => {
-              setSelectedProductId(e.target.value);
-              const product = products.find((p) => p.id === e.target.value);
-              setSelectedVariantId(product?.variants.find((v) => v.is_enabled)?.id);
-            }}
-          >
-            {products.map((product) => (
-              <option key={product.id} value={product.id}>
-                {product.title}
-              </option>
-            ))}
-          </Select>
-
-          <Select
-            value={selectedVariantId}
-            onChange={(e) => setSelectedVariantId(Number(e.target.value))}
-          >
-            {enabledVariants.map((variant) => (
-              <option key={variant.id} value={variant.id}>
-                {variant.title} — {formatCents(variant.price)}
-              </option>
-            ))}
-          </Select>
-
-          <div className="flex items-center gap-3">
-            <Input
-              type="number"
-              min={1}
-              max={20}
-              value={quantity}
-              onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
-              className="h-10 w-20"
-            />
-            <Button type="button" variant="outline" size="sm" onClick={addToCart}>
-              Add item
-            </Button>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
+            Service charge
+          </p>
+          <div className="grid gap-3 sm:grid-cols-[7rem_1fr]">
+            <div>
+              <Label htmlFor="manual-price">Price</Label>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-muted">
+                  $
+                </span>
+                <Input
+                  id="manual-price"
+                  type="number"
+                  inputMode="decimal"
+                  step="0.01"
+                  min="0.50"
+                  placeholder="0.00"
+                  value={manualPrice}
+                  onChange={(e) => setManualPrice(e.target.value)}
+                  className="pl-7"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="manual-memo">Memo</Label>
+              <Input
+                id="manual-memo"
+                placeholder="e.g. Engine rebuild — Sarah's Shovelhead"
+                value={manualMemo}
+                onChange={(e) => setManualMemo(e.target.value)}
+              />
+            </div>
           </div>
+          {manualError && <p className="text-xs text-red-600">{manualError}</p>}
+          <Button type="button" variant="outline" size="sm" onClick={addManualLine}>
+            Add to sale
+          </Button>
         </div>
+
+        {products.length > 0 && (
+          <div className="mt-6 space-y-3 rounded-lg border border-border p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted">Merch item</p>
+            <Select
+              value={selectedProductId}
+              onChange={(e) => {
+                setSelectedProductId(e.target.value);
+                const product = products.find((p) => p.id === e.target.value);
+                setSelectedVariantId(product?.variants.find((v) => v.is_enabled)?.id);
+              }}
+            >
+              {products.map((product) => (
+                <option key={product.id} value={product.id}>
+                  {product.title}
+                </option>
+              ))}
+            </Select>
+
+            <Select
+              value={selectedVariantId}
+              onChange={(e) => setSelectedVariantId(Number(e.target.value))}
+            >
+              {enabledVariants.map((variant) => (
+                <option key={variant.id} value={variant.id}>
+                  {variant.title} — {formatCents(variant.price)}
+                </option>
+              ))}
+            </Select>
+
+            <div className="flex items-center gap-3">
+              <Input
+                type="number"
+                min={1}
+                max={20}
+                value={quantity}
+                onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
+                className="h-10 w-20"
+              />
+              <Button type="button" variant="outline" size="sm" onClick={addMerchLine}>
+                Add item
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div>
@@ -235,11 +320,12 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
           {cart.map((line, i) => (
             <div key={i} className="flex items-center justify-between text-sm">
               <span>
-                {line.quantity}× {line.title}
-                {line.variantLabel ? ` — ${line.variantLabel}` : ""}
+                {line.kind === "merch"
+                  ? `${line.quantity}× ${line.title}${line.variantLabel ? ` — ${line.variantLabel}` : ""}`
+                  : line.memo}
               </span>
               <div className="flex items-center gap-2">
-                <span>{formatCents(line.unitPriceCents * line.quantity)}</span>
+                <span>{formatCents(lineTotalCents(line))}</span>
                 <button
                   type="button"
                   onClick={() => removeLine(i)}

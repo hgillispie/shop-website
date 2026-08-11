@@ -7,7 +7,7 @@ import { storeOrderItems, storeOrders, type StoreOrderRow } from "@/lib/db/schem
 import { getStoreOrderById } from "@/lib/db/queries";
 import { createPaymentIntentForOrder, getStripe } from "@/lib/stripe";
 import { priceCart } from "@/lib/store/pricing";
-import type { CartLineItem } from "@/lib/validations/store";
+import { inPersonLineItemSchema, type InPersonLineItem } from "@/lib/validations/store";
 
 // A Server Action is a POST endpoint in its own right, reachable
 // independent of which page renders its caller — the page-level session
@@ -26,42 +26,85 @@ export async function createConnectionToken() {
 }
 
 // Creates the order draft for an in-person sale — no shipping to price
-// (items are handed over on the spot), but still re-prices against the
-// live Printify catalog rather than trusting anything client-side.
-export async function createInPersonOrder(lineItems: CartLineItem[]) {
+// (items are handed over on the spot, or nothing ships at all for a
+// service charge). A "current sale" can mix real Printify merch with
+// manually-entered service charges (an oil change plus a shirt, say):
+// merch lines are re-priced against the live catalog exactly like before;
+// manual lines have no catalog to check against, so the admin-typed amount
+// is trusted directly — that's a different trust boundary than the public
+// storefront, since this is reachable only by an authenticated admin, not
+// an anonymous customer.
+export async function createInPersonOrder(rawLineItems: InPersonLineItem[]) {
   await requireSession();
 
-  const priced = await priceCart(lineItems, { includeShipping: false });
+  // Plain Errors rather than letting a ZodError cross the Server Action
+  // boundary — Next redacts server-error detail in production, so a
+  // validation message needs to already be a plain Error to survive that.
+  const parsed = inPersonLineItemSchema.array().min(1, "Add at least one item.").safeParse(rawLineItems);
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "Invalid sale.");
+  }
+  const lineItems = parsed.data;
+
+  const merchLines = lineItems.filter((line) => line.kind === "merch");
+  const manualLines = lineItems.filter((line) => line.kind === "manual");
+
+  const priced = await priceCart(
+    merchLines.map(({ printifyProductId, printifyVariantId, quantity }) => ({
+      printifyProductId,
+      printifyVariantId,
+      quantity,
+    })),
+    { includeShipping: false },
+  );
+  const manualSubtotalCents = manualLines.reduce((sum, line) => sum + line.priceCents, 0);
+  const totalCents = priced.totalCents + manualSubtotalCents;
 
   const [created] = await db
     .insert(storeOrders)
     .values({
       source: "in_person",
       status: "pending_payment",
-      subtotalCents: priced.subtotalCents,
+      subtotalCents: priced.subtotalCents + manualSubtotalCents,
       shippingCents: 0,
       taxCents: 0,
-      totalCents: priced.totalCents,
+      totalCents,
     })
     .returning();
 
-  if (priced.items.length > 0) {
-    await db.insert(storeOrderItems).values(
-      priced.items.map((item) => ({
-        orderId: created.id,
-        printifyProductId: item.printifyProductId,
-        printifyVariantId: item.printifyVariantId,
-        printProviderId: item.printProviderId,
-        title: item.title,
-        variantLabel: item.variantLabel,
-        quantity: item.quantity,
-        unitPriceCents: item.unitPriceCents,
-        imageUrl: item.imageUrl,
-      })),
-    );
+  const itemRows = [
+    ...priced.items.map((item) => ({
+      orderId: created.id,
+      printifyProductId: item.printifyProductId,
+      printifyVariantId: item.printifyVariantId,
+      printProviderId: item.printProviderId,
+      title: item.title,
+      variantLabel: item.variantLabel,
+      quantity: item.quantity,
+      unitPriceCents: item.unitPriceCents,
+      imageUrl: item.imageUrl,
+    })),
+    // Sentinel values (a non-Printify product id, zeroed variant/provider
+    // ids) satisfy storeOrderItems' NOT NULL columns without a schema
+    // change. Safe to skip Printify entirely: the webhook only ever calls
+    // it for source: "online" orders, and this is always "in_person".
+    ...manualLines.map((line) => ({
+      orderId: created.id,
+      printifyProductId: "manual",
+      printifyVariantId: 0,
+      printProviderId: 0,
+      title: line.memo,
+      variantLabel: null,
+      quantity: 1,
+      unitPriceCents: line.priceCents,
+      imageUrl: null,
+    })),
+  ];
+  if (itemRows.length > 0) {
+    await db.insert(storeOrderItems).values(itemRows);
   }
 
-  return { orderRef: created.id, totalCents: priced.totalCents };
+  return { orderRef: created.id, totalCents };
 }
 
 export async function createTerminalPaymentIntent(orderRef: string) {

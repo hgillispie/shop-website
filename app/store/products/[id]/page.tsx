@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getProductById } from "@/lib/printify";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getProductById, listProducts } from "@/lib/printify";
 import { AddToCartForm } from "@/components/store/AddToCartForm";
 
 export default async function ProductPage({
@@ -9,16 +10,54 @@ export default async function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = await getProductById(id);
+  const [product, allProducts] = await Promise.all([getProductById(id), listProducts()]);
   if (!product) notFound();
 
   const images = product.images.length > 0 ? product.images : [];
 
+  // Lets someone flip through the whole catalog from a product page rather
+  // than bouncing back to the grid after every item — listProducts() is
+  // cached, so this costs nothing extra over what getProductById already did.
+  const index = allProducts.findIndex((p) => p.id === product.id);
+  const previous = index > 0 ? allProducts[index - 1] : null;
+  const next = index !== -1 && index < allProducts.length - 1 ? allProducts[index + 1] : null;
+
   return (
     <div className="mx-auto max-w-5xl px-6 py-12">
-      <Link href="/store" className="text-xs text-muted hover:text-accent">
-        ← All products
-      </Link>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link href="/store" className="text-xs text-muted hover:text-accent">
+          ← All products
+        </Link>
+        {(previous || next) && (
+          <div className="flex min-w-0 items-center gap-3 text-xs text-muted">
+            {previous ? (
+              <Link
+                href={`/store/products/${previous.id}`}
+                className="flex min-w-0 items-center gap-1 hover:text-accent"
+              >
+                <ChevronLeft className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                <span className="hidden max-w-[10rem] truncate sm:inline">
+                  {previous.title}
+                </span>
+              </Link>
+            ) : (
+              <ChevronLeft className="h-3.5 w-3.5 text-border" aria-hidden="true" />
+            )}
+            <span className="text-border">·</span>
+            {next ? (
+              <Link
+                href={`/store/products/${next.id}`}
+                className="flex min-w-0 items-center gap-1 hover:text-accent"
+              >
+                <span className="hidden max-w-[10rem] truncate sm:inline">{next.title}</span>
+                <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              </Link>
+            ) : (
+              <ChevronRight className="h-3.5 w-3.5 text-border" aria-hidden="true" />
+            )}
+          </div>
+        )}
+      </div>
 
       <div className="mt-4 grid gap-10 md:grid-cols-2">
         <div>

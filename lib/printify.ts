@@ -55,6 +55,11 @@ export type PrintifyVariant = {
   is_enabled: boolean;
   is_default: boolean;
   sku: string;
+  // One value-id per product-level option, in the same order as
+  // PrintifyProduct.options — e.g. [colorValueId, sizeValueId]. Positional,
+  // not keyed by type, so callers must line this up against product.options
+  // by index rather than assuming color is always first.
+  options: number[];
 };
 
 export type PrintifyImage = {
@@ -63,12 +68,29 @@ export type PrintifyImage = {
   is_default: boolean;
 };
 
+export type PrintifyOptionValue = {
+  id: number;
+  title: string;
+  // Only present on color-type options — hex strings, e.g. ["#642838"].
+  colors?: string[];
+};
+
+export type PrintifyOption = {
+  name: string;
+  // Printify's real catalog uses "color" and "size" for apparel, but other
+  // blueprints (mugs, stickers) can have different/fewer option types —
+  // never assume exactly these two exist or that they're in this order.
+  type: string;
+  values: PrintifyOptionValue[];
+};
+
 export type PrintifyProduct = {
   id: string;
   title: string;
   description: string;
   images: PrintifyImage[];
   variants: PrintifyVariant[];
+  options: PrintifyOption[];
   // A Printify product is created against one print provider + blueprint —
   // this is what lets us partition a cart by provider for shipping.
   print_provider_id: number;

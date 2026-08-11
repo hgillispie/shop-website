@@ -21,6 +21,10 @@ type CartContextValue = {
   clear: () => void;
   itemCount: number;
   subtotalCents: number;
+  // False for exactly one render while localStorage is being read — lets a
+  // page tell "genuinely empty" apart from "hasn't loaded yet" instead of
+  // flashing an empty-cart state for a cart that's about to populate.
+  hydrated: boolean;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -108,8 +112,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
     const subtotalCents = items.reduce((sum, i) => sum + i.unitPriceCents * i.quantity, 0);
 
-    return { items, addItem, updateQuantity, removeItem, clear, itemCount, subtotalCents };
-  }, [items]);
+    return { items, addItem, updateQuantity, removeItem, clear, itemCount, subtotalCents, hydrated };
+  }, [items, hydrated]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
