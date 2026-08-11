@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { formatCents } from "@/lib/store/money";
 import { retryPrintifyOrder, updateTracking } from "../actions";
 import type { ShippingAddress } from "@/lib/validations/store";
+import type { ShippingBreakdownEntry } from "@/lib/store/pricing";
 
 export default async function OrderDetailPage({
   params,
@@ -18,6 +19,8 @@ export default async function OrderDetailPage({
   if (!order) notFound();
 
   const address = order.shippingAddress as ShippingAddress | null;
+  const shippingBreakdown = (order.shippingBreakdown as ShippingBreakdownEntry[] | null) ?? [];
+  const hasEstimatedShipping = shippingBreakdown.some((entry) => entry.estimated);
 
   return (
     <div className="max-w-3xl">
@@ -48,6 +51,16 @@ export default async function OrderDetailPage({
         </div>
       )}
 
+      {hasEstimatedShipping && (
+        <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <p className="text-sm font-medium text-amber-800">
+            Shipping on this order is a flat estimate, not a real Printify quote —
+            their live shipping-cost lookup failed when this order was placed. Worth
+            double-checking the actual cost before it ships.
+          </p>
+        </div>
+      )}
+
       <div className="mt-6 rounded-lg border border-border bg-surface p-6">
         <p className="text-xs uppercase text-muted">Items</p>
         <div className="mt-3 space-y-2">
@@ -67,7 +80,7 @@ export default async function OrderDetailPage({
             <span>{formatCents(order.subtotalCents)}</span>
           </div>
           <div className="flex justify-between text-muted">
-            <span>Shipping</span>
+            <span>Shipping{hasEstimatedShipping ? " (estimated — see below)" : ""}</span>
             <span>{formatCents(order.shippingCents)}</span>
           </div>
           <div className="flex justify-between font-semibold">

@@ -14,7 +14,7 @@ type OrderSummary = {
   shippingCents: number;
   taxCents: number;
   totalCents: number;
-  shippingBreakdown: { printProviderId: number; cents: number }[];
+  shippingBreakdown: { printProviderId: number; cents: number; estimated?: boolean }[];
 };
 
 const EMPTY_FORM = {
@@ -171,7 +171,10 @@ export default function CheckoutPage() {
           </div>
           {order.shippingBreakdown.map((entry, i) => (
             <div key={i} className="flex justify-between text-muted">
-              <span>Shipping{order.shippingBreakdown.length > 1 ? ` (shipment ${i + 1})` : ""}</span>
+              <span>
+                Shipping{order.shippingBreakdown.length > 1 ? ` (shipment ${i + 1})` : ""}
+                {entry.estimated ? " (estimated)" : ""}
+              </span>
               <span>{formatCents(entry.cents)}</span>
             </div>
           ))}
@@ -179,6 +182,12 @@ export default function CheckoutPage() {
             <p className="mt-1 text-xs text-muted">
               Your items ship from more than one supplier, so shipping is charged separately for
               each shipment.
+            </p>
+          )}
+          {order.shippingBreakdown.some((entry) => entry.estimated) && (
+            <p className="mt-1 text-xs text-muted">
+              We couldn&apos;t get a live shipping quote just now, so that shipment shows an
+              estimate — we&apos;ll follow up if the final cost is different.
             </p>
           )}
           <div className="mt-2 flex justify-between border-t border-border pt-2 font-semibold">

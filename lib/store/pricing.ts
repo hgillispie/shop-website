@@ -13,7 +13,25 @@ export type PricedLineItem = {
   imageUrl: string | null;
 };
 
-export type ShippingBreakdownEntry = { printProviderId: number; cents: number };
+export type ShippingBreakdownEntry = {
+  printProviderId: number;
+  cents: number;
+  // True when Printify's live shipping-cost endpoint failed and this is a
+  // flat placeholder instead of a real quote — see the comment below.
+  estimated?: boolean;
+};
+
+// Printify's real-time shipping-cost endpoint (POST /orders/shipping.json)
+// has been returning a bare 500 Internal Server Error for this shop's
+// catalog, while product listing and order creation both work fine — this
+// looks like an issue on Printify's side, not a request-shape problem here
+// (confirmed by hand against their API directly). Falling back to a flat
+// placeholder rather than hard-blocking checkout entirely, but flagging it
+// clearly (`estimated: true`) rather than presenting it as a real quote —
+// this needs a real fix (or at least a decision) before relying on it for
+// real orders, since under/over-charging shipping is exactly what the
+// per-provider quote was built to avoid.
+const FALLBACK_SHIPPING_CENTS = 699;
 
 export type PricedOrder = {
   items: PricedLineItem[];
@@ -92,14 +110,22 @@ export async function priceCart(
 
     shippingBreakdown = await Promise.all(
       Array.from(byProvider.entries()).map(async ([printProviderId, providerItems]) => {
-        const result = await getShippingCost(
-          providerItems.map((item) => ({
-            product_id: item.printifyProductId,
-            variant_id: item.printifyVariantId,
-            quantity: item.quantity,
-          })),
-        );
-        return { printProviderId, cents: result.standard ?? 0 };
+        try {
+          const result = await getShippingCost(
+            providerItems.map((item) => ({
+              product_id: item.printifyProductId,
+              variant_id: item.printifyVariantId,
+              quantity: item.quantity,
+            })),
+          );
+          return { printProviderId, cents: result.standard ?? 0 };
+        } catch (error) {
+          console.error(
+            `[pricing] Printify shipping-cost lookup failed for provider ${printProviderId}, using flat estimate:`,
+            error,
+          );
+          return { printProviderId, cents: FALLBACK_SHIPPING_CENTS, estimated: true };
+        }
       }),
     );
   }

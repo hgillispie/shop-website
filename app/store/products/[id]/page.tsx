@@ -48,10 +48,13 @@ export default async function ProductPage({
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{product.title}</h1>
           {product.description && (
-            <p
-              className="mt-4 text-sm leading-relaxed text-muted"
-              // Printify product descriptions are HTML — matches how Printify's
-              // own dashboard renders them.
+            <div
+              className="mt-4 space-y-3 text-sm leading-relaxed text-muted [&_p]:mt-0"
+              // Printify product descriptions are HTML (already wrapped in
+              // their own <p> tags) — a <div> wrapper here, not <p>, since
+              // nesting <p> inside <p> is invalid HTML and gets silently
+              // restructured differently by the browser's parser between
+              // the initial SSR pass and hydration, causing a mismatch.
               dangerouslySetInnerHTML={{ __html: product.description }}
             />
           )}

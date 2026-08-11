@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 
 // Server-only Printify REST client. Printify's API has no CORS support —
 // calls from browser JS are rejected — so nothing here may ever be imported
@@ -17,7 +18,7 @@ const BASE_URL = "https://api.printify.com/v1";
 
 async function printifyRequest<T>(
   path: string,
-  options: { method?: string; body?: unknown; next?: NextFetchRequestConfig } = {},
+  options: { method?: string; body?: unknown } = {},
 ): Promise<T> {
   const token = process.env.PRINTIFY_API_TOKEN;
   if (!token) throw new Error("PRINTIFY_API_TOKEN is not set");
@@ -30,8 +31,10 @@ async function printifyRequest<T>(
       "User-Agent": "swafford-speed-store",
     },
     body: options.body ? JSON.stringify(options.body) : undefined,
-    // Only listProducts passes `next` — shipping/order calls must stay live.
-    next: options.next,
+    // Always live at the fetch level — listProducts is the only call that's
+    // ever cached, and it does so via unstable_cache around the whole
+    // function (see below), not via fetch's own caching.
+    cache: "no-store",
   });
 
   const text = await res.text();
@@ -44,8 +47,6 @@ async function printifyRequest<T>(
   }
   return data as T;
 }
-
-type NextFetchRequestConfig = { revalidate?: number | false; tags?: string[] };
 
 export type PrintifyVariant = {
   id: number;
@@ -76,23 +77,35 @@ export type PrintifyProduct = {
 
 type PrintifyListResponse<T> = { data: T[] };
 
+async function fetchProducts(shopId: string | undefined): Promise<PrintifyProduct[]> {
+  const res = await printifyRequest<PrintifyListResponse<PrintifyProduct>>(
+    `/shops/${shopId}/products.json`,
+  );
+  return res.data.filter((product) => product.visible);
+}
+
 /**
  * List the products already created in the shop's Printify "API" store, so
  * they can be rendered on the site. Printify doesn't host a storefront for
  * custom integrations — display is entirely on this app.
  *
- * Cached for an hour (the catalog changes rarely) via Next's native fetch
- * cache, tagged so it can be force-revalidated with revalidateTag later if
- * ever needed. Only returns products marked visible in the Printify dashboard.
+ * Cached for an hour (the catalog changes rarely) via unstable_cache, which
+ * caches the resolved value directly rather than hooking into fetch's own
+ * `next.revalidate` extension — that extension produced an intermittent
+ * hydration mismatch on the product detail page (the cached description
+ * string diverged between the SSR pass and the RSC payload used for
+ * hydration on this specific dynamic route); caching the plain return value
+ * instead sidesteps that whole class of issue. Only returns products marked
+ * visible in the Printify dashboard.
  */
 export async function listProducts(
   shopId = process.env.PRINTIFY_SHOP_ID,
 ): Promise<PrintifyProduct[]> {
-  const res = await printifyRequest<PrintifyListResponse<PrintifyProduct>>(
-    `/shops/${shopId}/products.json`,
-    { next: { revalidate: 3600, tags: ["printify-products"] } },
-  );
-  return res.data.filter((product) => product.visible);
+  const cached = unstable_cache(fetchProducts, ["printify-products"], {
+    revalidate: 3600,
+    tags: ["printify-products"],
+  });
+  return cached(shopId);
 }
 
 export async function getProductById(
