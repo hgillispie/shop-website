@@ -7,11 +7,7 @@ import { db } from "@/lib/db/client";
 import { storeOrders } from "@/lib/db/schema";
 import { getStoreOrderById } from "@/lib/db/queries";
 import { createOrder as createPrintifyOrder, type PrintifyAddressTo } from "@/lib/printify";
-import {
-  sendInPersonReceiptEmail,
-  sendOrderConfirmationEmail,
-  sendOwnerFulfillmentFailedEmail,
-} from "@/lib/email";
+import { sendOrderConfirmationEmail, sendOwnerFulfillmentFailedEmail } from "@/lib/email";
 import type { ShippingAddress } from "@/lib/validations/store";
 
 // Both online and in-person payments land here — one webhook, one code
@@ -97,11 +93,12 @@ export async function POST(request: Request) {
           .where(eq(storeOrders.id, order.id));
         await sendOwnerFulfillmentFailedEmail(order, message);
       }
-    } else {
-      // In-person: item is already handed to the customer at the counter —
-      // no shipping, no Printify order, just a receipt.
-      await sendInPersonReceiptEmail(order);
     }
+    // in_person: nothing else to do here. Items are already handed over at
+    // the counter (no shipping, no Printify order), and the receipt itself
+    // is Stripe's job — receipt_email was set on the PaymentIntent back in
+    // createInPersonOrder, so Stripe already sent it as part of capturing
+    // the payment, before this webhook even fired.
   });
 
   return NextResponse.json({ ok: true });

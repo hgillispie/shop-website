@@ -124,3 +124,18 @@ export const inPersonLineItemSchema = z.discriminatedUnion("kind", [
 ]);
 
 export type InPersonLineItem = z.infer<typeof inPersonLineItemSchema>;
+
+// Card network rules require offering an in-person customer a receipt, not
+// collecting an email on every sale — so this is optional. When given, it's
+// passed straight through to Stripe's receipt_email on the card-present
+// PaymentIntent (lib/stripe.ts's createPaymentIntentForOrder), which makes
+// Stripe send its own compliant receipt automatically. Deliberately not our
+// own Resend template for this path: it doesn't include the EMV fields card
+// networks require for in-person/chip-card receipts, and Stripe's already
+// does. See https://docs.stripe.com/terminal/features/receipts.
+export const inPersonSaleSchema = z.object({
+  lineItems: z.array(inPersonLineItemSchema).min(1, "Add at least one item."),
+  email: z.string().trim().email("Enter a valid email address.").optional(),
+});
+
+export type InPersonSale = z.infer<typeof inPersonSaleSchema>;

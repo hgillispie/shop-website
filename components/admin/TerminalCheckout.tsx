@@ -49,6 +49,11 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
   const [readerError, setReaderError] = useState<string | null>(null);
 
   const [cart, setCart] = useState<CartLine[]>([]);
+  // Optional, whole-sale (not per-line) — passed straight to Stripe's own
+  // receipt_email, which sends a card-network-compliant receipt directly.
+  // Not stored anywhere else, so it's cleared with the cart after a charge
+  // rather than carrying over to the next customer's sale.
+  const [email, setEmail] = useState("");
 
   // Service charge — the primary use of this page day to day (engine work,
   // etc.), entered by hand rather than picked from the Printify catalog.
@@ -193,7 +198,7 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
             }
           : { kind: "manual", priceCents: line.priceCents, memo: line.memo },
       );
-      const { orderRef } = await createInPersonOrder(lineItems);
+      const { orderRef } = await createInPersonOrder({ lineItems, email: email.trim() || undefined });
 
       setChargeStatus("creating-payment");
       const { clientSecret } = await createTerminalPaymentIntent(orderRef);
@@ -208,10 +213,12 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
       if ("error" in confirmResult) throw new Error(confirmResult.error.message);
 
       // The payment_intent.succeeded webhook (shared with the online flow)
-      // is what actually marks the order paid and sends the receipt — this
-      // just reflects the result to whoever's running the register.
+      // is what actually marks the order paid — Stripe sends the receipt
+      // itself (see createInPersonOrder) — this just reflects the result to
+      // whoever's running the register.
       setChargeStatus("paid");
       setCart([]);
+      setEmail("");
     } catch (error) {
       setChargeError(error instanceof Error ? error.message : "Something went wrong.");
       setChargeStatus("idle");
@@ -342,6 +349,20 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
               <span>{formatCents(totalCents)}</span>
             </div>
           )}
+        </div>
+
+        <div className="mt-4">
+          <Label htmlFor="receipt-email">Receipt email (optional)</Label>
+          <Input
+            id="receipt-email"
+            type="email"
+            placeholder="customer@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <p className="mt-1 text-xs text-muted">
+            Stripe sends the receipt directly — leave blank to skip a digital receipt.
+          </p>
         </div>
 
         {chargeError && (

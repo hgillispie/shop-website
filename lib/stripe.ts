@@ -42,6 +42,12 @@ export async function createPaymentIntentForOrder(
     amount: order.totalCents,
     currency: "usd",
     metadata: { orderRef: order.id },
+    // Applies to both branches: when set, Stripe emails a compliant
+    // receipt itself once the PaymentIntent is captured — for card-present
+    // (Terminal) specifically, this is also what satisfies card network
+    // rules around EMV receipts, which our own Resend templates don't
+    // attempt to. See https://docs.stripe.com/terminal/features/receipts.
+    receipt_email: order.email ?? undefined,
     ...(cardPresent
       ? {
           payment_method_types: ["card_present"],
@@ -51,7 +57,6 @@ export async function createPaymentIntentForOrder(
           // Surfaces Link/cards/wallets automatically — no separate Link
           // integration needed.
           automatic_payment_methods: { enabled: true },
-          receipt_email: order.email ?? undefined,
         }),
   });
 }

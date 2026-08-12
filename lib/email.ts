@@ -176,30 +176,11 @@ export async function sendOrderShippedEmail(
   });
 }
 
-// Sent for an in-person counter sale — no shipping timeline language since
-// the customer already walked out with the item.
-export async function sendInPersonReceiptEmail(
-  order: StoreOrderRow & { items: StoreOrderItemRow[] },
-) {
-  const resend = getResendConfigured();
-  if (!resend || !order.email) return;
-
-  await resend.emails.send({
-    from: FROM,
-    to: order.email,
-    subject: `Receipt — ${siteConfig.shopName} (#${order.orderNumber})`,
-    text: [
-      `Thanks for stopping by!`,
-      "",
-      `Order #${order.orderNumber}`,
-      ...formatOrderItems(order.items),
-      "",
-      `Total: ${formatCents(order.totalCents)}`,
-      "",
-      `— ${siteConfig.shopName}`,
-    ].join("\n"),
-  });
-}
+// No sendInPersonReceiptEmail here — in-person receipts go through
+// Stripe's own receipt_email instead (set on the card-present PaymentIntent
+// in lib/stripe.ts's createPaymentIntentForOrder), which is also what
+// satisfies card network EMV-receipt rules for Terminal payments. See
+// lib/validations/store.ts's inPersonSaleSchema for the full reasoning.
 
 // Alerts the owner when payment succeeded but creating the Printify order
 // failed — the only way anyone finds out about a paid, unfulfilled order

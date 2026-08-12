@@ -7,7 +7,7 @@ import { storeOrderItems, storeOrders, type StoreOrderRow } from "@/lib/db/schem
 import { getStoreOrderById } from "@/lib/db/queries";
 import { createPaymentIntentForOrder, getStripe } from "@/lib/stripe";
 import { priceCart } from "@/lib/store/pricing";
-import { inPersonLineItemSchema, type InPersonLineItem } from "@/lib/validations/store";
+import { inPersonSaleSchema, type InPersonLineItem } from "@/lib/validations/store";
 
 // A Server Action is a POST endpoint in its own right, reachable
 // independent of which page renders its caller — the page-level session
@@ -34,17 +34,22 @@ export async function createConnectionToken() {
 // is trusted directly — that's a different trust boundary than the public
 // storefront, since this is reachable only by an authenticated admin, not
 // an anonymous customer.
-export async function createInPersonOrder(rawLineItems: InPersonLineItem[]) {
+//
+// `email` is optional and only ever used for Stripe's own receipt_email
+// (set on the PaymentIntent in createTerminalPaymentIntent below) — see
+// inPersonSaleSchema for why that's the receipt mechanism for this path
+// rather than our own Resend template.
+export async function createInPersonOrder(input: { lineItems: InPersonLineItem[]; email?: string }) {
   await requireSession();
 
   // Plain Errors rather than letting a ZodError cross the Server Action
   // boundary — Next redacts server-error detail in production, so a
   // validation message needs to already be a plain Error to survive that.
-  const parsed = inPersonLineItemSchema.array().min(1, "Add at least one item.").safeParse(rawLineItems);
+  const parsed = inPersonSaleSchema.safeParse(input);
   if (!parsed.success) {
     throw new Error(parsed.error.issues[0]?.message ?? "Invalid sale.");
   }
-  const lineItems = parsed.data;
+  const { lineItems, email } = parsed.data;
 
   const merchLines = lineItems.filter((line) => line.kind === "merch");
   const manualLines = lineItems.filter((line) => line.kind === "manual");
@@ -65,6 +70,7 @@ export async function createInPersonOrder(rawLineItems: InPersonLineItem[]) {
     .values({
       source: "in_person",
       status: "pending_payment",
+      email: email ?? null,
       subtotalCents: priced.subtotalCents + manualSubtotalCents,
       shippingCents: 0,
       taxCents: 0,
