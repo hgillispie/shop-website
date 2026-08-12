@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import type { PrintifyProduct, PrintifyVariant } from "@/lib/printify";
+import { variantValueFor } from "@/lib/store/variants";
 import { useCart } from "@/components/store/CartProvider";
 import { formatCents } from "@/lib/store/money";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,18 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-export function AddToCartForm({ product }: { product: PrintifyProduct }) {
+export function AddToCartForm({
+  product,
+  colorId,
+  onColorChange,
+}: {
+  product: PrintifyProduct;
+  // Color lives one level up (in ProductDetail) rather than as local state
+  // here, so the product photo gallery can react to it too — this form
+  // just reads it and reports changes back up.
+  colorId: number | undefined;
+  onColorChange: (id: number) => void;
+}) {
   const router = useRouter();
   const { addItem } = useCart();
 
@@ -23,10 +35,12 @@ export function AddToCartForm({ product }: { product: PrintifyProduct }) {
   const defaultVariant: PrintifyVariant | undefined =
     enabledVariants.find((v) => v.is_default) ?? enabledVariants[0];
 
-  // Printify's option arrays are positional (variant.options[i] lines up
-  // with product.options[i]), not keyed by type — find each axis by type
-  // once, then always read/write through its index rather than assuming
-  // color is index 0 and size is index 1.
+  // Find each axis by type once, then always resolve a variant's value for
+  // it via variantValueFor (set membership) — never variant.options[index].
+  // Printify's option arrays aren't reliably positional: this shop's real
+  // catalog has products where some variants are ordered [color, size] and
+  // others [size, color], so reading by index silently mismatches for a
+  // chunk of variants rather than crashing.
   const colorOption = useMemo(
     () => product.options.find((o) => o.type === "color"),
     [product.options],
@@ -35,38 +49,38 @@ export function AddToCartForm({ product }: { product: PrintifyProduct }) {
     () => product.options.find((o) => o.type === "size"),
     [product.options],
   );
-  const colorIndex = colorOption ? product.options.indexOf(colorOption) : -1;
-  const sizeIndex = sizeOption ? product.options.indexOf(sizeOption) : -1;
-  const hasColorSize = colorIndex !== -1 || sizeIndex !== -1;
+  const hasColorSize = Boolean(colorOption || sizeOption);
 
   // Printify's option value lists cover everything the blueprint supports —
   // most colors/sizes aren't actually enabled for any variant of THIS
   // product, so filter down to ones an enabled variant actually uses.
   const colors = useMemo(() => {
-    if (colorIndex === -1 || !colorOption) return [];
-    const availableIds = new Set(enabledVariants.map((v) => v.options[colorIndex]));
+    if (!colorOption) return [];
+    const availableIds = new Set(
+      enabledVariants
+        .map((v) => variantValueFor(v, colorOption))
+        .filter((id): id is number => id !== undefined),
+    );
     return colorOption.values.filter((v) => availableIds.has(v.id));
-  }, [colorOption, colorIndex, enabledVariants]);
+  }, [colorOption, enabledVariants]);
 
-  const [colorId, setColorId] = useState<number | undefined>(
-    colorIndex !== -1 ? defaultVariant?.options[colorIndex] : undefined,
-  );
   const [sizeId, setSizeId] = useState<number | undefined>(
-    sizeIndex !== -1 ? defaultVariant?.options[sizeIndex] : undefined,
+    sizeOption && defaultVariant ? variantValueFor(defaultVariant, sizeOption) : undefined,
   );
   // Only used for products that don't fit the color+size shape at all
   // (e.g. a future sticker/flag with some other single option, or none).
   const [fallbackVariantId, setFallbackVariantId] = useState(defaultVariant?.id);
 
   const sizesForColor = useMemo(() => {
-    if (sizeIndex === -1 || !sizeOption) return [];
-    const matching =
-      colorIndex === -1
-        ? enabledVariants
-        : enabledVariants.filter((v) => v.options[colorIndex] === colorId);
-    const availableIds = new Set(matching.map((v) => v.options[sizeIndex]));
+    if (!sizeOption) return [];
+    const matching = colorOption
+      ? enabledVariants.filter((v) => variantValueFor(v, colorOption) === colorId)
+      : enabledVariants;
+    const availableIds = new Set(
+      matching.map((v) => variantValueFor(v, sizeOption)).filter((id): id is number => id !== undefined),
+    );
     return sizeOption.values.filter((v) => availableIds.has(v.id));
-  }, [sizeOption, sizeIndex, colorIndex, colorId, enabledVariants]);
+  }, [sizeOption, colorOption, colorId, enabledVariants]);
 
   const [quantity, setQuantity] = useState(1);
   const [status, setStatus] = useState<"idle" | "adding" | "added">("idle");
@@ -76,26 +90,27 @@ export function AddToCartForm({ product }: { product: PrintifyProduct }) {
       return enabledVariants.find((v) => v.id === fallbackVariantId) ?? enabledVariants[0];
     }
     return enabledVariants.find((v) => {
-      const colorMatches = colorIndex === -1 || v.options[colorIndex] === colorId;
-      const sizeMatches = sizeIndex === -1 || v.options[sizeIndex] === sizeId;
+      const colorMatches = !colorOption || variantValueFor(v, colorOption) === colorId;
+      const sizeMatches = !sizeOption || variantValueFor(v, sizeOption) === sizeId;
       return colorMatches && sizeMatches;
     });
-  }, [hasColorSize, enabledVariants, fallbackVariantId, colorIndex, colorId, sizeIndex, sizeId]);
+  }, [hasColorSize, enabledVariants, fallbackVariantId, colorOption, colorId, sizeOption, sizeId]);
 
   const selectedColorTitle = colors.find((c) => c.id === colorId)?.title;
 
   function selectColor(id: number) {
-    setColorId(id);
+    if (!colorOption) return;
+    onColorChange(id);
     setStatus("idle");
     // Keep the current size if it's still offered in the new color;
     // otherwise fall back to that color's first available size.
-    if (sizeIndex === -1) return;
+    if (!sizeOption) return;
     const stillOffered = enabledVariants.some(
-      (v) => v.options[colorIndex] === id && v.options[sizeIndex] === sizeId,
+      (v) => variantValueFor(v, colorOption) === id && variantValueFor(v, sizeOption) === sizeId,
     );
     if (!stillOffered) {
-      const next = enabledVariants.find((v) => v.options[colorIndex] === id);
-      setSizeId(next?.options[sizeIndex]);
+      const next = enabledVariants.find((v) => variantValueFor(v, colorOption) === id);
+      setSizeId(next ? variantValueFor(next, sizeOption) : undefined);
     }
   }
 

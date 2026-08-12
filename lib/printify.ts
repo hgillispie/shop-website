@@ -55,10 +55,13 @@ export type PrintifyVariant = {
   is_enabled: boolean;
   is_default: boolean;
   sku: string;
-  // One value-id per product-level option, in the same order as
-  // PrintifyProduct.options — e.g. [colorValueId, sizeValueId]. Positional,
-  // not keyed by type, so callers must line this up against product.options
-  // by index rather than assuming color is always first.
+  // One value-id per product-level option — e.g. [colorValueId, sizeValueId].
+  // NOT reliably positional against PrintifyProduct.options: confirmed
+  // against this shop's real catalog that the SAME product can have some
+  // variants ordered [color, size] and others [size, color] (e.g. the
+  // hoodie blueprint). Never read this by index — use variantValueFor()
+  // below, which resolves a variant's value for a given option by set
+  // membership instead of position.
   options: number[];
 };
 
@@ -96,6 +99,12 @@ export type PrintifyProduct = {
   print_provider_id: number;
   visible: boolean;
 };
+
+// variantValueFor() lives in lib/store/variants.ts, not here — this file
+// starts with `import "server-only"`, and client components (the color/size
+// pickers, the photo gallery) need to call it. Importing any real value
+// (not just a `type`) from here would pull that server-only sentinel into
+// the client bundle and hard-fail the build.
 
 type PrintifyListResponse<T> = { data: T[] };
 
