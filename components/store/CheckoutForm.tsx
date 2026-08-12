@@ -243,7 +243,26 @@ export function CheckoutForm({
       <div>
         <p className="text-xs font-medium uppercase tracking-wide text-muted">Payment</p>
         <div className="mt-2">
-          <PaymentElement />
+          <PaymentElement
+            options={{
+              // Listed methods show first, in this order, when eligible;
+              // anything not listed (or not enabled/eligible) falls in
+              // after — card deliberately last, as a fallback rather than
+              // the default choice. Listing a type that isn't enabled in
+              // the Dashboard or eligible for this browser/device (e.g.
+              // Apple Pay without domain registration, or on a non-Apple
+              // browser) is a no-op, not an error — safe to list PayPal
+              // here now even before deciding whether to turn it on.
+              paymentMethodOrder: [
+                "apple_pay",
+                "google_pay",
+                "cashapp",
+                "link",
+                "paypal",
+                "card",
+              ],
+            }}
+          />
         </div>
       </div>
 

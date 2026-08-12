@@ -57,6 +57,20 @@ export async function createPaymentIntentForOrder(
           // Surfaces Link/cards/wallets automatically — no separate Link
           // integration needed.
           automatic_payment_methods: { enabled: true },
+          // Blocks literal ACH Direct Debit only. Does NOT hide the "Bank"
+          // tile the owner actually flagged — that's Stripe's Instant Bank
+          // Payments, a Link sub-feature that's "automatically enabled when
+          // you turn on Link" (Stripe's own wording) and has no PaymentIntent
+          // -level toggle. The only documented lever is the Dashboard's Link
+          // settings (dashboard.stripe.com/settings/link), which per Stripe's
+          // docs controls the "$5 back" promo badge, not IBP's existence —
+          // see https://docs.stripe.com/payments/link/instant-bank-payments.
+          // Kept anyway as harmless defense-in-depth: if ACH is ever turned
+          // on in the Dashboard later, it won't silently start appearing.
+          // Ordering among whatever's left (card last, wallets first) is
+          // set client-side via paymentMethodOrder on the PaymentElement —
+          // see components/store/CheckoutForm.tsx.
+          excluded_payment_method_types: ["us_bank_account"],
         }),
   });
 }
