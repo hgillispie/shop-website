@@ -39,7 +39,18 @@ export default async function InvoicePrintPage({
         <PrintButton />
       </div>
 
-      <div className="mx-auto max-w-[8.5in] bg-white p-10 text-black shadow-lg print:max-w-none print:p-0 print:shadow-none">
+      <div className="relative mx-auto max-w-[8.5in] overflow-hidden bg-white p-10 text-black shadow-lg print:max-w-none print:p-0 print:shadow-none">
+        {/* Background watermark — behind everything else by DOM order alone
+            (position: absolute with no z-index doesn't reorder paint order
+            relative to later static siblings), sized to roughly the
+            customer/vehicle panel width like the original paper form. */}
+        <img
+          src="/logo.svg"
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 m-auto h-auto w-[70%] max-w-xl opacity-[0.07] grayscale select-none"
+        />
+
         {/* Letterhead */}
         <header className="flex items-start justify-between gap-6 border-b-4 border-black pb-4">
           <div className="flex items-center gap-4">

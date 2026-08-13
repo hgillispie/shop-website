@@ -8,6 +8,7 @@ import type {
   ServiceInvoiceRow,
 } from "@/lib/db/schema";
 import { computeInvoiceTotals, jobTotalCents } from "@/lib/invoices/totals";
+import type { InvoicePrefill } from "@/lib/invoices/prefill";
 import { formatCents } from "@/lib/store/money";
 import { createInvoice, deleteInvoice, updateInvoice } from "@/app/admin/(dashboard)/invoices/actions";
 import { Button, ButtonLink } from "@/components/ui/button";
@@ -70,7 +71,83 @@ function todayInputValue(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function InvoiceForm({ invoice }: { invoice?: ExistingInvoice }) {
+// What the "Load demo" button fills in — two realistic, distinct
+// Harley-Davidson repairs (not the same ones used in this feature's own
+// manual browser testing), simulating an owner filling the form out by
+// hand. Fabricated customer, clearly not a real one.
+const DEMO_DATA = {
+  serviceAdvisor: "JM",
+  customerName: "Ray Odom",
+  customerAddress: "212 Millrace Dr",
+  customerCityStateZip: "Simpsonville, SC 29680",
+  customerPhone: "(864) 555-0198",
+  customerEmail: "ray.odom@example.com",
+  vehicleYear: "1978",
+  vehicleMake: "Harley-Davidson",
+  vehicleModel: "Shovelhead",
+  vehicleColor: "Black",
+  vehicleVin: "1HD1BPL10FB654321",
+  licensePlate: "SC XYZ789",
+  mileageIn: "38,450",
+  taxRatePercent: "6",
+  taxAppliesToParts: true,
+  taxAppliesToLabor: false,
+  ccFeeEnabled: true,
+  ccFeeRatePercent: "3",
+  jobs: [
+    {
+      techInitials: "JM",
+      customerDescription: "Rear brakes making a grinding, metal-on-metal sound",
+      technicianFindings:
+        "Rear pads worn past the wear indicator; rotor lightly scored from metal-to-metal contact.",
+      correctionPerformed:
+        "Replaced rear brake pads and rotor, bled brakes, torqued to spec, road-tested.",
+      labor: "145.00",
+      parts: [
+        { description: "Rear brake pad set", qty: "1", price: "64.99" },
+        { description: "Rear brake rotor", qty: "1", price: "89.50" },
+      ],
+    },
+    {
+      techInitials: "JM",
+      customerDescription: "Hard to start, cranks slow, sometimes won't crank at all",
+      technicianFindings:
+        "Battery load-tested well below spec; starter draw higher than normal under load.",
+      correctionPerformed:
+        "Replaced battery, cleaned and re-torqued battery cables and starter relay connections, verified cold-start performance.",
+      labor: "85.00",
+      parts: [{ description: "AGM battery", qty: "1", price: "189.00" }],
+    },
+  ],
+} satisfies {
+  serviceAdvisor: string;
+  customerName: string;
+  customerAddress: string;
+  customerCityStateZip: string;
+  customerPhone: string;
+  customerEmail: string;
+  vehicleYear: string;
+  vehicleMake: string;
+  vehicleModel: string;
+  vehicleColor: string;
+  vehicleVin: string;
+  licensePlate: string;
+  mileageIn: string;
+  taxRatePercent: string;
+  taxAppliesToParts: boolean;
+  taxAppliesToLabor: boolean;
+  ccFeeEnabled: boolean;
+  ccFeeRatePercent: string;
+  jobs: JobFormState[];
+};
+
+export function InvoiceForm({
+  invoice,
+  prefill,
+}: {
+  invoice?: ExistingInvoice;
+  prefill?: InvoicePrefill;
+}) {
   const router = useRouter();
   const isEditing = !!invoice;
 
@@ -78,16 +155,30 @@ export function InvoiceForm({ invoice }: { invoice?: ExistingInvoice }) {
   const [dateWritten, setDateWritten] = useState(
     invoice ? invoice.dateWritten.toISOString().slice(0, 10) : todayInputValue(),
   );
-  const [customerName, setCustomerName] = useState(invoice?.customerName ?? "");
-  const [customerAddress, setCustomerAddress] = useState(invoice?.customerAddress ?? "");
+  const [customerName, setCustomerName] = useState(
+    invoice?.customerName ?? prefill?.customerName ?? "",
+  );
+  const [customerAddress, setCustomerAddress] = useState(
+    invoice?.customerAddress ?? prefill?.customerAddress ?? "",
+  );
   const [customerCityStateZip, setCustomerCityStateZip] = useState(
     invoice?.customerCityStateZip ?? "",
   );
-  const [customerPhone, setCustomerPhone] = useState(invoice?.customerPhone ?? "");
-  const [customerEmail, setCustomerEmail] = useState(invoice?.customerEmail ?? "");
-  const [vehicleYear, setVehicleYear] = useState(invoice?.vehicleYear ?? "");
-  const [vehicleMake, setVehicleMake] = useState(invoice?.vehicleMake ?? "");
-  const [vehicleModel, setVehicleModel] = useState(invoice?.vehicleModel ?? "");
+  const [customerPhone, setCustomerPhone] = useState(
+    invoice?.customerPhone ?? prefill?.customerPhone ?? "",
+  );
+  const [customerEmail, setCustomerEmail] = useState(
+    invoice?.customerEmail ?? prefill?.customerEmail ?? "",
+  );
+  const [vehicleYear, setVehicleYear] = useState(
+    invoice?.vehicleYear ?? prefill?.vehicleYear ?? "",
+  );
+  const [vehicleMake, setVehicleMake] = useState(
+    invoice?.vehicleMake ?? prefill?.vehicleMake ?? "",
+  );
+  const [vehicleModel, setVehicleModel] = useState(
+    invoice?.vehicleModel ?? prefill?.vehicleModel ?? "",
+  );
   const [vehicleColor, setVehicleColor] = useState(invoice?.vehicleColor ?? "");
   const [vehicleVin, setVehicleVin] = useState(invoice?.vehicleVin ?? "");
   const [licensePlate, setLicensePlate] = useState(invoice?.licensePlate ?? "");
@@ -100,24 +191,28 @@ export function InvoiceForm({ invoice }: { invoice?: ExistingInvoice }) {
   const [ccFeeEnabled, setCcFeeEnabled] = useState(invoice?.ccFeeEnabled ?? false);
   const [ccFeeRatePercent, setCcFeeRatePercent] = useState(invoice?.ccFeeRatePercent ?? "0");
 
-  const [jobs, setJobs] = useState<JobFormState[]>(
-    invoice && invoice.jobs.length > 0
-      ? invoice.jobs.map((job) => ({
-          id: job.id,
-          techInitials: job.techInitials ?? "",
-          customerDescription: job.customerDescription ?? "",
-          technicianFindings: job.technicianFindings ?? "",
-          correctionPerformed: job.correctionPerformed ?? "",
-          labor: centsToInput(job.laborCents),
-          parts: job.parts.map((part) => ({
-            id: part.id,
-            description: part.description,
-            qty: String(part.qty),
-            price: centsToInput(part.unitPriceCents),
-          })),
-        }))
-      : [emptyJob()],
-  );
+  const [jobs, setJobs] = useState<JobFormState[]>(() => {
+    if (invoice && invoice.jobs.length > 0) {
+      return invoice.jobs.map((job) => ({
+        id: job.id,
+        techInitials: job.techInitials ?? "",
+        customerDescription: job.customerDescription ?? "",
+        technicianFindings: job.technicianFindings ?? "",
+        correctionPerformed: job.correctionPerformed ?? "",
+        labor: centsToInput(job.laborCents),
+        parts: job.parts.map((part) => ({
+          id: part.id,
+          description: part.description,
+          qty: String(part.qty),
+          price: centsToInput(part.unitPriceCents),
+        })),
+      }));
+    }
+    if (prefill?.jobDescription) {
+      return [{ ...emptyJob(), customerDescription: prefill.jobDescription }];
+    }
+    return [emptyJob()];
+  });
 
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -249,6 +344,33 @@ export function InvoiceForm({ invoice }: { invoice?: ExistingInvoice }) {
     }
   }
 
+  function loadDemoData() {
+    setServiceAdvisor(DEMO_DATA.serviceAdvisor);
+    setCustomerName(DEMO_DATA.customerName);
+    setCustomerAddress(DEMO_DATA.customerAddress);
+    setCustomerCityStateZip(DEMO_DATA.customerCityStateZip);
+    setCustomerPhone(DEMO_DATA.customerPhone);
+    setCustomerEmail(DEMO_DATA.customerEmail);
+    setVehicleYear(DEMO_DATA.vehicleYear);
+    setVehicleMake(DEMO_DATA.vehicleMake);
+    setVehicleModel(DEMO_DATA.vehicleModel);
+    setVehicleColor(DEMO_DATA.vehicleColor);
+    setVehicleVin(DEMO_DATA.vehicleVin);
+    setLicensePlate(DEMO_DATA.licensePlate);
+    setMileageIn(DEMO_DATA.mileageIn);
+    setTaxRatePercent(DEMO_DATA.taxRatePercent);
+    setTaxAppliesToParts(DEMO_DATA.taxAppliesToParts);
+    setTaxAppliesToLabor(DEMO_DATA.taxAppliesToLabor);
+    setCcFeeEnabled(DEMO_DATA.ccFeeEnabled);
+    setCcFeeRatePercent(DEMO_DATA.ccFeeRatePercent);
+    setJobs(DEMO_DATA.jobs.map((job) => ({ ...job, parts: job.parts.map((part) => ({ ...part })) })));
+  }
+
+  // Only offered on a genuinely blank new invoice — not while editing a
+  // real saved one, and not when arriving from a Board job's "Create
+  // Invoice" link (that already has real data filled in).
+  const showDemoButton = !isEditing && !prefill;
+
   return (
     <div className="space-y-8 pb-24">
       <div className="flex items-start justify-between gap-4">
@@ -262,6 +384,11 @@ export function InvoiceForm({ invoice }: { invoice?: ExistingInvoice }) {
               : "Fill in what you know now — jobs and parts can be added as work progresses."}
           </p>
         </div>
+        {showDemoButton && (
+          <Button type="button" variant="outline" onClick={loadDemoData}>
+            Load demo
+          </Button>
+        )}
         {isEditing && (
           <div className="flex items-center gap-3">
             <ButtonLink href={`/admin/invoices/${invoice.id}/print`} variant="outline" target="_blank">

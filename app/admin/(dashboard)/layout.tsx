@@ -2,21 +2,27 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { logout } from "@/lib/auth/actions";
 import { getSession } from "@/lib/auth/session";
+import { NavDropdown } from "@/components/admin/NavDropdown";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const NAV_LINKS = [
+// Grouped behind one "Overview" trigger (see NavDropdown) — these three are
+// the "keep an eye on things" tabs, as opposed to the hands-on tools below.
+// Rename the label freely; it's just a string.
+const OVERVIEW_LINKS = [
   { label: "Requests", href: "/admin/requests" },
   { label: "Calendar", href: "/admin/calendar" },
+  { label: "Analytics", href: "/admin/analytics" },
+];
+
+const NAV_LINKS = [
   { label: "Board", href: "/admin/board" },
   { label: "Customers", href: "/admin/crm" },
   { label: "Orders", href: "/admin/orders" },
   { label: "Invoices", href: "/admin/invoices" },
   { label: "Terminal", href: "/admin/terminal" },
-  { label: "Analytics", href: "/admin/analytics" },
-  { label: "Digital Rollout Plan", href: "/admin/presentation" },
 ];
 
 export default async function AdminDashboardLayout({
@@ -35,6 +41,7 @@ export default async function AdminDashboardLayout({
               Shop Admin
             </span>
             <nav className="flex items-center gap-6">
+              <NavDropdown label="Overview" links={OVERVIEW_LINKS} />
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}

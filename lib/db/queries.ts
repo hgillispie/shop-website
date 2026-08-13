@@ -31,6 +31,22 @@ export function getJobForRequest(requestId: string) {
   });
 }
 
+// Board detail page + invoice prefill (see app/admin/(dashboard)/board/[id]
+// and the ?fromJobId= handling in app/admin/(dashboard)/invoices/new) both
+// need the full picture — the job, its linked customer, and its linked
+// intake request (bike info, service types, the customer's own words,
+// photos) — in one query rather than three separate lookups.
+export function getJobById(id: string) {
+  return db.query.jobs.findFirst({
+    where: eq(jobs.id, id),
+    // request.customer is a fallback for jobs created before customerId
+    // was set directly on the job itself (see approveRequest in
+    // app/admin/(dashboard)/requests/actions.ts) — resolve either way
+    // rather than assuming every job has the direct link.
+    with: { request: { with: { customer: true } }, customer: true },
+  });
+}
+
 export function getJobs() {
   return db.query.jobs.findMany({
     orderBy: [desc(jobs.createdAt)],
