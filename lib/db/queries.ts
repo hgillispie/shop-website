@@ -7,6 +7,8 @@ import {
   ipRules,
   jobs,
   pageViews,
+  serviceInvoiceJobs,
+  serviceInvoices,
   storeOrders,
   tickets,
 } from "@/lib/db/schema";
@@ -119,5 +121,27 @@ export function getStoreOrderByPrintifyOrderId(printifyOrderId: string) {
   return db.query.storeOrders.findFirst({
     where: eq(storeOrders.printifyOrderId, printifyOrderId),
     with: { items: true },
+  });
+}
+
+export function getServiceInvoices() {
+  return db.query.serviceInvoices.findMany({
+    orderBy: [desc(serviceInvoices.createdAt)],
+  });
+}
+
+export function getServiceInvoiceById(id: string) {
+  return db.query.serviceInvoices.findFirst({
+    where: eq(serviceInvoices.id, id),
+    with: {
+      jobs: {
+        orderBy: [serviceInvoiceJobs.position],
+        with: {
+          parts: {
+            orderBy: (parts, { asc }) => [asc(parts.position)],
+          },
+        },
+      },
+    },
   });
 }

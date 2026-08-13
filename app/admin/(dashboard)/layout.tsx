@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { label: "Board", href: "/admin/board" },
   { label: "Customers", href: "/admin/crm" },
   { label: "Orders", href: "/admin/orders" },
+  { label: "Invoices", href: "/admin/invoices" },
   { label: "Terminal", href: "/admin/terminal" },
   { label: "Analytics", href: "/admin/analytics" },
   { label: "Digital Rollout Plan", href: "/admin/presentation" },
