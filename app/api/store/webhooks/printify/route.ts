@@ -9,6 +9,7 @@ import {
   getStoreOrderByStripePaymentIntentId,
 } from "@/lib/db/queries";
 import { sendOrderShippedEmail } from "@/lib/email";
+import { reportPublishingFailed } from "@/lib/printify";
 
 export async function POST(request: Request) {
   const signatureHeader = request.headers.get("x-pfy-signature"); // "sha256=<hex>"
@@ -60,6 +61,34 @@ type PrintifyWebhookEvent = {
 
 async function handlePrintifyEvent(event: PrintifyWebhookEvent) {
   const eventType = event.type ?? event.topic;
+
+  // Not an order event — handle before the order-matching lookup below,
+  // which would always miss (there's no store order for a product) and
+  // silently swallow this otherwise.
+  if (eventType === "product:publish:started") {
+    const productId = event.resource?.id;
+    if (!productId) {
+      console.warn("[webhooks/printify] product:publish:started with no product id:", event);
+      return;
+    }
+    // This integration has no code path that publishes a product to an
+    // external channel — products render straight from listProducts(),
+    // never synced elsewhere — so nothing here was ever going to report
+    // success. Reporting failure promptly is what releases Printify's own
+    // lock on the product (is_locked: true, dashboard edit/delete
+    // disabled) instead of leaving it stuck until someone notices and
+    // fixes it by hand. See lib/printify.ts's reportPublishingFailed.
+    try {
+      await reportPublishingFailed(
+        productId,
+        "This store does not support publishing products to external sales channels.",
+      );
+    } catch (error) {
+      console.error("[webhooks/printify] failed to report publishing_failed:", productId, error);
+    }
+    return;
+  }
+
   const printifyOrderId = event.resource?.id;
   const externalId = event.resource?.external_id; // the Stripe PaymentIntent id we set on creation
 

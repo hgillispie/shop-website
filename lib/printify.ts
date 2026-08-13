@@ -243,6 +243,29 @@ export async function cancelOrder(
 }
 
 /**
+ * Tells Printify a product's publish attempt didn't complete on this
+ * sales channel — see the `product:publish:started` handling in
+ * app/api/store/webhooks/printify/route.ts for why this app always
+ * reports failure rather than success. Printify's dashboard locks a
+ * product (`is_locked: true`, edit/delete controls disabled) the moment
+ * publishing starts and keeps it locked until either publishing_succeeded
+ * or publishing_failed is called — this app has no code path that ever
+ * actually publishes a product to an external channel (products are
+ * rendered straight from listProducts(), never synced elsewhere), so
+ * nothing was ever going to call this on its own until this fix.
+ */
+export async function reportPublishingFailed(
+  productId: string,
+  reason: string,
+  shopId = process.env.PRINTIFY_SHOP_ID,
+) {
+  return printifyRequest(`/shops/${shopId}/products/${productId}/publishing_failed.json`, {
+    method: "POST",
+    body: { reason },
+  });
+}
+
+/**
  * One-time setup call — see scripts/register-printify-webhook.mjs. Not
  * something the running app ever calls on its own.
  */
