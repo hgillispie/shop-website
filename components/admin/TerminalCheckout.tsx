@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { TerminalScreenPreview, type ReaderScreenStage } from "@/components/admin/TerminalScreenPreview";
 
 type CartLine =
   | {
@@ -33,6 +34,20 @@ type CartLine =
 
 function lineTotalCents(line: CartLine) {
   return line.kind === "merch" ? line.unitPriceCents * line.quantity : line.priceCents;
+}
+
+// What the reader-screen mockup shows as the line description — mirrors
+// what a customer would actually be able to read at a glance, not the full
+// cart. Shared between the live (pre-charge) preview and the frozen
+// snapshot captured when a charge starts (see handleCharge — the cart gets
+// cleared on success, so the "Approved" screen can't derive this live).
+function labelForCart(cart: CartLine[]): string | undefined {
+  if (cart.length === 0) return undefined;
+  if (cart.length > 1) return `${cart.length} items`;
+  const line = cart[0];
+  return line.kind === "merch"
+    ? `${line.title}${line.variantLabel ? ` — ${line.variantLabel}` : ""}`
+    : line.memo;
 }
 
 // Leave `simulated` true — Stripe's simulated reader fakes the entire
@@ -73,6 +88,13 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
     "idle" | "creating-order" | "creating-payment" | "present-card" | "processing" | "paid"
   >("idle");
   const [chargeError, setChargeError] = useState<string | null>(null);
+
+  // Frozen the instant a charge starts, since handleCharge clears `cart` on
+  // success — the reader-screen mockup still needs something to show on the
+  // "Approved" stage after that clear happens. See labelForCart above.
+  const [chargedAmountCents, setChargedAmountCents] = useState(0);
+  const [chargedLabel, setChargedLabel] = useState<string | undefined>(undefined);
+  const [chargedReceiptEmail, setChargedReceiptEmail] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     let cancelled = false;
@@ -144,6 +166,10 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
     setCart((prev) => [...prev, { kind: "manual", priceCents: cents, memo: manualMemo.trim() }]);
     setManualPrice("");
     setManualMemo("");
+    // Starting a new sale should drop the previous one's "Approved" screen
+    // — otherwise the reader-screen mockup would keep showing the last
+    // completed transaction while a new one is already being built.
+    if (chargeStatus === "paid") setChargeStatus("idle");
   }
 
   function addMerchLine() {
@@ -176,6 +202,7 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
       ];
     });
     setQuantity(1);
+    if (chargeStatus === "paid") setChargeStatus("idle");
   }
 
   function removeLine(index: number) {
@@ -185,6 +212,9 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
   async function handleCharge() {
     if (!terminalRef.current || cart.length === 0) return;
     setChargeError(null);
+    setChargedAmountCents(totalCents);
+    setChargedLabel(labelForCart(cart));
+    setChargedReceiptEmail(email.trim() || undefined);
 
     try {
       setChargeStatus("creating-order");
@@ -224,6 +254,28 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
       setChargeStatus("idle");
     }
   }
+
+  // Drives the reader-screen mockup below the Service charge form — a
+  // direct mapping off the real chargeStatus state machine above, not a
+  // separate fake state. Once a charge is in flight, use the frozen
+  // snapshot (chargedAmountCents/chargedLabel) rather than the live cart,
+  // since handleCharge clears the cart the moment it succeeds.
+  const readerScreenStage: ReaderScreenStage =
+    chargeStatus === "present-card"
+      ? "present-card"
+      : chargeStatus === "processing"
+        ? "processing"
+        : chargeStatus === "paid"
+          ? "approved"
+          : chargeStatus === "creating-order" || chargeStatus === "creating-payment"
+            ? "connecting"
+            : cart.length > 0
+              ? "ready"
+              : "idle";
+  const readerScreenAmountCents = chargeStatus === "idle" ? totalCents : chargedAmountCents;
+  const readerScreenLabel = chargeStatus === "idle" ? labelForCart(cart) : chargedLabel;
+  const readerScreenReceiptEmail =
+    chargeStatus === "idle" ? email.trim() || undefined : chargedReceiptEmail;
 
   return (
     <div className="grid gap-8 lg:grid-cols-2">
@@ -272,6 +324,15 @@ export function TerminalCheckout({ products }: { products: PrintifyProduct[] }) 
           <Button type="button" variant="outline" size="sm" onClick={addManualLine}>
             Add to sale
           </Button>
+        </div>
+
+        <div className="mt-6 rounded-lg border border-border bg-surface p-4">
+          <TerminalScreenPreview
+            stage={readerScreenStage}
+            amountCents={readerScreenAmountCents}
+            lineLabel={readerScreenLabel}
+            receiptEmail={readerScreenReceiptEmail}
+          />
         </div>
 
         {products.length > 0 && (
