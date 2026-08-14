@@ -120,20 +120,26 @@ async function fetchProducts(shopId: string | undefined): Promise<PrintifyProduc
  * they can be rendered on the site. Printify doesn't host a storefront for
  * custom integrations — display is entirely on this app.
  *
- * Cached for an hour (the catalog changes rarely) via unstable_cache, which
- * caches the resolved value directly rather than hooking into fetch's own
- * `next.revalidate` extension — that extension produced an intermittent
- * hydration mismatch on the product detail page (the cached description
- * string diverged between the SSR pass and the RSC payload used for
- * hydration on this specific dynamic route); caching the plain return value
- * instead sidesteps that whole class of issue. Only returns products marked
- * visible in the Printify dashboard.
+ * Cached briefly via unstable_cache, which caches the resolved value
+ * directly rather than hooking into fetch's own `next.revalidate` extension
+ * — that extension produced an intermittent hydration mismatch on the
+ * product detail page (the cached description string diverged between the
+ * SSR pass and the RSC payload used for hydration on this specific dynamic
+ * route); caching the plain return value instead sidesteps that whole class
+ * of issue. Only returns products marked visible in the Printify dashboard.
+ *
+ * Originally a 1-hour window on the assumption the catalog changes rarely —
+ * revised down to 60s after a real product (added in Printify) took up to
+ * an hour to appear on /store, which reads as "the store is broken" while
+ * the catalog is actively being curated. 60s keeps most of the caching
+ * benefit (no live Printify call on every request) while changes show up
+ * within a minute instead of up to an hour.
  */
 export async function listProducts(
   shopId = process.env.PRINTIFY_SHOP_ID,
 ): Promise<PrintifyProduct[]> {
   const cached = unstable_cache(fetchProducts, ["printify-products"], {
-    revalidate: 3600,
+    revalidate: 60,
     tags: ["printify-products"],
   });
   return cached(shopId);
