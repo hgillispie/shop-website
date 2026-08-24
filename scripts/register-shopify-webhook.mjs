@@ -1,29 +1,45 @@
 // One-off setup script — mirrors scripts/hash-password.mjs's plain-.mjs
 // convention (no @/ path aliases available outside Next's own build).
-// Registers the orders/paid webhook subscription (Task 2) against a real,
-// Shopify-reachable HTTPS URL. Run once per environment; re-running is
-// harmless (Shopify just gets a second subscription for the same topic —
-// check the Dev Dashboard's app > Webhooks tab if that's ever a concern).
+// Registers a webhook subscription against a real, Shopify-reachable
+// HTTPS URL. Re-running for the same topic is harmless (Shopify just gets
+// a second subscription — check the Dev Dashboard's app > Webhooks tab if
+// that's ever a concern).
 //
 // Usage:
-//   node scripts/register-shopify-webhook.mjs https://swaffordspeed.com/api/shopify/webhooks/orders-paid
+//   node scripts/register-shopify-webhook.mjs orders-paid https://swaffordspeed.com
+//   node scripts/register-shopify-webhook.mjs products-create https://swaffordspeed.com
 //
 // For local testing, Shopify needs a real HTTPS URL it can reach — use a
-// tunnel (ngrok, Cloudflare Tunnel, etc.) and pass its https:// URL here,
-// not localhost.
+// tunnel (ngrok, Cloudflare Tunnel, etc.) and pass its https:// origin
+// here, not localhost.
 
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
-const callbackUrl = process.argv[2] ?? `${process.env.NEXT_PUBLIC_SITE_URL}/api/shopify/webhooks/orders-paid`;
+const TOPICS = {
+  "orders-paid": { topic: "ORDERS_PAID", path: "/api/shopify/webhooks/orders-paid" },
+  "products-create": { topic: "PRODUCTS_CREATE", path: "/api/shopify/webhooks/products-create" },
+};
 
-if (!callbackUrl || callbackUrl.includes("localhost")) {
+const [topicArg, baseUrlArg] = process.argv.slice(2);
+const entry = TOPICS[topicArg];
+
+if (!entry) {
   console.error(
-    "Refusing to register a localhost callback URL — Shopify can't reach it.\n" +
-      "Pass a real HTTPS URL: node scripts/register-shopify-webhook.mjs https://your-tunnel-or-domain/api/shopify/webhooks/orders-paid",
+    `Usage: node scripts/register-shopify-webhook.mjs <${Object.keys(TOPICS).join("|")}> <https://base-url>`,
   );
   process.exit(1);
 }
+
+const baseUrl = baseUrlArg ?? process.env.NEXT_PUBLIC_SITE_URL;
+if (!baseUrl || baseUrl.includes("localhost")) {
+  console.error(
+    "Refusing to register a localhost callback URL — Shopify can't reach it.\n" +
+      `Pass a real HTTPS base URL: node scripts/register-shopify-webhook.mjs ${topicArg} https://your-tunnel-or-domain`,
+  );
+  process.exit(1);
+}
+const callbackUrl = `${baseUrl.replace(/\/$/, "")}${entry.path}`;
 
 const domain = process.env.SHOPIFY_STORE_DOMAIN;
 const clientId = process.env.SHOPIFY_DEV_APP_CLIENT_ID;
@@ -58,7 +74,7 @@ async function getAccessToken() {
 }
 
 async function main() {
-  console.log(`Registering orders/paid webhook -> ${callbackUrl}`);
+  console.log(`Registering ${entry.topic} webhook -> ${callbackUrl}`);
   const token = await getAccessToken();
 
   const res = await fetch(`https://${domain}/admin/api/2025-10/graphql.json`, {
@@ -69,7 +85,7 @@ async function main() {
     },
     body: JSON.stringify({
       query: `
-        mutation RegisterOrdersPaid($topic: WebhookSubscriptionTopic!, $webhookSubscription: WebhookSubscriptionInput!) {
+        mutation RegisterWebhook($topic: WebhookSubscriptionTopic!, $webhookSubscription: WebhookSubscriptionInput!) {
           webhookSubscriptionCreate(topic: $topic, webhookSubscription: $webhookSubscription) {
             webhookSubscription { id topic callbackUrl }
             userErrors { field message }
@@ -77,7 +93,7 @@ async function main() {
         }
       `,
       variables: {
-        topic: "ORDERS_PAID",
+        topic: entry.topic,
         webhookSubscription: { callbackUrl, format: "JSON" },
       },
     }),

@@ -192,6 +192,42 @@ export async function sendDraftOrderInvoice(
   return { invoiceUrl: data.draftOrderInvoiceSend.draftOrder?.invoiceUrl ?? null };
 }
 
+// Auto-publishing a Printify-synced product to the Headless channel the
+// moment it's created — see app/api/shopify/webhooks/products-create/route.ts.
+// The owner explicitly authorized this specific action (publish an
+// already-Printify-synced product to Headless) without asking each time,
+// given the store domain is unguessable and nothing's live/merged yet —
+// unpublish/delete/price-change stay a separate, ask-first category.
+export async function publishProductToHeadless(
+  productId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const publicationId = requireEnv("SHOPIFY_HEADLESS_PUBLICATION_ID");
+
+  const data = await adminFetch<{
+    publishablePublish: {
+      userErrors: { field: string[] | null; message: string }[];
+    };
+  }>(
+    /* GraphQL */ `
+      mutation PublishToHeadless($id: ID!, $input: [PublicationInput!]!) {
+        publishablePublish(id: $id, input: $input) {
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `,
+    { id: productId, input: [{ publicationId }] },
+  );
+
+  const errors = data.publishablePublish.userErrors;
+  if (errors.length > 0) {
+    return { ok: false, error: errors.map((e) => e.message).join("; ") };
+  }
+  return { ok: true };
+}
+
 // Shopify signs the raw webhook body with the app's client secret
 // (SHOPIFY_WEBHOOK_SECRET — same value, see .env.example) via HMAC-SHA256,
 // base64-encoded, in the X-Shopify-Hmac-Sha256 header. Must run on the raw
