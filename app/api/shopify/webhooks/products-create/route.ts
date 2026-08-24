@@ -55,10 +55,14 @@ export async function POST(request: Request) {
       payload.title,
       error instanceof Error ? error.message : error,
     );
+    console.error(
+      "[shopify webhook] full error detail:",
+      error instanceof Error ? error.stack : error,
+    );
     return NextResponse.json({
       ok: true,
       published: false,
-      error: "publishProductToHeadless threw — check SHOPIFY_HEADLESS_PUBLICATION_ID and app scopes",
+      error: "publishProductToHeadless threw — check server logs for detail",
     });
   }
 }
