@@ -1,7 +1,6 @@
 import {
   boolean,
   integer,
-  jsonb,
   numeric,
   pgEnum,
   pgTable,
@@ -33,21 +32,6 @@ export const ticketStatusEnum = pgEnum("ticket_status", [
 ]);
 
 export const ipRuleActionEnum = pgEnum("ip_rule_action", ["flag", "block"]);
-
-export const storeOrderStatusEnum = pgEnum("store_order_status", [
-  "pending_payment",
-  "paid",
-  "fulfillment_failed",
-  "in_production",
-  "shipped",
-  "canceled",
-  "refunded",
-]);
-
-export const storeOrderSourceEnum = pgEnum("store_order_source", [
-  "online",
-  "in_person",
-]);
 
 export const customers = pgTable("customers", {
   id: text("id")
@@ -152,73 +136,13 @@ export const adminUsers = pgTable("admin_users", {
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
-// Store: online purchases (via Stripe Payment Element + Printify fulfillment)
-// and in-person counter sales (via Stripe Terminal) both land here — one
-// order model for both channels, so a shared product source stays honest.
-export const storeOrders = pgTable("store_orders", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  // Cosmetic only (email subjects, admin table) — never accept this as a
-  // lookup key from an unauthenticated request. Use `id` for that; a
-  // sequential integer is trivially guessable, the guest order-confirmation
-  // page is unauthenticated by design.
-  orderNumber: serial("order_number").notNull(),
-  source: storeOrderSourceEnum("source").notNull().default("online"),
-  status: storeOrderStatusEnum("status").notNull().default("pending_payment"),
-  // Nullable — an in-person sale may not capture an email at all.
-  email: text("email"),
-  // Printify address_to shape: firstName/lastName/phone/country/region/
-  // address1/address2/city/zip. Null for in_person (nothing ships).
-  shippingAddress: jsonb("shipping_address"),
-  subtotalCents: integer("subtotal_cents").notNull(),
-  shippingCents: integer("shipping_cents").notNull().default(0),
-  // Not collected yet — always 0 for now, wired up as a real column so
-  // adding tax later doesn't mean retrofitting the pricing/PaymentIntent path.
-  taxCents: integer("tax_cents").notNull().default(0),
-  totalCents: integer("total_cents").notNull(),
-  // Printify charges shipping per print provider, not once per order —
-  // array of { printProviderId: number, cents: number } so that's shown
-  // honestly rather than collapsed into one estimate.
-  shippingBreakdown: jsonb("shipping_breakdown"),
-  // Unique — doubles as an idempotency backstop alongside the atomic
-  // status-flip guard in the webhook handler.
-  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
-  printifyOrderId: text("printify_order_id"),
-  // Set when Printify order creation fails after payment already succeeded —
-  // surfaced in admin so a paid, unfulfilled order is never silently stuck.
-  printifyError: text("printify_error"),
-  trackingNumber: text("tracking_number"),
-  trackingCarrier: text("tracking_carrier"),
-  ipAddress: text("ip_address"),
-  // Same pattern as appointmentRequests.flaggedReason — set when the
-  // submitting IP matches an active ip_rules entry, surfaced in admin,
-  // never used to silently drop an order.
-  flaggedReason: text("flagged_reason"),
-  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
-});
-
-export const storeOrderItems = pgTable("store_order_items", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  orderId: text("order_id")
-    .notNull()
-    .references(() => storeOrders.id),
-  printifyProductId: text("printify_product_id").notNull(),
-  // Printify variant/print-provider ids are numeric, unlike the Mongo-style
-  // string product id.
-  printifyVariantId: integer("printify_variant_id").notNull(),
-  printProviderId: integer("print_provider_id").notNull(),
-  // Snapshots at time of order, so historical orders/emails stay accurate
-  // even if the live Printify catalog changes later.
-  title: text("title").notNull(),
-  variantLabel: text("variant_label"),
-  quantity: integer("quantity").notNull(),
-  unitPriceCents: integer("unit_price_cents").notNull(),
-  imageUrl: text("image_url"),
-});
+// storeOrders/storeOrderItems (the Stripe/Printify-direct order model) were
+// removed here as part of the Shopify migration (see
+// docs/shopify-migration-plan.md) — merch orders now live entirely in
+// Shopify's own admin, and repair-invoice "orders" are serviceInvoices below,
+// which never depended on this table. Dropped from the database once this
+// branch's Neon connection points at an isolated branch (see the migration
+// doc for why that matters before running db:push here).
 
 export const appointmentRequestsRelations = relations(
   appointmentRequests,
@@ -259,17 +183,6 @@ export const ticketsRelations = relations(tickets, ({ one }) => ({
   job: one(jobs, {
     fields: [tickets.jobId],
     references: [jobs.id],
-  }),
-}));
-
-export const storeOrdersRelations = relations(storeOrders, ({ many }) => ({
-  items: many(storeOrderItems),
-}));
-
-export const storeOrderItemsRelations = relations(storeOrderItems, ({ one }) => ({
-  order: one(storeOrders, {
-    fields: [storeOrderItems.orderId],
-    references: [storeOrders.id],
   }),
 }));
 
@@ -319,7 +232,7 @@ export const serviceInvoices = pgTable("service_invoices", {
   taxAppliesToLabor: boolean("tax_applies_to_labor").notNull().default(false),
   // Optional credit-card processing surcharge — off by default, computed on
   // (parts + labor + tax) when enabled, i.e. the actual amount that would
-  // run through the card. See computeInvoiceTotals in lib/store/invoice-totals.ts.
+  // run through the card. See computeInvoiceTotals in lib/invoices/totals.ts.
   ccFeeEnabled: boolean("cc_fee_enabled").notNull().default(false),
   ccFeeRatePercent: numeric("cc_fee_rate_percent", { precision: 5, scale: 3 })
     .notNull()
@@ -409,10 +322,6 @@ export type NewTicketRow = typeof tickets.$inferInsert;
 export type PageViewRow = typeof pageViews.$inferSelect;
 export type IpRuleRow = typeof ipRules.$inferSelect;
 export type AdminUserRow = typeof adminUsers.$inferSelect;
-export type StoreOrderRow = typeof storeOrders.$inferSelect;
-export type NewStoreOrderRow = typeof storeOrders.$inferInsert;
-export type StoreOrderItemRow = typeof storeOrderItems.$inferSelect;
-export type NewStoreOrderItemRow = typeof storeOrderItems.$inferInsert;
 export type ServiceInvoiceRow = typeof serviceInvoices.$inferSelect;
 export type NewServiceInvoiceRow = typeof serviceInvoices.$inferInsert;
 export type ServiceInvoiceJobRow = typeof serviceInvoiceJobs.$inferSelect;

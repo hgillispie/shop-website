@@ -17,12 +17,14 @@ const OVERVIEW_LINKS = [
   { label: "Analytics", href: "/admin/analytics" },
 ];
 
+// "Orders" and "Terminal" removed here as part of the Shopify migration
+// (see docs/shopify-migration-plan.md) — merch orders live in Shopify's own
+// admin now, and in-person payments move to the native Shopify POS app, no
+// custom UI to link to.
 const NAV_LINKS = [
   { label: "Board", href: "/admin/board" },
   { label: "Customers", href: "/admin/crm" },
-  { label: "Orders", href: "/admin/orders" },
   { label: "Invoices", href: "/admin/invoices" },
-  { label: "Terminal", href: "/admin/terminal" },
 ];
 
 export default async function AdminDashboardLayout({

@@ -9,7 +9,6 @@ import {
   pageViews,
   serviceInvoiceJobs,
   serviceInvoices,
-  storeOrders,
   tickets,
 } from "@/lib/db/schema";
 
@@ -107,38 +106,13 @@ export function getIpRules() {
   });
 }
 
-export function getStoreOrders() {
-  return db.query.storeOrders.findMany({
-    orderBy: [desc(storeOrders.createdAt)],
-    with: { items: true },
-  });
-}
-
-// This is the real `getOrderByRef` the Stripe scaffold left stubbed out —
-// always look up by `id` (a UUID), never `orderNumber`. The order-
-// confirmation page is unauthenticated by design (guest checkout), so
-// whatever key looks up an order there is effectively a bearer token for
-// its name/address/items — a sequential integer would be trivially guessable.
-export function getStoreOrderById(id: string) {
-  return db.query.storeOrders.findFirst({
-    where: eq(storeOrders.id, id),
-    with: { items: true },
-  });
-}
-
-export function getStoreOrderByStripePaymentIntentId(paymentIntentId: string) {
-  return db.query.storeOrders.findFirst({
-    where: eq(storeOrders.stripePaymentIntentId, paymentIntentId),
-    with: { items: true },
-  });
-}
-
-export function getStoreOrderByPrintifyOrderId(printifyOrderId: string) {
-  return db.query.storeOrders.findFirst({
-    where: eq(storeOrders.printifyOrderId, printifyOrderId),
-    with: { items: true },
-  });
-}
+// getStoreOrders/getStoreOrderById/getStoreOrderByStripePaymentIntentId/
+// getStoreOrderByPrintifyOrderId were removed here as part of the Shopify
+// migration (see docs/shopify-migration-plan.md) — no local order model to
+// query anymore; merch orders live in Shopify's admin, and a paid repair
+// invoice will be looked up by whatever Shopify sends on the orders/paid
+// webhook once Task 2 is built (see serviceInvoices below for the invoice
+// side of that).
 
 export function getServiceInvoices() {
   return db.query.serviceInvoices.findMany({
