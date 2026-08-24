@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getServiceInvoiceById } from "@/lib/db/queries";
 import { InvoiceForm } from "@/components/admin/InvoiceForm";
+import { SendShopifyInvoiceButton } from "@/components/admin/SendShopifyInvoiceButton";
 
 export default async function EditInvoicePage({
   params,
@@ -11,5 +12,10 @@ export default async function EditInvoicePage({
   const invoice = await getServiceInvoiceById(id);
   if (!invoice) notFound();
 
-  return <InvoiceForm invoice={invoice} />;
+  return (
+    <div className="flex flex-col gap-6">
+      <SendShopifyInvoiceButton invoice={invoice} />
+      <InvoiceForm invoice={invoice} />
+    </div>
+  );
 }

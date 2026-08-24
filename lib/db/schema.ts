@@ -33,6 +33,16 @@ export const ticketStatusEnum = pgEnum("ticket_status", [
 
 export const ipRuleActionEnum = pgEnum("ip_rule_action", ["flag", "block"]);
 
+// Repair-invoice payment lifecycle via Shopify Draft Orders (Task 2 of
+// docs/shopify-migration-plan.md) — a bare invoice starts "not_sent"; stays
+// that way for invoices that get paid in person (cash/Terminal-equivalent,
+// tracked manually) or printed and never sent electronically at all.
+export const invoicePaymentStatusEnum = pgEnum("invoice_payment_status", [
+  "not_sent",
+  "invoice_sent",
+  "paid",
+]);
+
 export const customers = pgTable("customers", {
   id: text("id")
     .primaryKey()
@@ -246,6 +256,16 @@ export const serviceInvoices = pgTable("service_invoices", {
   taxCents: integer("tax_cents").notNull().default(0),
   ccFeeCents: integer("cc_fee_cents").notNull().default(0),
   totalDueCents: integer("total_due_cents").notNull().default(0),
+  // Shopify Draft Order tie-in (Task 2) — set once "Send Shopify Invoice" is
+  // used. draftOrderId/invoiceUrl come back from draftOrderCreate; orderId +
+  // paidAt are filled in by the orders/paid webhook once Shopify converts
+  // the draft into a real paid order. See lib/shopify/admin.ts and
+  // app/api/shopify/webhooks/orders-paid/route.ts.
+  paymentStatus: invoicePaymentStatusEnum("payment_status").notNull().default("not_sent"),
+  shopifyDraftOrderId: text("shopify_draft_order_id"),
+  shopifyInvoiceUrl: text("shopify_invoice_url"),
+  shopifyOrderId: text("shopify_order_id"),
+  paidAt: timestamp("paid_at", { mode: "date" }),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
 });

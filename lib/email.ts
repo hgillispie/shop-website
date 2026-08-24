@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import { siteConfig } from "@/data/site-config";
-import type { AppointmentRequestRow, JobRow } from "@/lib/db/schema";
+import type { AppointmentRequestRow, JobRow, ServiceInvoiceRow } from "@/lib/db/schema";
 
 const FROM = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
 const OWNER_EMAIL = process.env.OWNER_EMAIL;
@@ -107,6 +107,39 @@ export async function sendCustomerResponseEmail(
 // sendOwnerFulfillmentFailedEmail) were removed here as part of the Shopify
 // migration (see docs/shopify-migration-plan.md) — Shopify sends its own
 // merch-order confirmation/shipping emails now, and there's no local
-// storeOrders row to alert on a failed fulfillment for. Repair-invoice
-// payment confirmation is a new, separate email this migration adds (Task 2)
-// once Shopify Draft Orders + the orders/paid webhook are wired up.
+// storeOrders row to alert on a failed fulfillment for.
+
+// Repair-invoice payment confirmation — Task 2's own branded email, kept on
+// Resend deliberately (unlike merch orders) since this is tied to the
+// CRM/branding the owner already uses for repair work. Fired from
+// app/api/shopify/webhooks/orders-paid/route.ts once Shopify reports the
+// Draft Order's resulting order as paid.
+export async function sendInvoicePaidEmail(invoice: ServiceInvoiceRow) {
+  const resend = getResendConfigured();
+  if (!resend || !invoice.customerEmail) {
+    console.info(
+      "[email] skipping invoice-paid email (no RESEND_API_KEY or no customer email):",
+      invoice.id,
+    );
+    return;
+  }
+
+  const total = (invoice.totalDueCents / 100).toFixed(2);
+
+  await resend.emails.send({
+    from: FROM,
+    to: invoice.customerEmail,
+    subject: `Payment received — Invoice #${invoice.invoiceNumber} — ${siteConfig.shopName}`,
+    text: [
+      `Hi ${invoice.customerName},`,
+      "",
+      `We've received your payment for invoice #${invoice.invoiceNumber} — thank you.`,
+      "",
+      `Total paid: $${total}`,
+      "",
+      `Questions? Call or text ${siteConfig.phone}.`,
+      "",
+      `— ${siteConfig.shopName}`,
+    ].join("\n"),
+  });
+}

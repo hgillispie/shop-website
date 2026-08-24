@@ -1,22 +1,44 @@
+import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { ProductCard } from "@/components/store/ProductCard";
+import { getProducts } from "@/lib/shopify/storefront";
 
-// Placeholder for the duration of the Shopify migration (see
-// docs/shopify-migration-plan.md) — the old Stripe/Printify-direct
-// storefront was removed on this branch; the Shopify Storefront API +
-// Cart API version replacing it needs a real store domain and Storefront
-// API token before it can be built and verified, neither of which exist
-// yet. Keeping a real (if minimal) page here rather than leaving /store
-// to 404, since the Navbar's "Store" link still points here.
-export default function StorePage() {
+export const metadata = {
+  title: "Shop",
+};
+
+export default async function StorePage() {
+  // Public, customer-facing — a misconfigured/unreachable Storefront API
+  // shouldn't take the whole page down. Same degrade-gracefully posture as
+  // lib/email.ts/lib/sms.ts when their own creds are missing.
+  const products = await getProducts().catch((error) => {
+    console.error("[store] failed to load products:", error);
+    return [];
+  });
+
   return (
     <>
       <Navbar />
-      <main className="mx-auto max-w-2xl px-6 py-24 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight">Shop</h1>
-        <p className="mt-4 text-sm text-muted">
-          The store is being rebuilt on Shopify — check back soon.
-        </p>
+      <main className="mx-auto max-w-6xl px-6 py-24">
+        <div className="mb-10 flex items-end justify-between">
+          <h1 className="text-3xl font-semibold tracking-tight">Shop</h1>
+          <Link href="/store/cart" className="text-sm text-muted hover:text-accent">
+            View cart
+          </Link>
+        </div>
+
+        {products.length === 0 ? (
+          <p className="text-sm text-muted">
+            Nothing&rsquo;s in the store yet — check back soon.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </main>
       <Footer />
     </>
