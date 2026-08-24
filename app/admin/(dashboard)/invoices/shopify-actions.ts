@@ -84,11 +84,15 @@ export async function sendInvoiceToShopify(invoiceId: string) {
   const draftOrder = await createDraftOrder({
     email: invoice.customerEmail,
     note: [`R.O. #${invoice.invoiceNumber}`, vehicle].filter(Boolean).join(" — "),
-    // repair-invoice + invoice:{id} is how the orders/paid webhook tells a
-    // paid repair invoice apart from a paid merch order on the same topic —
-    // see app/api/shopify/webhooks/orders-paid/route.ts. Draft order tags
-    // carry over to the resulting Order on payment (confirmed behavior).
-    tags: ["repair-invoice", `invoice:${invoice.id}`],
+    // repair-invoice + invoice:{invoiceNumber} is how the orders/paid webhook
+    // tells a paid repair invoice apart from a paid merch order on the same
+    // topic — see app/api/shopify/webhooks/orders-paid/route.ts. Draft order
+    // tags carry over to the resulting Order on payment (confirmed behavior).
+    // Uses invoiceNumber, not the UUID id — Shopify tags cap at 40 characters
+    // and "invoice:" + a full UUID is 44, confirmed failing live
+    // (draftOrderCreate userErrors: "Tag exceeds the maximum length of 40
+    // characters"). invoiceNumber is still a real unique key (serial column).
+    tags: ["repair-invoice", `invoice:${invoice.invoiceNumber}`],
     billingAddress: invoice.customerAddress
       ? {
           address1: invoice.customerAddress,

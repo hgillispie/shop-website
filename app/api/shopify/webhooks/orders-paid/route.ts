@@ -8,9 +8,11 @@ import { sendInvoicePaidEmail } from "@/lib/email";
 // orders/paid fires for BOTH a paid merch order (Task 1 — Shopify + Printify's
 // app already handle that entirely on their own, nothing for us to do) and a
 // paid repair-invoice Draft Order (Task 2 — the only case this route acts
-// on). Distinguished by the "repair-invoice" + "invoice:{id}" tags set at
-// draftOrderCreate time (see invoices/shopify-actions.ts) — Shopify carries
-// draft order tags over to the resulting Order on payment.
+// on). Distinguished by the "repair-invoice" + "invoice:{invoiceNumber}" tags
+// set at draftOrderCreate time (see invoices/shopify-actions.ts) — Shopify
+// carries draft order tags over to the resulting Order on payment. Tagged
+// with invoiceNumber, not the UUID id — Shopify tags cap at 40 characters
+// and "invoice:" + a full UUID (44 chars) fails outright, confirmed live.
 export async function POST(request: Request) {
   const rawBody = await request.text();
   const hmac = request.headers.get("x-shopify-hmac-sha256");
@@ -35,13 +37,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, skipped: "not a repair invoice" });
   }
 
-  const invoiceId = tags.find((t) => t.startsWith("invoice:"))?.split(":")[1];
-  if (!invoiceId) {
+  const invoiceNumberTag = tags.find((t) => t.startsWith("invoice:"))?.split(":")[1];
+  const invoiceNumber = invoiceNumberTag ? Number(invoiceNumberTag) : NaN;
+  if (!Number.isInteger(invoiceNumber)) {
     console.error(
-      "[shopify webhook] order tagged repair-invoice but no invoice:{id} tag found, order:",
+      "[shopify webhook] order tagged repair-invoice but no valid invoice:{number} tag found, order:",
       payload.id,
     );
-    return NextResponse.json({ ok: true, skipped: "no invoice id tag" });
+    return NextResponse.json({ ok: true, skipped: "no invoice number tag" });
   }
 
   // Atomic conditional update, not read-then-write — Shopify delivers
@@ -57,7 +60,12 @@ export async function POST(request: Request) {
       paidAt: new Date(),
       updatedAt: new Date(),
     })
-    .where(and(eq(serviceInvoices.id, invoiceId), ne(serviceInvoices.paymentStatus, "paid")))
+    .where(
+      and(
+        eq(serviceInvoices.invoiceNumber, invoiceNumber),
+        ne(serviceInvoices.paymentStatus, "paid"),
+      ),
+    )
     .returning();
 
   if (!updated) {
