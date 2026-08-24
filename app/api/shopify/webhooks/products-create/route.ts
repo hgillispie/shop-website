@@ -29,21 +29,36 @@ export async function POST(request: Request) {
   }
 
   const productGid = `gid://shopify/Product/${payload.id}`;
-  const result = await publishProductToHeadless(productGid);
 
-  if (!result.ok) {
-    // Don't fail the delivery loudly over this — Shopify will retry a
-    // non-2xx, and a publish failure here isn't something retrying fixes
-    // on its own. Log it so it's visible, respond 200, move on.
+  // publishProductToHeadless can throw outright (e.g. SHOPIFY_HEADLESS_
+  // PUBLICATION_ID not set yet, or the app's scopes not approved/expanded
+  // yet) in addition to returning {ok:false} for a GraphQL-level error —
+  // both are "we can't fix this by retrying," so both log and 200 rather
+  // than surfacing as a 500 that Shopify would just retry uselessly.
+  try {
+    const result = await publishProductToHeadless(productGid);
+    if (!result.ok) {
+      console.error(
+        "[shopify webhook] failed to auto-publish product to Headless:",
+        payload.id,
+        payload.title,
+        result.error,
+      );
+      return NextResponse.json({ ok: true, published: false, error: result.error });
+    }
+    console.info("[shopify webhook] auto-published to Headless:", payload.id, payload.title);
+    return NextResponse.json({ ok: true, published: true });
+  } catch (error) {
     console.error(
-      "[shopify webhook] failed to auto-publish product to Headless:",
+      "[shopify webhook] publishProductToHeadless threw:",
       payload.id,
       payload.title,
-      result.error,
+      error instanceof Error ? error.message : error,
     );
-    return NextResponse.json({ ok: true, published: false, error: result.error });
+    return NextResponse.json({
+      ok: true,
+      published: false,
+      error: "publishProductToHeadless threw — check SHOPIFY_HEADLESS_PUBLICATION_ID and app scopes",
+    });
   }
-
-  console.info("[shopify webhook] auto-published to Headless:", payload.id, payload.title);
-  return NextResponse.json({ ok: true, published: true });
 }
