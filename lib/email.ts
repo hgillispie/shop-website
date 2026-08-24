@@ -1,6 +1,12 @@
 import { Resend } from "resend";
 import { siteConfig } from "@/data/site-config";
-import type { AppointmentRequestRow, JobRow, ServiceInvoiceRow } from "@/lib/db/schema";
+import type {
+  AppointmentRequestRow,
+  JobRow,
+  ServiceInvoiceJobRow,
+  ServiceInvoicePartsLineRow,
+  ServiceInvoiceRow,
+} from "@/lib/db/schema";
 
 const FROM = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
 const OWNER_EMAIL = process.env.OWNER_EMAIL;
@@ -108,6 +114,72 @@ export async function sendCustomerResponseEmail(
 // migration (see docs/shopify-migration-plan.md) — Shopify sends its own
 // merch-order confirmation/shipping emails now, and there's no local
 // storeOrders row to alert on a failed fulfillment for.
+
+type InvoiceWithJobs = ServiceInvoiceRow & {
+  jobs: (ServiceInvoiceJobRow & { parts: ServiceInvoicePartsLineRow[] })[];
+};
+
+const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+
+// The owner's real complaint this answers: Shopify's own draft-order-invoice
+// email (sent by draftOrderInvoiceSend) is generic and unbranded, and shows
+// nothing like the actual invoice the owner's client already likes. Sent
+// *alongside* Shopify's email, not instead of it — kept draftOrderInvoiceSend
+// in the flow since skipping it left the checkout link's validity unverified
+// (see shopify-actions.ts) — so the customer gets two emails for now. This
+// is the one that actually looks and reads like the shop's invoice.
+export async function sendInvoiceRepairEmail(invoice: InvoiceWithJobs, payUrl: string) {
+  const resend = getResendConfigured();
+  if (!resend || !invoice.customerEmail) {
+    console.info(
+      "[email] skipping branded repair-invoice email (no RESEND_API_KEY or no customer email):",
+      invoice.id,
+    );
+    return;
+  }
+
+  const vehicle = [invoice.vehicleYear, invoice.vehicleMake, invoice.vehicleModel]
+    .filter(Boolean)
+    .join(" ");
+
+  const jobLines = invoice.jobs.flatMap((job, i) => {
+    const heading = `Job ${i + 1}: ${job.customerDescription || "Repair"}`;
+    const partsLines = job.parts.map(
+      (part) =>
+        `    ${part.qty} x ${part.description || "Part"} — ${money(part.qty * part.unitPriceCents)}`,
+    );
+    const laborLine = job.laborCents > 0 ? `    Labor — ${money(job.laborCents)}` : null;
+    return [heading, ...partsLines, laborLine, ""].filter((line): line is string => line !== null);
+  });
+
+  await resend.emails.send({
+    from: FROM,
+    to: invoice.customerEmail,
+    subject: `Your invoice from ${siteConfig.shopName} — R.O. #${invoice.invoiceNumber}`,
+    text: [
+      `Hi ${invoice.customerName},`,
+      "",
+      `Here's the invoice for your${vehicle ? ` ${vehicle}` : " bike"}'s recent visit${
+        invoice.serviceAdvisor ? `, written up by ${invoice.serviceAdvisor}` : ""
+      }.`,
+      "",
+      ...jobLines,
+      `Parts: ${money(invoice.partsTotalCents)}`,
+      `Labor: ${money(invoice.laborTotalCents)}`,
+      invoice.taxCents > 0 ? `Tax: ${money(invoice.taxCents)}` : null,
+      invoice.ccFeeCents > 0 ? `Card processing fee: ${money(invoice.ccFeeCents)}` : null,
+      `Total due: ${money(invoice.totalDueCents)}`,
+      "",
+      `Pay online: ${payUrl}`,
+      "",
+      `Questions? Call or text ${siteConfig.phone}.`,
+      "",
+      `— ${siteConfig.shopName}`,
+    ]
+      .filter((line): line is string => line !== null)
+      .join("\n"),
+  });
+}
 
 // Repair-invoice payment confirmation — Task 2's own branded email, kept on
 // Resend deliberately (unlike merch orders) since this is tied to the

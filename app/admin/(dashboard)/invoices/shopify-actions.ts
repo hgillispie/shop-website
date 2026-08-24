@@ -6,6 +6,7 @@ import { db } from "@/lib/db/client";
 import { serviceInvoices } from "@/lib/db/schema";
 import { getServiceInvoiceById } from "@/lib/db/queries";
 import { createDraftOrder, sendDraftOrderInvoice } from "@/lib/shopify/admin";
+import { sendInvoiceRepairEmail } from "@/lib/email";
 
 // Same posture as invoices/actions.ts — a Server Action is its own POST
 // endpoint, checked explicitly regardless of the page-level gate.
@@ -116,6 +117,16 @@ export async function sendInvoiceToShopify(invoiceId: string) {
       updatedAt: new Date(),
     })
     .where(eq(serviceInvoices.id, invoiceId));
+
+  // Shopify's own draft-order-invoice email still goes out (see the comment
+  // on sendDraftOrderInvoice's call above for why that's not skipped) — this
+  // is the one that actually carries the shop's branding and looks like the
+  // real invoice, sent alongside it rather than instead of it for now.
+  if (invoiceUrl) {
+    await sendInvoiceRepairEmail(invoice, invoiceUrl).catch((error) => {
+      console.error("[invoices] failed to send branded repair-invoice email:", error);
+    });
+  }
 
   return { invoiceUrl };
 }
