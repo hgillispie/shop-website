@@ -3,8 +3,19 @@ import { getServiceInvoices } from "@/lib/db/queries";
 import { formatCents } from "@/lib/store/money";
 import { formatDateWritten } from "@/lib/invoices/date";
 import { ButtonLink } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import type { ServiceInvoiceRow } from "@/lib/db/schema";
 
 export const dynamic = "force-dynamic";
+
+const STATUS_BADGE: Record<
+  ServiceInvoiceRow["paymentStatus"],
+  { label: string; variant: "muted" | "outline" | "accent" }
+> = {
+  not_sent: { label: "Not sent", variant: "muted" },
+  invoice_sent: { label: "Invoice sent", variant: "outline" },
+  paid: { label: "Paid", variant: "accent" },
+};
 
 export default async function AdminInvoicesPage() {
   const invoices = await getServiceInvoices();
@@ -28,6 +39,7 @@ export default async function AdminInvoicesPage() {
               <th className="px-4 py-3">Vehicle</th>
               <th className="px-4 py-3">Date written</th>
               <th className="px-4 py-3">Total due</th>
+              <th className="px-4 py-3">Shopify status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -51,12 +63,17 @@ export default async function AdminInvoicesPage() {
                   <td className="px-4 py-4 font-medium tabular-nums">
                     {formatCents(invoice.totalDueCents)}
                   </td>
+                  <td className="px-4 py-4">
+                    <Badge variant={STATUS_BADGE[invoice.paymentStatus].variant}>
+                      {STATUS_BADGE[invoice.paymentStatus].label}
+                    </Badge>
+                  </td>
                 </tr>
               );
             })}
             {invoices.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-muted">
+                <td colSpan={6} className="px-4 py-10 text-center text-muted">
                   No invoices yet.{" "}
                   <Link href="/admin/invoices/new" className="text-accent hover:underline">
                     Create the first one
