@@ -121,6 +121,125 @@ type InvoiceWithJobs = ServiceInvoiceRow & {
 
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
+// Email clients strip <style> blocks and don't reliably support flex/grid —
+// table layout with inline styles is the actual state of the art here, not
+// a step backward. PNG logo, not the site's SVG: Outlook's rendering engine
+// in particular has poor/no inline SVG support, and "at least have the logo
+// on it" is the one thing this absolutely cannot fail silently on.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function renderInvoiceHtml(invoice: InvoiceWithJobs, payUrl: string, vehicle: string): string {
+  const logoUrl = `${SITE_URL}/logo-email.png`;
+  const e = escapeHtml;
+
+  const jobRows = invoice.jobs
+    .map((job, i) => {
+      const partRows = job.parts
+        .map(
+          (part) => `
+        <tr>
+          <td style="padding:2px 0;font-size:13px;color:#444444;">${part.qty} &times; ${e(part.description || "Part")}</td>
+          <td align="right" style="padding:2px 0;font-size:13px;color:#444444;">${money(part.qty * part.unitPriceCents)}</td>
+        </tr>`,
+        )
+        .join("");
+      const laborRow =
+        job.laborCents > 0
+          ? `
+        <tr>
+          <td style="padding:2px 0;font-size:13px;color:#444444;">Labor</td>
+          <td align="right" style="padding:2px 0;font-size:13px;color:#444444;">${money(job.laborCents)}</td>
+        </tr>`
+          : "";
+      return `
+      <tr>
+        <td style="padding:${i === 0 ? "18" : "14"}px 32px 0;">
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:13px;font-weight:bold;color:#000000;margin-bottom:6px;">
+            Job ${i + 1}: ${e(job.customerDescription || "Repair")}
+          </div>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            ${partRows}${laborRow}
+          </table>
+        </td>
+      </tr>`;
+    })
+    .join("");
+
+  const taxRow =
+    invoice.taxCents > 0
+      ? `<tr><td style="padding:3px 0;font-size:13px;">Tax</td><td align="right" style="padding:3px 0;font-size:13px;">${money(invoice.taxCents)}</td></tr>`
+      : "";
+  const ccFeeRow =
+    invoice.ccFeeCents > 0
+      ? `<tr><td style="padding:3px 0;font-size:13px;">Card processing fee</td><td align="right" style="padding:3px 0;font-size:13px;">${money(invoice.ccFeeCents)}</td></tr>`
+      : "";
+
+  return `
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0eee9;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid #dddddd;">
+        <tr>
+          <td style="padding:28px 32px 18px;border-bottom:4px solid #000000;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td width="130" valign="middle">
+                  <img src="${logoUrl}" width="120" alt="${e(siteConfig.shopName)}" style="display:block;" />
+                </td>
+                <td align="right" valign="middle">
+                  <div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:bold;letter-spacing:0.12em;color:#000000;">INVOICE</div>
+                  <div style="font-size:11px;color:#666666;margin-top:2px;">R.O. #${invoice.invoiceNumber}</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:22px 32px 0;font-size:14px;line-height:1.5;color:#222222;">
+            Hi ${e(invoice.customerName)},<br />
+            Here&rsquo;s the invoice for your${vehicle ? ` ${e(vehicle)}` : " bike"}&rsquo;s recent visit${
+              invoice.serviceAdvisor ? `, written up by ${e(invoice.serviceAdvisor)}` : ""
+            }.
+          </td>
+        </tr>
+        ${jobRows}
+        <tr>
+          <td style="padding:20px 32px 0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="color:#222222;">
+              <tr><td style="padding:3px 0;font-size:13px;">Parts</td><td align="right" style="padding:3px 0;font-size:13px;">${money(invoice.partsTotalCents)}</td></tr>
+              <tr><td style="padding:3px 0;font-size:13px;">Labor</td><td align="right" style="padding:3px 0;font-size:13px;">${money(invoice.laborTotalCents)}</td></tr>
+              ${taxRow}
+              ${ccFeeRow}
+              <tr>
+                <td style="padding:10px 0 4px;border-top:2px solid #000000;font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:16px;color:#000000;">Total due</td>
+                <td align="right" style="padding:10px 0 4px;border-top:2px solid #000000;font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:16px;color:#000000;">${money(invoice.totalDueCents)}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:28px 32px 8px;">
+            <a href="${payUrl}" style="display:inline-block;background-color:#b3812f;color:#ffffff;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;padding:14px 40px;border-radius:999px;">Pay this invoice</a>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:12px 32px 30px;font-size:12px;color:#888888;line-height:1.6;">
+            Questions? Call or text ${e(siteConfig.phone)}.<br />
+            &mdash; ${e(siteConfig.shopName)}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`;
+}
+
 // The owner's real complaint this answers: Shopify's own draft-order-invoice
 // email (sent by draftOrderInvoiceSend) is generic and unbranded, and shows
 // nothing like the actual invoice the owner's client already likes. Sent
@@ -156,6 +275,7 @@ export async function sendInvoiceRepairEmail(invoice: InvoiceWithJobs, payUrl: s
     from: FROM,
     to: invoice.customerEmail,
     subject: `Your invoice from ${siteConfig.shopName} — R.O. #${invoice.invoiceNumber}`,
+    html: renderInvoiceHtml(invoice, payUrl, vehicle),
     text: [
       `Hi ${invoice.customerName},`,
       "",
