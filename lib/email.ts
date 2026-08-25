@@ -1,4 +1,6 @@
 import { Resend } from "resend";
+import fs from "node:fs";
+import path from "node:path";
 import { siteConfig } from "@/data/site-config";
 import type {
   AppointmentRequestRow,
@@ -134,8 +136,30 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
+// Inlined as base64, not linked by URL — an <img src="https://..."> pointed
+// at this app's own domain would 302 into Vercel's Deployment Protection
+// wall for anyone without a Vercel login (confirmed live), and embedding
+// the protection-bypass secret in a customer-facing email to work around
+// that is a worse trade than the problem it solves. Inlining sidesteps the
+// whole question — works regardless of what that setting is ever set to.
+let cachedLogoDataUri: string | null = null;
+function getLogoDataUri(): string | null {
+  if (cachedLogoDataUri) return cachedLogoDataUri;
+  try {
+    const filePath = path.join(process.cwd(), "public", "logo-email.png");
+    cachedLogoDataUri = `data:image/png;base64,${fs.readFileSync(filePath).toString("base64")}`;
+    return cachedLogoDataUri;
+  } catch (error) {
+    console.error("[email] failed to read logo for inline embedding:", error);
+    return null;
+  }
+}
+
 function renderInvoiceHtml(invoice: InvoiceWithJobs, payUrl: string, vehicle: string): string {
-  const logoUrl = `${SITE_URL}/logo-email.png`;
+  const logoUri = getLogoDataUri();
+  const logoCell = logoUri
+    ? `<img src="${logoUri}" width="120" alt="${escapeHtml(siteConfig.shopName)}" style="display:block;" />`
+    : `<div style="font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:15px;letter-spacing:0.08em;">${escapeHtml(siteConfig.shopName.toUpperCase())}</div>`;
   const e = escapeHtml;
 
   const jobRows = invoice.jobs
@@ -190,7 +214,7 @@ function renderInvoiceHtml(invoice: InvoiceWithJobs, payUrl: string, vehicle: st
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td width="130" valign="middle">
-                  <img src="${logoUrl}" width="120" alt="${e(siteConfig.shopName)}" style="display:block;" />
+                  ${logoCell}
                 </td>
                 <td align="right" valign="middle">
                   <div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:bold;letter-spacing:0.12em;color:#000000;">INVOICE</div>
