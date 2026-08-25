@@ -5,7 +5,7 @@ import { getSession } from "@/lib/auth/session";
 import { db } from "@/lib/db/client";
 import { serviceInvoices } from "@/lib/db/schema";
 import { getServiceInvoiceById } from "@/lib/db/queries";
-import { createDraftOrder, sendDraftOrderInvoice } from "@/lib/shopify/admin";
+import { createDraftOrder } from "@/lib/shopify/admin";
 import { sendInvoiceRepairEmail } from "@/lib/email";
 
 // Same posture as invoices/actions.ts — a Server Action is its own POST
@@ -105,8 +105,7 @@ export async function sendInvoiceToShopify(invoiceId: string) {
     lineItems,
   });
 
-  const sent = await sendDraftOrderInvoice(draftOrder.id);
-  const invoiceUrl = sent.invoiceUrl ?? draftOrder.invoiceUrl ?? null;
+  const invoiceUrl = draftOrder.invoiceUrl ?? null;
 
   await db
     .update(serviceInvoices)
@@ -118,10 +117,12 @@ export async function sendInvoiceToShopify(invoiceId: string) {
     })
     .where(eq(serviceInvoices.id, invoiceId));
 
-  // Shopify's own draft-order-invoice email still goes out (see the comment
-  // on sendDraftOrderInvoice's call above for why that's not skipped) — this
-  // is the one that actually carries the shop's branding and looks like the
-  // real invoice, sent alongside it rather than instead of it for now.
+  // No more sendDraftOrderInvoice call — confirmed live (a real browser,
+  // not just a fetch, reached a fully functional checkout page) that
+  // draftOrderCreate's own invoiceUrl is payable without it. That was the
+  // whole reason the customer got two emails (Shopify's generic one +
+  // this branded one); now there's just the one that actually looks like
+  // the shop's invoice.
   if (invoiceUrl) {
     await sendInvoiceRepairEmail(invoice, invoiceUrl).catch((error) => {
       console.error("[invoices] failed to send branded repair-invoice email:", error);
