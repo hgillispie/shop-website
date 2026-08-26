@@ -155,7 +155,11 @@ function getLogoDataUri(): string | null {
   }
 }
 
-function renderInvoiceHtml(invoice: InvoiceWithJobs, payUrl: string, vehicle: string): string {
+function renderInvoiceHtml(
+  invoice: InvoiceWithJobs,
+  payUrl: string | null,
+  vehicle: string,
+): string {
   const logoUri = getLogoDataUri();
   const logoCell = logoUri
     ? `<img src="${logoUri}" width="120" alt="${escapeHtml(siteConfig.shopName)}" style="display:block;" />`
@@ -247,11 +251,19 @@ function renderInvoiceHtml(invoice: InvoiceWithJobs, payUrl: string, vehicle: st
             </table>
           </td>
         </tr>
-        <tr>
+        ${
+          payUrl
+            ? `<tr>
           <td align="center" style="padding:28px 32px 8px;">
             <a href="${payUrl}" style="display:inline-block;background-color:#b3812f;color:#ffffff;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;padding:14px 40px;border-radius:999px;">Pay this invoice</a>
           </td>
-        </tr>
+        </tr>`
+            : `<tr>
+          <td align="center" style="padding:22px 32px 4px;font-size:12px;color:#888888;">
+            A copy of this invoice is attached as a PDF.
+          </td>
+        </tr>`
+        }
         <tr>
           <td align="center" style="padding:12px 32px 30px;font-size:12px;color:#888888;line-height:1.6;">
             Questions? Call or text ${e(siteConfig.phone)}.<br />
@@ -357,5 +369,75 @@ export async function sendInvoicePaidEmail(invoice: ServiceInvoiceRow) {
       "",
       `— ${siteConfig.shopName}`,
     ].join("\n"),
+  });
+}
+
+// "Email a copy" — for a customer who paid in person (or is about to) but
+// wants a digital copy of the same invoice for their own records. Reuses
+// renderInvoiceHtml with payUrl: null (swaps the "Pay this invoice" button
+// for a note pointing at the attached PDF) rather than a second parallel
+// template — same visual invoice, different call to action. Deliberately
+// independent of paymentStatus/Draft Orders: this can be sent for any
+// invoice with a customer email, regardless of how (or whether yet) it's
+// been paid. See emailInvoiceCopy in
+// app/admin/(dashboard)/invoices/actions.ts and renderInvoicePdf in
+// lib/invoices/pdf.tsx for the PDF itself.
+export async function sendInvoiceCopyEmail(invoice: InvoiceWithJobs, pdfBuffer: Buffer) {
+  const resend = getResendConfigured();
+  if (!resend || !invoice.customerEmail) {
+    console.info(
+      "[email] skipping invoice-copy email (no RESEND_API_KEY or no customer email):",
+      invoice.id,
+    );
+    return;
+  }
+
+  const vehicle = [invoice.vehicleYear, invoice.vehicleMake, invoice.vehicleModel]
+    .filter(Boolean)
+    .join(" ");
+
+  const jobLines = invoice.jobs.flatMap((job, i) => {
+    const heading = `Job ${i + 1}: ${job.customerDescription || "Repair"}`;
+    const partsLines = job.parts.map(
+      (part) =>
+        `    ${part.qty} x ${part.description || "Part"} — ${money(part.qty * part.unitPriceCents)}`,
+    );
+    const laborLine = job.laborCents > 0 ? `    Labor — ${money(job.laborCents)}` : null;
+    return [heading, ...partsLines, laborLine, ""].filter((line): line is string => line !== null);
+  });
+
+  await resend.emails.send({
+    from: FROM,
+    to: invoice.customerEmail,
+    subject: `Your invoice copy — R.O. #${invoice.invoiceNumber} — ${siteConfig.shopName}`,
+    html: renderInvoiceHtml(invoice, null, vehicle),
+    text: [
+      `Hi ${invoice.customerName},`,
+      "",
+      `Here's a copy of the invoice for your${vehicle ? ` ${vehicle}` : " bike"}'s recent visit${
+        invoice.serviceAdvisor ? `, written up by ${invoice.serviceAdvisor}` : ""
+      }.`,
+      "",
+      ...jobLines,
+      `Parts: ${money(invoice.partsTotalCents)}`,
+      `Labor: ${money(invoice.laborTotalCents)}`,
+      invoice.taxCents > 0 ? `Tax: ${money(invoice.taxCents)}` : null,
+      invoice.ccFeeCents > 0 ? `Card processing fee: ${money(invoice.ccFeeCents)}` : null,
+      `Total due: ${money(invoice.totalDueCents)}`,
+      "",
+      "A copy of this invoice is attached as a PDF.",
+      "",
+      `Questions? Call or text ${siteConfig.phone}.`,
+      "",
+      `— ${siteConfig.shopName}`,
+    ]
+      .filter((line): line is string => line !== null)
+      .join("\n"),
+    attachments: [
+      {
+        filename: `invoice-${invoice.invoiceNumber}.pdf`,
+        content: pdfBuffer,
+      },
+    ],
   });
 }

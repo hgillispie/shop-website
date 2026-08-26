@@ -135,3 +135,10 @@ export function getServiceInvoiceById(id: string) {
     },
   });
 }
+
+// Shared shape for anything that needs a full invoice + its nested
+// jobs/parts (PDF rendering, emailing) — one source of truth instead of
+// each consumer hand-rolling the same intersection type.
+export type ServiceInvoiceWithJobs = NonNullable<
+  Awaited<ReturnType<typeof getServiceInvoiceById>>
+>;

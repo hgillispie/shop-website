@@ -4,7 +4,10 @@ import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth/session";
 import { db } from "@/lib/db/client";
 import { serviceInvoiceJobs, serviceInvoicePartsLines, serviceInvoices } from "@/lib/db/schema";
+import { getServiceInvoiceById } from "@/lib/db/queries";
 import { computeInvoiceTotals } from "@/lib/invoices/totals";
+import { renderInvoicePdf } from "@/lib/invoices/pdf";
+import { sendInvoiceCopyEmail } from "@/lib/email";
 import { invoiceSchema, type InvoiceInput } from "@/lib/validations/invoices";
 
 // A Server Action is a POST endpoint in its own right, reachable
@@ -131,5 +134,25 @@ export async function deleteInvoice(id: string) {
   // Cascades to serviceInvoiceJobs -> serviceInvoicePartsLines (onDelete:
   // "cascade" in lib/db/schema.ts) — one statement is enough.
   await db.delete(serviceInvoices).where(eq(serviceInvoices.id, id));
+  return { ok: true };
+}
+
+// Deliberately separate from shopify-actions.ts's sendInvoiceToShopify —
+// this doesn't touch paymentStatus, doesn't create a Draft Order, and
+// isn't gated on Shopify at all. It's for the "customer paid in person (or
+// will) but wants a digital copy for their own records" case: render the
+// same invoice as a PDF and email it as an attachment, full stop.
+export async function emailInvoiceCopy(invoiceId: string) {
+  await requireSession();
+
+  const invoice = await getServiceInvoiceById(invoiceId);
+  if (!invoice) throw new Error("Invoice not found.");
+  if (!invoice.customerEmail) {
+    throw new Error("Add a customer email to this invoice before emailing a copy.");
+  }
+
+  const pdfBuffer = await renderInvoicePdf(invoice);
+  await sendInvoiceCopyEmail(invoice, pdfBuffer);
+
   return { ok: true };
 }
