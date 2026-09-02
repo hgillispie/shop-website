@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addToCartAction } from "@/app/store/actions";
 import { Button } from "@/components/ui/button";
+import { ShopPayButton } from "@/components/store/ShopPayButton";
 import { formatMoney } from "@/lib/shopify/money";
 import type { Product, ProductVariant } from "@/lib/shopify/types";
 
@@ -96,6 +97,17 @@ export function AddToCartForm({ product }: { product: Product }) {
             ? `Add to cart — ${formatMoney(selectedVariant.price)}`
             : "Unavailable"}
       </Button>
+
+      {selectedVariant && selectedVariant.availableForSale ? (
+        <>
+          <div className="flex items-center gap-3 text-xs tracking-wide text-muted uppercase">
+            <span className="h-px flex-1 bg-border" />
+            or
+            <span className="h-px flex-1 bg-border" />
+          </div>
+          <ShopPayButton variantId={selectedVariant.id} quantity={quantity} />
+        </>
+      ) : null}
 
       {feedback ? <p className="text-sm text-muted">{feedback}</p> : null}
     </div>

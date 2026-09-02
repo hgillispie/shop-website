@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Script from "next/script";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { getCartId } from "@/lib/shopify/cart-cookie";
@@ -15,6 +16,17 @@ export default async function StoreLayout({ children }: { children: React.ReactN
 
   return (
     <>
+      {/* Shopify's "Buy with Shop Pay" web component (see
+          components/store/ShopPayButton.tsx) — loaded once here for the
+          whole /store/* subtree rather than per-component, since both the
+          product page and the grid's Quick View modal render that button
+          via the shared AddToCartForm. next/script dedupes this across
+          route navigations on its own. */}
+      <Script
+        src="https://cdn.shopify.com/shopifycloud/shop-js/modules/v2/loader.pay-button.esm.js"
+        type="module"
+        strategy="afterInteractive"
+      />
       <Navbar />
       <div className="pt-16">
         <div className="sticky top-16 z-40 border-b border-border/60 bg-background/95 backdrop-blur-sm">
