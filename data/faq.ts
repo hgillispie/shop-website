@@ -12,7 +12,7 @@ export const faqs = [
   {
     question: "Can you build a club-style or fully custom bike?",
     answer:
-      "Yes. Bars, risers, controls, fairings, lighting, suspension, exhaust, hardtail conversions, one-off fabrication, and complete builds are all within scope.",
+      "Yes. Bars, risers, controls, fairings, lighting, wiring, suspension, exhaust, hardtail conversions, one-off fabrication, and complete builds are all within scope.",
   },
   {
     question: "Do you still work on vintage Harley-Davidsons?",
