@@ -5,7 +5,7 @@ Quick orientation for picking up this repo cold. Companions: [`INTEGRATIONS.md`]
 **This is live production** (`swaffordspeed.com`, branch `main`), not a sandbox — real customers, real owner. When unsure whether something is safe/live/current, check `git log`/current code or ask, rather than assuming.
 
 ## Stack
-Next.js 16 App Router + TS + Tailwind v4 + React 19 · Neon Postgres via Drizzle (`neon-http` — **no transactions**, sequential writes only) · Resend (email) · Twilio (SMS, currently paused via `SMS_ENABLED=false`) · Vercel Blob (photo uploads) · Shopify (storefront + repair-invoice payments) · hosted on Vercel.
+Next.js 16 App Router + TS + Tailwind v4 + React 19 + Headless UI · Neon Postgres via Drizzle (`neon-http` — **no transactions**, sequential writes only) · Resend (email) · Twilio (SMS, currently paused via `SMS_ENABLED=false`) · Vercel Blob (photo uploads) · Shopify (storefront + repair-invoice payments) · hosted on Vercel.
 
 **AGENTS.md says "this is NOT the Next.js you know" — real, not decoration.** Conventions have shifted (favicon/icon files, `next/script`, `middleware`→`proxy`). Check `node_modules/next/dist/docs/` for anything Next-API-shaped rather than assuming from training data.
 
@@ -30,7 +30,8 @@ No local table for merch orders — Shopify/Printify own that data entirely.
 
 ## Patterns worth knowing before writing code here
 - Server Actions (co-located `actions.ts`) do all admin CRUD + cart mutations; each checks session explicitly (not just relying on middleware). Route Handlers only for things called from outside this app's React tree (webhooks, public form POST, PDF stream).
-- Email (`lib/email.ts`) all goes through Resend. Two invoice emails + the appointment-confirmation email got a branded HTML redesign (logo + colors `201E1E`/`F58220`/`EC5407`) matching the Shopify checkout's own branding — scoped to just those, not the main site.
+- The public landing page and branded emails use the Shopify-aligned logo + colors `201E1E`/`F58220`/`EC5407`. The landing page prioritizes the appointment form, with `/store` as a secondary funnel; Store/Admin styling remains intentionally unchanged pending owner approval.
+- Email (`lib/email.ts`) all goes through Resend. Two invoice emails + the appointment-confirmation email use the branded HTML design matching the Shopify checkout.
 - `lib/invoices/pdf.tsx` (`@react-pdf/renderer`) is unrelated to the email rebrand — intentionally still uses the old logo.
 
 ## If something here seems off or you're not sure

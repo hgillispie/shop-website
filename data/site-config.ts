@@ -1,6 +1,8 @@
 export const siteConfig = {
   shopName: "Swafford Speed",
   tagline: "Independent Harley-Davidson mechanics.",
+  logoUrl:
+    "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F45f71d7b1358472ebf340a8f36ea205f?format=webp&width=800&height=1200",
   phone: "(843)-666-9451",
   email: "huntergillispie1@proton.me",
   city: "Taylors, SC",

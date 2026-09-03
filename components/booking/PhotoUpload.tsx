@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PHOTO_LIMITS } from "@/lib/validations/appointment";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +44,7 @@ export function PhotoUpload({ files, onChange }: PhotoUploadProps) {
   }
 
   function removeAt(index: number) {
-    onChange(files.filter((_, i) => i !== index));
+    onChange(files.filter((_, fileIndex) => fileIndex !== index));
     setError(null);
   }
 
@@ -54,28 +54,31 @@ export function PhotoUpload({ files, onChange }: PhotoUploadProps) {
         role="button"
         tabIndex={0}
         onClick={() => inputRef.current?.click()}
-        onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault();
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
+        onDragOver={(event) => {
+          event.preventDefault();
           setDragActive(true);
         }}
         onDragLeave={() => setDragActive(false)}
-        onDrop={(e) => {
-          e.preventDefault();
+        onDrop={(event) => {
+          event.preventDefault();
           setDragActive(false);
-          addFiles(e.dataTransfer.files);
+          addFiles(event.dataTransfer.files);
         }}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border bg-surface px-4 py-10 text-center transition-colors",
-          dragActive && "border-accent bg-accent-soft",
+          "flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-brand-ink/25 bg-brand-paper/60 px-4 py-7 text-center transition-colors focus-visible:outline-2 focus-visible:outline-brand-rust",
+          dragActive && "border-brand-rust bg-brand-orange/10",
         )}
       >
-        <ImagePlus className="h-6 w-6 text-muted" aria-hidden="true" />
-        <p className="text-sm text-foreground">
-          Drop photos here, or tap to upload from your phone
-        </p>
-        <p className="text-xs text-muted">
-          Bike overview, damage, or wiring. Up to {PHOTO_LIMITS.maxFiles} photos, 8MB each
+        <ImagePlus className="h-6 w-6 text-brand-rust" aria-hidden="true" />
+        <p className="text-sm font-semibold text-brand-ink">Tap to add photos</p>
+        <p className="text-[11px] leading-5 text-brand-ink/45">
+          Overview, damage, or wiring · Up to {PHOTO_LIMITS.maxFiles} files
         </p>
         <input
           ref={inputRef}
@@ -84,23 +87,23 @@ export function PhotoUpload({ files, onChange }: PhotoUploadProps) {
           multiple
           capture="environment"
           className="hidden"
-          onChange={(e) => addFiles(e.target.files)}
+          onChange={(event) => addFiles(event.target.files)}
         />
       </div>
 
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-xs font-medium text-brand-rust">{error}</p>}
 
       {previews.length > 0 && (
         <ul className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
           {previews.map((src, index) => (
-            <li key={src} className="relative aspect-square overflow-hidden rounded-md border border-border">
+            <li key={src} className="relative aspect-square overflow-hidden border border-brand-ink/20">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={src} alt="" className="h-full w-full object-cover" />
               <button
                 type="button"
                 onClick={() => removeAt(index)}
                 aria-label="Remove photo"
-                className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white"
+                className="absolute right-1 top-1 bg-brand-ink p-1.5 text-white"
               >
                 <X className="h-3 w-3" />
               </button>
