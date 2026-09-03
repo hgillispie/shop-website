@@ -4,7 +4,6 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addToCartAction } from "@/app/store/actions";
 import { Button } from "@/components/ui/button";
-import { ShopPayButton } from "@/components/store/ShopPayButton";
 import { formatMoney } from "@/lib/shopify/money";
 import type { Product, ProductVariant } from "@/lib/shopify/types";
 
@@ -15,6 +14,7 @@ function variantMatches(variant: ProductVariant, selected: Record<string, string
 export function AddToCartForm({ product }: { product: Product }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isBuyingNow, startBuyNowTransition] = useTransition();
   const [quantity, setQuantity] = useState(1);
   // Simplest correct default: first listed value per option. Not "smart"
   // about cross-option availability (e.g. picking an in-stock combo) —
@@ -45,6 +45,30 @@ export function AddToCartForm({ product }: { product: Product }) {
       }
     });
   }
+
+  // Adds the line then takes the buyer straight to Shopify's own checkout —
+  // the same neutral page the regular /store/cart "Checkout" link goes to
+  // (full Express Checkout row: Shop/PayPal/Apple Pay/Google Pay shown
+  // equally), just skipping the intermediate cart-review step. Deliberately
+  // NOT the Shop Pay web component this replaced — that button jumped
+  // straight into Shop's own account/sign-in flow on shop.app before
+  // showing any other payment method, which is the opposite of what a
+  // guest buyer wants here. window.location.href, not the Next router —
+  // checkoutUrl is a real cross-origin redirect to Shopify's own domain.
+  function handleBuyNow() {
+    if (!selectedVariant) return;
+    setFeedback(null);
+    startBuyNowTransition(async () => {
+      try {
+        const { checkoutUrl } = await addToCartAction(selectedVariant.id, quantity);
+        window.location.href = checkoutUrl;
+      } catch (err) {
+        setFeedback(err instanceof Error ? err.message : "Couldn't start checkout.");
+      }
+    });
+  }
+
+  const busy = isPending || isBuyingNow;
 
   return (
     <div className="flex flex-col gap-4">
@@ -88,7 +112,7 @@ export function AddToCartForm({ product }: { product: Product }) {
       <Button
         type="button"
         onClick={handleAdd}
-        disabled={isPending || !selectedVariant || !selectedVariant.availableForSale}
+        disabled={busy || !selectedVariant || !selectedVariant.availableForSale}
         size="lg"
       >
         {isPending
@@ -105,7 +129,9 @@ export function AddToCartForm({ product }: { product: Product }) {
             or
             <span className="h-px flex-1 bg-border" />
           </div>
-          <ShopPayButton variantId={selectedVariant.id} quantity={quantity} />
+          <Button type="button" variant="outline" onClick={handleBuyNow} disabled={busy} size="lg">
+            {isBuyingNow ? "Redirecting…" : "Buy now"}
+          </Button>
         </>
       ) : null}
 
