@@ -32,8 +32,8 @@ export function Hero({ featured }: { featured: Product | null }) {
         className="pointer-events-none absolute -right-20 top-1/4 hidden h-[34rem] opacity-[0.07] lg:block"
       />
 
-      <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-5 pb-14 sm:px-6 sm:pb-20 lg:grid-cols-[1fr_360px] lg:items-end lg:gap-14">
-        <div>
+      <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-5 pb-14 sm:px-6 sm:pb-20 lg:grid-cols-[1fr_360px] lg:items-stretch lg:gap-14">
+        <div className="flex flex-col justify-center">
           <p className="eyebrow text-ember">
             Harley-Davidson performance &amp; service · Upstate, SC
           </p>
