@@ -21,6 +21,11 @@ export async function approveRequest(formData: FormData) {
     .insert(jobs)
     .values({
       requestId,
+      // Previously left null here — the job was only reachable back to its
+      // customer indirectly, through the request. Setting it directly is
+      // what lets the Board's job detail page (and its "Create Invoice"
+      // hand-off) show/use the customer record without an extra hop.
+      customerId: request.customerId,
       title: title || request.bikeYearMakeModel,
       description: description || request.details,
       dropoffAt: dropoffAtRaw ? new Date(dropoffAtRaw) : null,

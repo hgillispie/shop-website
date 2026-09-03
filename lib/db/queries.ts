@@ -1,7 +1,16 @@
 import "server-only";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { appointmentRequests, customers, ipRules, jobs, pageViews, tickets } from "@/lib/db/schema";
+import {
+  appointmentRequests,
+  customers,
+  ipRules,
+  jobs,
+  pageViews,
+  serviceInvoiceJobs,
+  serviceInvoices,
+  tickets,
+} from "@/lib/db/schema";
 
 export function getRequests() {
   return db.query.appointmentRequests.findMany({
@@ -18,6 +27,22 @@ export function getRequestById(id: string) {
 export function getJobForRequest(requestId: string) {
   return db.query.jobs.findFirst({
     where: eq(jobs.requestId, requestId),
+  });
+}
+
+// Board detail page + invoice prefill (see app/admin/(dashboard)/board/[id]
+// and the ?fromJobId= handling in app/admin/(dashboard)/invoices/new) both
+// need the full picture — the job, its linked customer, and its linked
+// intake request (bike info, service types, the customer's own words,
+// photos) — in one query rather than three separate lookups.
+export function getJobById(id: string) {
+  return db.query.jobs.findFirst({
+    where: eq(jobs.id, id),
+    // request.customer is a fallback for jobs created before customerId
+    // was set directly on the job itself (see approveRequest in
+    // app/admin/(dashboard)/requests/actions.ts) — resolve either way
+    // rather than assuming every job has the direct link.
+    with: { request: { with: { customer: true } }, customer: true },
   });
 }
 
@@ -80,3 +105,40 @@ export function getIpRules() {
     orderBy: [desc(ipRules.createdAt)],
   });
 }
+
+// getStoreOrders/getStoreOrderById/getStoreOrderByStripePaymentIntentId/
+// getStoreOrderByPrintifyOrderId were removed here as part of the Shopify
+// migration (see docs/shopify-migration-plan.md) — no local order model to
+// query anymore; merch orders live in Shopify's admin, and a paid repair
+// invoice will be looked up by whatever Shopify sends on the orders/paid
+// webhook once Task 2 is built (see serviceInvoices below for the invoice
+// side of that).
+
+export function getServiceInvoices() {
+  return db.query.serviceInvoices.findMany({
+    orderBy: [desc(serviceInvoices.createdAt)],
+  });
+}
+
+export function getServiceInvoiceById(id: string) {
+  return db.query.serviceInvoices.findFirst({
+    where: eq(serviceInvoices.id, id),
+    with: {
+      jobs: {
+        orderBy: [serviceInvoiceJobs.position],
+        with: {
+          parts: {
+            orderBy: (parts, { asc }) => [asc(parts.position)],
+          },
+        },
+      },
+    },
+  });
+}
+
+// Shared shape for anything that needs a full invoice + its nested
+// jobs/parts (PDF rendering, emailing) — one source of truth instead of
+// each consumer hand-rolling the same intersection type.
+export type ServiceInvoiceWithJobs = NonNullable<
+  Awaited<ReturnType<typeof getServiceInvoiceById>>
+>;

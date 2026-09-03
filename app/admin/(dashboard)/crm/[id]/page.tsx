@@ -152,10 +152,27 @@ export default async function CustomerDetailPage({
                 href={`/admin/requests/${request.id}`}
                 className="block rounded-lg border border-border p-3 text-sm hover:border-accent"
               >
-                <span className="font-medium">{request.bikeYearMakeModel}</span>
-                <span className="ml-2 text-xs text-muted">
-                  {request.createdAt.toLocaleDateString()}
-                </span>
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="font-medium">{request.bikeYearMakeModel}</span>
+                  <span className="text-xs text-muted">
+                    {request.createdAt.toLocaleDateString()}
+                  </span>
+                </div>
+                {request.serviceTypes.length > 0 && (
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {request.serviceTypes.map((type) => (
+                      <span
+                        key={type}
+                        className="rounded-full bg-accent-soft px-2 py-0.5 text-[10px] text-accent"
+                      >
+                        {type}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {request.details && (
+                  <p className="mt-1.5 line-clamp-2 text-xs text-muted">{request.details}</p>
+                )}
               </Link>
             ))}
           </div>
@@ -169,12 +186,16 @@ export default async function CustomerDetailPage({
           </h2>
           <div className="mt-3 space-y-2">
             {jobs.map((job) => (
-              <div key={job.id} className="flex items-center justify-between rounded-lg border border-border p-3 text-sm">
+              <Link
+                key={job.id}
+                href={`/admin/board/${job.id}`}
+                className="flex items-center justify-between rounded-lg border border-border p-3 text-sm hover:border-accent"
+              >
                 <span className="font-medium">
                   #{job.jobNumber} {job.title}
                 </span>
                 <StatusBadge status={job.status} />
-              </div>
+              </Link>
             ))}
           </div>
         </div>

@@ -1,4 +1,7 @@
 import {
+  boolean,
+  integer,
+  numeric,
   pgEnum,
   pgTable,
   serial,
@@ -29,6 +32,16 @@ export const ticketStatusEnum = pgEnum("ticket_status", [
 ]);
 
 export const ipRuleActionEnum = pgEnum("ip_rule_action", ["flag", "block"]);
+
+// Repair-invoice payment lifecycle via Shopify Draft Orders (Task 2 of
+// docs/shopify-migration-plan.md) — a bare invoice starts "not_sent"; stays
+// that way for invoices that get paid in person (cash/Terminal-equivalent,
+// tracked manually) or printed and never sent electronically at all.
+export const invoicePaymentStatusEnum = pgEnum("invoice_payment_status", [
+  "not_sent",
+  "invoice_sent",
+  "paid",
+]);
 
 export const customers = pgTable("customers", {
   id: text("id")
@@ -133,6 +146,14 @@ export const adminUsers = pgTable("admin_users", {
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
+// storeOrders/storeOrderItems (the Stripe/Printify-direct order model) were
+// removed here as part of the Shopify migration (see
+// docs/shopify-migration-plan.md) — merch orders now live entirely in
+// Shopify's own admin, and repair-invoice "orders" are serviceInvoices below,
+// which never depended on this table. Dropped from the database once this
+// branch's Neon connection points at an isolated branch (see the migration
+// doc for why that matters before running db:push here).
+
 export const appointmentRequestsRelations = relations(
   appointmentRequests,
   ({ one }) => ({
@@ -175,6 +196,141 @@ export const ticketsRelations = relations(tickets, ({ one }) => ({
   }),
 }));
 
+// Service invoices — the printed repair-order/receipt for bike work (see
+// components/admin/InvoiceForm.tsx), deliberately its own standalone tree
+// rather than linked to `jobs`/`customers`: a fresh entry every time, same
+// spirit as the Terminal's manual-entry flow, but saved so past invoices can
+// be reopened or reprinted. Doesn't touch the appointment/CRM tables at all.
+export const serviceInvoices = pgTable("service_invoices", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  // Cosmetic display number (the paper form's "R.O. NUMBER") — same
+  // never-a-lookup-key posture as storeOrders.orderNumber, though invoice
+  // pages are admin-only anyway so it's a lower-stakes convention here.
+  invoiceNumber: serial("invoice_number").notNull(),
+  serviceAdvisor: text("service_advisor"),
+  // Editable independently of createdAt — the owner may write this up a
+  // day or two after the actual drop-off and want the printed date to
+  // reflect that, not whenever they happened to sit down and type it in.
+  dateWritten: timestamp("date_written", { mode: "date" }).notNull().defaultNow(),
+  // Customer/vehicle fields are free text, not FKs — this form is filled by
+  // hand for whoever's in front of the counter, same as the paper original.
+  customerName: text("customer_name").notNull(),
+  customerAddress: text("customer_address"),
+  customerCityStateZip: text("customer_city_state_zip"),
+  customerPhone: text("customer_phone"),
+  customerEmail: text("customer_email"),
+  vehicleYear: text("vehicle_year"),
+  vehicleMake: text("vehicle_make"),
+  vehicleModel: text("vehicle_model"),
+  vehicleColor: text("vehicle_color"),
+  vehicleVin: text("vehicle_vin"),
+  licensePlate: text("license_plate"),
+  mileageIn: text("mileage_in"),
+  odometerOut: text("odometer_out"),
+  // Tax is a manual rate the owner sets per invoice (not a fixed config
+  // value) — real repair shops often tax parts but not standalone labor, so
+  // which subtotal(s) it applies to is configurable too, not assumed.
+  // Numeric (not float) since it's a rate people expect to type exactly,
+  // e.g. "6.000" — drizzle returns numeric columns as strings, parsed at
+  // the edges (lib/validations/invoices.ts), never compared as floats.
+  taxRatePercent: numeric("tax_rate_percent", { precision: 5, scale: 3 })
+    .notNull()
+    .default("0"),
+  taxAppliesToParts: boolean("tax_applies_to_parts").notNull().default(true),
+  taxAppliesToLabor: boolean("tax_applies_to_labor").notNull().default(false),
+  // Optional credit-card processing surcharge — off by default, computed on
+  // (parts + labor + tax) when enabled, i.e. the actual amount that would
+  // run through the card. See computeInvoiceTotals in lib/invoices/totals.ts.
+  ccFeeEnabled: boolean("cc_fee_enabled").notNull().default(false),
+  ccFeeRatePercent: numeric("cc_fee_rate_percent", { precision: 5, scale: 3 })
+    .notNull()
+    .default("0"),
+  // Snapshot totals, recomputed server-side from the nested jobs/parts on
+  // every save (never trusted from the client) — stored rather than
+  // recomputed on read so a past invoice's printed total never drifts if
+  // the computation logic changes later.
+  partsTotalCents: integer("parts_total_cents").notNull().default(0),
+  laborTotalCents: integer("labor_total_cents").notNull().default(0),
+  taxCents: integer("tax_cents").notNull().default(0),
+  ccFeeCents: integer("cc_fee_cents").notNull().default(0),
+  totalDueCents: integer("total_due_cents").notNull().default(0),
+  // Shopify Draft Order tie-in (Task 2) — set once "Send Shopify Invoice" is
+  // used. draftOrderId/invoiceUrl come back from draftOrderCreate; orderId +
+  // paidAt are filled in by the orders/paid webhook once Shopify converts
+  // the draft into a real paid order. See lib/shopify/admin.ts and
+  // app/api/shopify/webhooks/orders-paid/route.ts.
+  paymentStatus: invoicePaymentStatusEnum("payment_status").notNull().default("not_sent"),
+  shopifyDraftOrderId: text("shopify_draft_order_id"),
+  shopifyInvoiceUrl: text("shopify_invoice_url"),
+  shopifyOrderId: text("shopify_order_id"),
+  paidAt: timestamp("paid_at", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
+});
+
+// One row per "JOB 1 / JOB 2 / ..." block on the printed form — a single
+// customer-reported problem within one visit, not the same concept as the
+// `jobs` table above (which is one row per whole repair visit for the
+// Board/Kanban pipeline).
+export const serviceInvoiceJobs = pgTable("service_invoice_jobs", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  invoiceId: text("invoice_id")
+    .notNull()
+    .references(() => serviceInvoices.id, { onDelete: "cascade" }),
+  // Display order — jobs are added/removed freely, so this isn't implied by id.
+  position: integer("position").notNull().default(0),
+  techInitials: text("tech_initials"),
+  customerDescription: text("customer_description"),
+  technicianFindings: text("technician_findings"),
+  correctionPerformed: text("correction_performed"),
+  // Flat-rate labor, hand-typed by the owner — deliberately not itemized by
+  // hours (matches how the paper form's "LABOR — FLAT RATE" box works).
+  laborCents: integer("labor_cents").notNull().default(0),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const serviceInvoicePartsLines = pgTable("service_invoice_parts_lines", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  invoiceJobId: text("invoice_job_id")
+    .notNull()
+    .references(() => serviceInvoiceJobs.id, { onDelete: "cascade" }),
+  position: integer("position").notNull().default(0),
+  description: text("description").notNull().default(""),
+  qty: integer("qty").notNull().default(1),
+  unitPriceCents: integer("unit_price_cents").notNull().default(0),
+});
+
+export const serviceInvoicesRelations = relations(serviceInvoices, ({ many }) => ({
+  jobs: many(serviceInvoiceJobs),
+}));
+
+export const serviceInvoiceJobsRelations = relations(
+  serviceInvoiceJobs,
+  ({ one, many }) => ({
+    invoice: one(serviceInvoices, {
+      fields: [serviceInvoiceJobs.invoiceId],
+      references: [serviceInvoices.id],
+    }),
+    parts: many(serviceInvoicePartsLines),
+  }),
+);
+
+export const serviceInvoicePartsLinesRelations = relations(
+  serviceInvoicePartsLines,
+  ({ one }) => ({
+    job: one(serviceInvoiceJobs, {
+      fields: [serviceInvoicePartsLines.invoiceJobId],
+      references: [serviceInvoiceJobs.id],
+    }),
+  }),
+);
+
 export type AppointmentRequestRow = typeof appointmentRequests.$inferSelect;
 export type NewAppointmentRequestRow = typeof appointmentRequests.$inferInsert;
 export type JobRow = typeof jobs.$inferSelect;
@@ -186,3 +342,9 @@ export type NewTicketRow = typeof tickets.$inferInsert;
 export type PageViewRow = typeof pageViews.$inferSelect;
 export type IpRuleRow = typeof ipRules.$inferSelect;
 export type AdminUserRow = typeof adminUsers.$inferSelect;
+export type ServiceInvoiceRow = typeof serviceInvoices.$inferSelect;
+export type NewServiceInvoiceRow = typeof serviceInvoices.$inferInsert;
+export type ServiceInvoiceJobRow = typeof serviceInvoiceJobs.$inferSelect;
+export type NewServiceInvoiceJobRow = typeof serviceInvoiceJobs.$inferInsert;
+export type ServiceInvoicePartsLineRow = typeof serviceInvoicePartsLines.$inferSelect;
+export type NewServiceInvoicePartsLineRow = typeof serviceInvoicePartsLines.$inferInsert;

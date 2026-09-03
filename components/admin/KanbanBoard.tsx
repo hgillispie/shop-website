@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import {
   DndContext,
@@ -16,7 +16,13 @@ import { deleteJob, updateJobStatus } from "@/app/admin/(dashboard)/board/action
 import type { JobRow } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 
-type JobWithRequest = JobRow & { request: { id: string; name: string } | null };
+// Widened from the original { id, name } slice so the card itself can
+// surface what the customer actually reported — bike + what kind of work —
+// without needing to click through. See app/admin/(dashboard)/board/[id]
+// for the full detail (findings, photos, "Create Invoice").
+type JobWithRequest = JobRow & {
+  request: { id: string; name: string; bikeYearMakeModel: string; serviceTypes: string[] } | null;
+};
 type JobStatus = JobRow["status"];
 
 const COLUMNS: { key: JobStatus; label: string }[] = [
@@ -27,6 +33,7 @@ const COLUMNS: { key: JobStatus; label: string }[] = [
 ];
 
 function JobCard({ job, onDelete }: { job: JobWithRequest; onDelete: (id: string) => void }) {
+  const router = useRouter();
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: job.id,
   });
@@ -36,6 +43,7 @@ function JobCard({ job, onDelete }: { job: JobWithRequest; onDelete: (id: string
       ref={setNodeRef}
       {...listeners}
       {...attributes}
+      onClick={() => router.push(`/admin/board/${job.id}`)}
       style={
         transform
           ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
@@ -67,13 +75,27 @@ function JobCard({ job, onDelete }: { job: JobWithRequest; onDelete: (id: string
         <p className="mt-1 line-clamp-2 text-xs text-muted">{job.description}</p>
       )}
       {job.request && (
-        <Link
-          href={`/admin/requests/${job.request.id}`}
-          className="mt-2 inline-block text-xs text-accent hover:underline"
-        >
-          {job.request.name} →
-        </Link>
+        <div className="mt-2 space-y-1">
+          <p className="text-xs text-muted">
+            {job.request.name} · {job.request.bikeYearMakeModel}
+          </p>
+          {job.request.serviceTypes.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {job.request.serviceTypes.map((type) => (
+                <span
+                  key={type}
+                  className="rounded-full bg-accent-soft px-2 py-0.5 text-[10px] text-accent"
+                >
+                  {type}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       )}
+      <p className="mt-2 text-[10px] text-muted opacity-0 transition-opacity group-hover:opacity-100">
+        Click to open →
+      </p>
     </div>
   );
 }
