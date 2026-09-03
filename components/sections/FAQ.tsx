@@ -35,7 +35,7 @@ export function FAQ() {
         <p className="mt-10 text-center text-ink/65">
           Still not sure whether the shop is the right fit?{" "}
           <Link
-            href="#book"
+            href="/#book"
             className="font-semibold text-flame-deep underline underline-offset-4 hover:text-flame"
           >
             Describe it in the form

@@ -1,12 +1,15 @@
-import { Check, MapPin } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { siteConfig } from "@/data/site-config";
 import { LogoMark } from "@/components/brand/Logo";
-import { HeroStartForm } from "@/components/sections/HeroStartForm";
+import { formatMoney } from "@/lib/shopify/money";
+import { TrackedLink } from "@/components/TrackedLink";
+import type { Product } from "@/lib/shopify/types";
 
 const SHOP_PHOTO =
   "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Ff34d3293ef974da897f5007b910db556";
 
-export function Hero() {
+export function Hero({ featured }: { featured: Product | null }) {
   return (
     <section
       id="top"
@@ -22,64 +25,83 @@ export function Hero() {
         aria-hidden="true"
       />
       <div
-        className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-ink to-transparent"
+        className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-ink to-transparent"
         aria-hidden="true"
       />
-
       <LogoMark
         priority
-        className="pointer-events-none absolute -right-24 top-1/3 hidden h-[38rem] opacity-[0.06] xl:block"
+        className="pointer-events-none absolute -right-20 top-1/4 hidden h-[34rem] opacity-[0.07] lg:block"
       />
 
-      <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-5 pb-14 sm:px-6 sm:pb-20 lg:grid-cols-[1fr_minmax(380px,440px)] lg:items-center lg:gap-16">
+      <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-5 pb-14 sm:px-6 sm:pb-20 lg:grid-cols-[1fr_360px] lg:items-end lg:gap-14">
         <div>
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <span className="eyebrow inline-flex items-center gap-2 text-ember">
-              <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
-              Harley-Davidson performance &amp; service
-            </span>
-            <span className="eyebrow text-bone/60">{siteConfig.city}</span>
-          </div>
-
-          <h1 className="display-slant mt-6 text-[3.25rem] sm:text-7xl lg:text-8xl">
-            Dealership trained.
-            <span className="mt-1 block text-ember">Rider focused.</span>
-          </h1>
-
-          <p className="mt-7 max-w-xl text-lg leading-relaxed text-bone/75">
-            Upgrades and adjustments planned around how you ride — plus the
-            service work that keeps it all together.
+          <p className="eyebrow text-ember">
+            Harley-Davidson performance &amp; service · {siteConfig.city}
           </p>
 
-          <ul className="mt-8 grid gap-3 text-sm text-bone/80 sm:grid-cols-2">
-            {siteConfig.heroPoints.map((point) => (
-              <li key={point} className="flex items-center gap-3">
-                <span className="grid h-5 w-5 shrink-0 place-items-center bg-flame text-ink">
-                  <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" />
-                </span>
-                {point}
-              </li>
-            ))}
-          </ul>
+          <h1 className="display-slant mt-5 text-[3.5rem] leading-[0.88] sm:text-8xl lg:text-9xl">
+            Dealership trained.
+            <span className="block text-ember">Rider focused.</span>
+          </h1>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link
+              href="#book"
+              className="btn btn-primary eyebrow h-14 gap-2 px-8 text-sm"
+            >
+              Request an appointment
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+            <Link
+              href="/store"
+              className="btn btn-outline eyebrow h-14 border-bone/25 px-7 text-bone hover:border-ember hover:bg-transparent hover:text-ember"
+            >
+              Shop the store
+            </Link>
+          </div>
         </div>
 
-        <HeroStartForm />
-      </div>
-
-      <div className="relative border-t border-hairline bg-ink-deep/85 backdrop-blur-sm">
-        <dl className="mx-auto grid max-w-6xl grid-cols-2 gap-px px-5 sm:px-6 lg:grid-cols-4">
-          {siteConfig.credentials.map((item) => (
-            <div key={item.value} className="py-5 pr-4 lg:py-6">
-              <dt className="display-caps text-2xl text-bone lg:text-3xl">
-                {item.value}
-              </dt>
-              <dd className="mt-1.5 text-xs leading-snug text-bone/60">
-                {item.label}
-              </dd>
-            </div>
-          ))}
-        </dl>
+        <FeaturedTee product={featured} />
       </div>
     </section>
+  );
+}
+
+function FeaturedTee({ product }: { product: Product | null }) {
+  const href = product ? `/store/products/${product.handle}` : "/store";
+  const image = product?.images[0];
+
+  return (
+    <TrackedLink
+      href={href}
+      event="store_click"
+      meta={{ location: "hero_featured", handle: product?.handle ?? null }}
+      className="group block border border-hairline bg-ink-deep/80 p-4 backdrop-blur-sm transition-colors hover:border-ember/50"
+    >
+      <div className="relative aspect-square overflow-hidden bg-ink-soft">
+        {image ? (
+          <img
+            src={image.url}
+            alt={image.altText ?? product.title}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <LogoMark className="h-full w-full p-10 opacity-25" />
+        )}
+      </div>
+      <div className="mt-4 flex items-end justify-between gap-3">
+        <div>
+          <p className="eyebrow text-ember">Featured</p>
+          <p className="display-caps mt-1.5 text-xl">
+            {product?.title ?? "Shop the collection"}
+          </p>
+        </div>
+        {product && (
+          <p className="shrink-0 text-sm text-bone/70">
+            {formatMoney(product.priceRange.min)}
+          </p>
+        )}
+      </div>
+    </TrackedLink>
   );
 }

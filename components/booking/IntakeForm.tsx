@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { PhotoUpload } from "@/components/booking/PhotoUpload";
 import { SuccessState } from "@/components/booking/SuccessState";
-import { useBookingHandoff } from "@/components/booking/BookingHandoff";
 import { track } from "@/lib/analytics-client";
 import {
   appointmentFormSchema,
@@ -47,16 +46,13 @@ export function IntakeForm() {
   const [photos, setPhotos] = useState<File[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const { bike } = useBookingHandoff();
   const startedRef = useRef(false);
-  const handedOffRef = useRef("");
 
   const {
     register,
     handleSubmit,
     trigger,
     reset,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentFormSchema),
@@ -71,15 +67,6 @@ export function IntakeForm() {
   });
 
   const isLastStep = step === STEPS.length - 1;
-
-  // The hero already asked step one, so land the visitor on "the job".
-  useEffect(() => {
-    if (!bike || handedOffRef.current === bike) return;
-    handedOffRef.current = bike;
-    startedRef.current = true;
-    setValue("bikeYearMakeModel", bike, { shouldValidate: true });
-    setStep(1);
-  }, [bike, setValue]);
 
   function markStarted() {
     if (startedRef.current) return;
