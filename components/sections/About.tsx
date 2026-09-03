@@ -8,21 +8,6 @@ const SHOP_IMAGE =
 export function About() {
   return (
     <section id="about" className="scroll-mt-20 bg-brand-ink text-white">
-      <div className="bg-brand-orange text-brand-ink">
-        <div className="mx-auto grid max-w-7xl divide-y divide-brand-ink/20 px-5 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-8">
-          {[
-            ["20 years", "Harley-Davidson experience"],
-            ["One bike", "In the shop at a time"],
-            ["By appointment", "No walk-ins or rushed work"],
-          ].map(([value, label]) => (
-            <div key={value} className="py-6 text-center sm:px-6">
-              <p className="font-display text-4xl uppercase leading-none">{value}</p>
-              <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.13em] opacity-65">{label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 sm:py-28 lg:grid-cols-2 lg:items-center lg:gap-20">
         <div className="relative min-h-[430px] sm:min-h-[560px]">
           <div className="absolute -left-3 -top-3 h-28 w-28 bg-brand-orange" aria-hidden="true" />
