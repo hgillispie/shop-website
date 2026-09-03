@@ -1,20 +1,26 @@
-import { siteConfig } from "@/data/site-config";
+import { Check } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 
 const SHOP_PHOTO =
   "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Fcee12a5000a24d0292047a9e0e8181c1";
 
+const POINTS = [
+  "Power, suspension, brakes, and controls planned as a complete setup",
+  "Modern Twin Cam and Milwaukee-Eight performance expertise",
+  "Vintage restoration, fabrication, and full custom builds",
+];
+
 export function About() {
   return (
     <section
       id="about"
-      className="scroll-mt-16 bg-bone py-20 sm:scroll-mt-20 sm:py-28"
+      className="scroll-mt-(--header-h) bg-bone py-20 sm:py-28"
     >
       <div className="mx-auto grid max-w-6xl gap-12 px-5 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-16">
         <Reveal className="relative">
           <img
             src={SHOP_PHOTO}
-            alt="Inside the Swafford Speed shop"
+            alt="Harley-Davidson service and performance work inside Swafford Speed"
             className="aspect-4/5 w-full object-cover"
             loading="lazy"
           />
@@ -31,17 +37,29 @@ export function About() {
         </Reveal>
 
         <Reveal delay={100}>
-          <p className="eyebrow text-flame-deep">Who works on your bike</p>
+          <p className="eyebrow text-flame-deep">Why Swafford Speed</p>
           <h2 className="display-caps mt-5 text-5xl text-ink sm:text-6xl">
-            Dealership-trained.
-            <br />
-            Independently run.
+            Dealer-level experience. Built for riders who expect more.
           </h2>
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink/70">
-            20 years of experience working and running Harley-Davidson service
-            departments. At {siteConfig.shopName} you can expect the same
-            standard of work without the overhead of a big-box floor.
+            After two decades working in and running Harley-Davidson service
+            departments, Swafford Speed was built for riders who want a sharper,
+            stronger, more personal bike—not a one-size-fits-all dealership
+            package.
           </p>
+
+          <ul className="mt-8 space-y-4 border-y border-ink/15 py-6 text-sm text-ink/75">
+            {POINTS.map((point) => (
+              <li key={point} className="flex gap-3">
+                <Check
+                  className="mt-0.5 h-4 w-4 shrink-0 text-flame-deep"
+                  strokeWidth={3}
+                  aria-hidden="true"
+                />
+                {point}
+              </li>
+            ))}
+          </ul>
 
           <blockquote className="mt-9 border-l-3 border-flame pl-6">
             <p className="display-slant text-3xl text-ink sm:text-4xl">

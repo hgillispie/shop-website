@@ -1,6 +1,7 @@
 import {
   boolean,
   integer,
+  jsonb,
   numeric,
   pgEnum,
   pgTable,
@@ -118,6 +119,22 @@ export const pageViews = pgTable("page_views", {
     .$defaultFn(() => crypto.randomUUID()),
   path: text("path").notNull(),
   referrer: text("referrer"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+});
+
+// Funnel events (booking_start, booking_step, booking_submit, call_click...).
+// sessionId is what turns these into a funnel rather than a pile of counters —
+// it's how you tell "started and finished" from "started and left".
+export const analyticsEvents = pgTable("analytics_events", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  path: text("path"),
+  sessionId: text("session_id"),
+  meta: jsonb("meta"),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
@@ -340,6 +357,7 @@ export type NewCustomerRow = typeof customers.$inferInsert;
 export type TicketRow = typeof tickets.$inferSelect;
 export type NewTicketRow = typeof tickets.$inferInsert;
 export type PageViewRow = typeof pageViews.$inferSelect;
+export type AnalyticsEventRow = typeof analyticsEvents.$inferSelect;
 export type IpRuleRow = typeof ipRules.$inferSelect;
 export type AdminUserRow = typeof adminUsers.$inferSelect;
 export type ServiceInvoiceRow = typeof serviceInvoices.$inferSelect;

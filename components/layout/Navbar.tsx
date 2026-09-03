@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu, Phone, X } from "lucide-react";
 import { siteConfig } from "@/data/site-config";
 import { Logo } from "@/components/brand/Logo";
+import { track } from "@/lib/analytics-client";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
@@ -37,6 +38,9 @@ export function Navbar() {
             <li key={link.href}>
               <Link
                 href={link.href}
+                onClick={() =>
+                  link.href === "/store" && track("store_click", { location: "nav" })
+                }
                 className="eyebrow text-bone/70 transition-colors hover:text-ember"
               >
                 {link.label}
@@ -48,6 +52,7 @@ export function Navbar() {
         <div className="hidden items-center gap-4 md:flex">
           <a
             href={siteConfig.phoneHref}
+            onClick={() => track("call_click", { location: "nav" })}
             className="flex items-center gap-2 text-sm font-semibold text-bone transition-colors hover:text-ember"
           >
             <Phone className="h-4 w-4 text-flame" aria-hidden="true" />
@@ -97,6 +102,7 @@ export function Navbar() {
             </Link>
             <a
               href={siteConfig.phoneHref}
+              onClick={() => track("call_click", { location: "nav_mobile" })}
               className="btn btn-outline btn-block eyebrow border-hairline text-bone hover:border-ember hover:bg-transparent hover:text-ember"
             >
               <Phone className="h-4 w-4" aria-hidden="true" />

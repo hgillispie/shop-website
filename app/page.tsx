@@ -7,6 +7,7 @@ import { Services } from "@/components/sections/Services";
 import { FAQ } from "@/components/sections/FAQ";
 import { Booking } from "@/components/sections/Booking";
 import { StoreFunnel } from "@/components/sections/StoreFunnel";
+import { BookingHandoffProvider } from "@/components/booking/BookingHandoff";
 import { AnalyticsBeacon } from "@/components/AnalyticsBeacon";
 import { StructuredData } from "@/components/StructuredData";
 
@@ -16,16 +17,19 @@ export default function Home() {
       <AnalyticsBeacon />
       <StructuredData />
       <Navbar />
-      <main className="flex-1">
-        <Hero />
-        <About />
-        <Services />
-        {/* Objections answered, then the ask, then the secondary offer — the
-            store never sits between a visitor and the booking form. */}
-        <FAQ />
-        <Booking />
-        <StoreFunnel />
-      </main>
+      {/* Carries the hero's one-field answer into step two of the real form. */}
+      <BookingHandoffProvider>
+        <main className="flex-1">
+          <Hero />
+          <About />
+          <Services />
+          {/* Objections answered, then the ask, then the secondary offer — the
+              store never sits between a visitor and the booking form. */}
+          <FAQ />
+          <Booking />
+          <StoreFunnel />
+        </main>
+      </BookingHandoffProvider>
       <Footer />
       <MobileActionBar />
     </>

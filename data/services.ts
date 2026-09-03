@@ -1,32 +1,32 @@
 export const capabilities = [
   {
-    title: "Routine Maintenance",
+    title: "Performance & Power",
     description:
-      "Scheduled service done right: fluids, brakes, drivetrain, and inspection, with an eye for what's about to become a problem.",
+      "Cams, big-bore packages, intake and exhaust combinations, and EFI tuning planned to work together—not just add noise or parts.",
+  },
+  {
+    title: "Suspension & Brakes",
+    description:
+      "Shocks, fork and cartridge upgrades, brake packages, and chassis setup for a bike that turns, stops, and stays composed when pushed.",
+  },
+  {
+    title: "Service & Diagnostics",
+    description:
+      "Scheduled maintenance, electrical and drivability diagnostics, fuel systems, and repairs that keep modern and vintage bikes ready to ride.",
+  },
+  {
+    title: "Club-Style & Custom Builds",
+    description:
+      "Bars, risers, controls, fairings, lighting, exhaust, ergonomics, and one-off details built around your riding position and style.",
   },
   {
     title: "Engine & Transmission",
     description:
-      "Ground-up rebuilds and top-end service across Panhead through Milwaukee-Eight platforms.",
+      "Top-end work, ground-up rebuilds, clutch and transmission service across Evolution, Twin Cam, Milwaukee-Eight, and earlier platforms.",
   },
   {
-    title: "Carburetion & Fuel Systems",
+    title: "Vintage & Fabrication",
     description:
-      "Carburetor rebuilds, EFI tuning, and fuel delivery diagnostics for vintage and modern setups alike.",
-  },
-  {
-    title: "Custom Builds & Fabrication",
-    description:
-      "Hardtail kits, one-off brackets, exhaust work, and structural modifications, done in-house.",
-  },
-  {
-    title: "Vintage Restoration",
-    description:
-      "True to form restoration of Knucklehead, Panhead, Shovelhead-era bikes, with correct-for-year parts and mechanical recommissioning done to match the bike's history, not erase it.",
-  },
-  {
-    title: "Wreck & Structural Repair",
-    description:
-      "Frame, fork, and bodywork repair following a wreck, with an honest assessment of what's rideable and what needs replacing.",
+      "Period-correct restoration, hardtail work, custom exhaust, brackets, and structural fabrication done in-house with the bike's purpose in mind.",
   },
 ] as const;

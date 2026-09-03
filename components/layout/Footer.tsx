@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Phone, Mail } from "lucide-react";
 import { siteConfig } from "@/data/site-config";
 import { Logo } from "@/components/brand/Logo";
+import { TrackedLink } from "@/components/TrackedLink";
 
 export function Footer() {
   return (
@@ -35,13 +36,15 @@ export function Footer() {
             <p className="eyebrow text-bone/60">Contact</p>
             <ul className="mt-5 space-y-3">
               <li>
-                <a
+                <TrackedLink
                   href={siteConfig.phoneHref}
+                  event="call_click"
+                  meta={{ location: "footer" }}
                   className="flex items-center gap-2.5 text-sm text-bone/70 transition-colors hover:text-ember"
                 >
                   <Phone className="h-4 w-4 text-flame" aria-hidden="true" />
                   {siteConfig.phone}
-                </a>
+                </TrackedLink>
               </li>
               <li>
                 <a

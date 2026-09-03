@@ -10,17 +10,18 @@ export function Services() {
   return (
     <section
       id="services"
-      className="scroll-mt-(--header-h) bg-ink py-20 text-bone sm:py-28"
+      className="scroll-mt-16 bg-ink py-20 text-bone sm:scroll-mt-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-5 sm:px-6">
         <Reveal className="max-w-3xl">
-          <p className="eyebrow text-ember">What the shop does</p>
+          <p className="eyebrow text-ember">What rolls through the door</p>
           <h2 className="display-caps mt-5 text-5xl sm:text-6xl">
-            Services offered
+            Service it. Upgrade it. Make it yours.
           </h2>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-bone/60">
-            Panhead through Milwaukee-Eight, vintage restoration through modern
-            performance work — all of it in-house.
+            From maintenance and diagnostics to power, handling, rider fit, and
+            full builds, every setup is planned around the bike and the way you
+            ride.
           </p>
         </Reveal>
 
@@ -61,7 +62,7 @@ export function Services() {
                 href="#book"
                 className="btn btn-primary eyebrow h-12 shrink-0 gap-2 px-7"
               >
-                Ask about it
+                Start your request
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>

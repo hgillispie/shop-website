@@ -1,12 +1,18 @@
 export const siteConfig = {
   shopName: "Swafford Speed",
-  tagline: "Independent Harley-Davidson mechanics.",
+  tagline: "Harley-Davidson performance, service, and custom work.",
   phone: "(843)-666-9451",
   phoneHref: "tel:+18436669451",
-  email: "huntergillispie1@proton.me",
+  email: "swaffordspeed@gmail.com",
   city: "Taylors, SC",
   // Only claims already signed off by the owner and live on the site — no
   // review counts, ratings, or job numbers.
+  heroPoints: [
+    "Engine, suspension, and brake upgrades",
+    "Performance exhaust and EFI tuning",
+    "Custom builds",
+    "Vintage through Milwaukee-Eight",
+  ],
   credentials: [
     { value: "20 yrs", label: "Running H-D service departments" },
     { value: "Dealership", label: "Trained technicians" },

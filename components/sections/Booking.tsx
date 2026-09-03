@@ -2,15 +2,16 @@ import { Phone } from "lucide-react";
 import { siteConfig } from "@/data/site-config";
 import { IntakeForm } from "@/components/booking/IntakeForm";
 import { Reveal } from "@/components/Reveal";
+import { TrackedLink } from "@/components/TrackedLink";
 
 const NEXT_STEPS = [
   {
     title: "Send the details",
-    body: "Three short steps — the bike, the job, and how to reach you. Takes about a minute.",
+    body: "The bike, what you want to fix or change, and how to reach you. About a minute.",
   },
   {
     title: "Reviewed personally",
-    body: "Every request is read by the person who'll do the work, usually with a reply the same day.",
+    body: "Every request is read by the person who'll do the work, before next steps or pricing are discussed.",
   },
   {
     title: "Slot confirmed",
@@ -22,19 +23,20 @@ export function Booking() {
   return (
     <section
       id="book"
-      className="scroll-mt-(--header-h) bg-ink py-20 text-bone sm:py-28"
+      className="scroll-mt-16 bg-ink py-20 text-bone sm:scroll-mt-20 sm:py-28"
     >
       <div className="mx-auto grid max-w-6xl gap-12 px-5 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <Reveal>
-          <p className="eyebrow text-ember">Request an appointment</p>
+          <p className="eyebrow text-ember">Start here</p>
           <h2 className="display-caps mt-5 text-5xl sm:text-6xl">
-            Get your bike
+            Request
             <br />
-            in the shop
+            a spot
           </h2>
           <p className="mt-6 leading-relaxed text-bone/60">
-            This shop works by appointment only, one bike at a time. Send the
-            details and you&apos;ll hear back.
+            Tell us what needs attention or what you want to improve. Every
+            request is reviewed personally, and you&apos;ll hear back with next
+            steps.
           </p>
 
           <ol className="mt-10 space-y-7">
@@ -55,13 +57,15 @@ export function Booking() {
 
           <div className="mt-10 border-t border-hairline pt-7">
             <p className="text-sm text-bone/50">Rather just talk it through?</p>
-            <a
+            <TrackedLink
               href={siteConfig.phoneHref}
+              event="call_click"
+              meta={{ location: "booking" }}
               className="mt-2.5 inline-flex items-center gap-2.5 text-xl font-semibold text-bone transition-colors hover:text-ember"
             >
               <Phone className="h-5 w-5 text-flame" aria-hidden="true" />
               {siteConfig.phone}
-            </a>
+            </TrackedLink>
           </div>
         </Reveal>
 

@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { PhotoUpload } from "@/components/booking/PhotoUpload";
 import { SuccessState } from "@/components/booking/SuccessState";
+import { useBookingHandoff } from "@/components/booking/BookingHandoff";
+import { track } from "@/lib/analytics-client";
 import {
   appointmentFormSchema,
   type AppointmentFormValues,
@@ -45,12 +47,16 @@ export function IntakeForm() {
   const [photos, setPhotos] = useState<File[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const { bike } = useBookingHandoff();
+  const startedRef = useRef(false);
+  const handedOffRef = useRef("");
 
   const {
     register,
     handleSubmit,
     trigger,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentFormSchema),
@@ -66,14 +72,37 @@ export function IntakeForm() {
 
   const isLastStep = step === STEPS.length - 1;
 
+  // The hero already asked step one, so land the visitor on "the job".
+  useEffect(() => {
+    if (!bike || handedOffRef.current === bike) return;
+    handedOffRef.current = bike;
+    startedRef.current = true;
+    setValue("bikeYearMakeModel", bike, { shouldValidate: true });
+    setStep(1);
+  }, [bike, setValue]);
+
+  function markStarted() {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    track("booking_start", { entry: "form" });
+  }
+
   async function goNext() {
+    markStarted();
     const valid = await trigger([...STEPS[step].fields]);
-    if (valid) setStep((s) => Math.min(s + 1, STEPS.length - 1));
+    if (!valid) {
+      track("booking_error", { step: STEPS[step].label, kind: "validation" });
+      return;
+    }
+    const next = Math.min(step + 1, STEPS.length - 1);
+    track("booking_step", { from: STEPS[step].label, to: STEPS[next].label });
+    setStep(next);
   }
 
   async function onSubmit(values: AppointmentFormValues) {
     setSubmitError(null);
     try {
+      track("booking_submit", { photoCount: photos.length });
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("phone", values.phone);
@@ -93,11 +122,13 @@ export function IntakeForm() {
         throw new Error(body?.error ?? "Something went wrong. Please try again.");
       }
 
+      track("booking_complete");
       setSubmitted(true);
     } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : "Something went wrong. Please try again.",
-      );
+      const message =
+        err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      track("booking_error", { kind: "submit", message });
+      setSubmitError(message);
     }
   }
 
@@ -282,7 +313,10 @@ export function IntakeForm() {
         {step > 0 && (
           <button
             type="button"
-            onClick={() => setStep((s) => s - 1)}
+            onClick={() => {
+              track("booking_back", { from: STEPS[step].label });
+              setStep((s) => s - 1);
+            }}
             className="btn btn-ghost eyebrow gap-2 text-ink/65 hover:bg-ink/5 hover:text-ink"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />

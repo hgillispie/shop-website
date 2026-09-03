@@ -12,7 +12,7 @@ export function FAQ() {
         <Reveal>
           <p className="eyebrow text-flame-deep">Before you reach out</p>
           <h2 className="display-caps mt-5 text-5xl text-ink sm:text-6xl">
-            Good to know
+            Good questions. Straight answers.
           </h2>
         </Reveal>
 
@@ -33,14 +33,14 @@ export function FAQ() {
         </div>
 
         <p className="mt-10 text-center text-ink/65">
-          Still not sure?{" "}
+          Still not sure whether the shop is the right fit?{" "}
           <Link
             href="#book"
             className="font-semibold text-flame-deep underline underline-offset-4 hover:text-flame"
           >
             Describe it in the form
           </Link>{" "}
-          and you&apos;ll get a straight answer.
+          or call and talk it through first.
         </p>
       </div>
     </section>
