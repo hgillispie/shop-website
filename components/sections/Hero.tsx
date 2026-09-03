@@ -44,7 +44,7 @@ export function Hero() {
             {[
               "Engine, suspension, and brake upgrades",
               "Performance exhaust and EFI tuning",
-              "Club-style and full custom builds",
+              "Custom builds",
               "Vintage through Milwaukee-Eight",
             ].map((item) => (
               <li key={item} className="flex items-center gap-3">
