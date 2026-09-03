@@ -11,7 +11,7 @@ const NEXT_STEPS = [
   },
   {
     title: "Reviewed personally",
-    body: "Every request is read by the person who'll do the work, before next steps or pricing are discussed.",
+    body: "It goes to the person who'll actually be doing the work.",
   },
   {
     title: "Slot confirmed",
@@ -34,9 +34,8 @@ export function Booking() {
             a spot
           </h2>
           <p className="mt-6 leading-relaxed text-bone/60">
-            Tell us what needs attention or what you want to improve. Every
-            request is reviewed personally, and you&apos;ll hear back with next
-            steps.
+            Tell us what needs attention or what you want to improve. Nothing
+            gets scheduled until you know the scope and what it&apos;ll run.
           </p>
 
           <ol className="mt-10 space-y-7">

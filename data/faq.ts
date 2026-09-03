@@ -22,6 +22,6 @@ export const faqs = [
   {
     question: "How do I get a quote?",
     answer:
-      "Submit the form with your bike, how you ride, and what you want to fix or change. The request will be reviewed personally before next steps or pricing are discussed.",
+      "Submit the form with your bike, how you ride, and what you want to fix or change. You'll hear back with next steps and a ballpark before anything gets booked.",
   },
 ] as const;

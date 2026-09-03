@@ -11,7 +11,7 @@ export function SuccessState({ onReset }: { onReset: () => void }) {
       </h3>
       <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted">
         This shop is <span className="font-medium text-foreground">appointment only</span>.
-        Your request will be reviewed personally — once your appointment slot
+        Your request goes straight to the shop — once your appointment slot
         is approved, you&apos;ll receive a text confirmation with the shop&apos;s
         address and drop-off time.
       </p>

@@ -39,13 +39,13 @@ export function About() {
         <Reveal delay={100}>
           <p className="eyebrow text-flame-deep">Why Swafford Speed</p>
           <h2 className="display-caps mt-5 text-5xl text-ink sm:text-6xl">
-            Dealer-level experience. Built for riders who expect more.
+            Built for riders who want more than stock.
           </h2>
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink/70">
-            After two decades working in and running Harley-Davidson service
-            departments, Swafford Speed was built for riders who want a sharper,
-            stronger, more personal bike—not a one-size-fits-all dealership
-            package.
+            Most bikes that come through here don&apos;t need one part — they
+            need a plan. Power, handling, and rider fit get decided together, so
+            the bike works as a whole instead of a stack of upgrades that fight
+            each other.
           </p>
 
           <ul className="mt-8 space-y-4 border-y border-ink/15 py-6 text-sm text-ink/75">
@@ -66,10 +66,8 @@ export function About() {
               Quality over quantity
             </p>
             <p className="mt-4 max-w-xl leading-relaxed text-ink/70">
-              This shop takes one bike at a time, by appointment, so every job
-              gets the attention a dealership schedule rarely allows. The goal
-              isn&apos;t throughput — it&apos;s a bike that starts right, runs
-              right, and stays that way.
+              The goal was never throughput. It&apos;s a bike that starts right,
+              runs right, and stays that way.
             </p>
           </blockquote>
         </Reveal>

@@ -14,10 +14,10 @@ export const siteConfig = {
     "Vintage through Milwaukee-Eight",
   ],
   credentials: [
-    { value: "20 yrs", label: "Running H-D service departments" },
-    { value: "Dealership", label: "Trained technicians" },
+    { value: "20 yrs", label: "Inside Harley-Davidson service departments" },
     { value: "Pan → M8", label: "Panhead through Milwaukee-Eight" },
-    { value: "1 at a time", label: "One bike in the shop, start to finish" },
+    { value: "In-house", label: "Tuning, fabrication, and build work" },
+    { value: "1 at a time", label: "Your bike isn't sharing the lift" },
   ],
   // Real drop-off address — sent only in the private approval email/SMS,
   // never rendered on a public page (owner doesn't want walk-ins).
