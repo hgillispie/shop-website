@@ -8,7 +8,7 @@ export function About() {
   return (
     <section
       id="about"
-      className="scroll-mt-(--header-h) bg-bone py-20 sm:py-28"
+      className="scroll-mt-16 bg-bone py-20 sm:scroll-mt-20 sm:py-28"
     >
       <div className="mx-auto grid max-w-6xl gap-12 px-5 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-16">
         <Reveal className="relative">
@@ -31,7 +31,7 @@ export function About() {
         </Reveal>
 
         <Reveal delay={100}>
-          <p className="eyebrow text-flame">Who works on your bike</p>
+          <p className="eyebrow text-flame-deep">Who works on your bike</p>
           <h2 className="display-caps mt-5 text-5xl text-ink sm:text-6xl">
             Dealership-trained.
             <br />

@@ -20,7 +20,9 @@
   /* Flame is the only action colour on the page — see the Von Restorff note
      in the brand tokens below. Ember is decorative. */
   --color-primary: #ec5407;
-  --color-primary-content: #fff7f2;
+  /* Ink rather than white: white on flame is only 3.6:1, ink is 4.61:1, so
+     this keeps the exact brand orange and still clears WCAG AA. */
+  --color-primary-content: #201e1e;
   --color-secondary: #f58220;
   --color-secondary-content: #201e1e;
 
@@ -73,6 +75,9 @@
   --bone-dim: #b7ada8;
   --flame: #ec5407;
   --ember: #f58220;
+  /* Flame only reaches 3.24:1 on the bone surfaces. This deeper shade is for
+     orange *text* on light backgrounds; flame stays the fill colour. */
+  --flame-deep: #c23f04;
   --hairline: rgba(247, 242, 239, 0.14);
 
   /* Nav bar + its checker strip. /store offsets its sticky sub-header against
@@ -106,6 +111,7 @@
   --color-bone-dim: var(--bone-dim);
   --color-flame: var(--flame);
   --color-ember: var(--ember);
+  --color-flame-deep: var(--flame-deep);
   --color-hairline: var(--hairline);
 
   --font-sans: var(--font-inter);

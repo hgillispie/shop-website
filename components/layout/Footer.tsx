@@ -16,7 +16,7 @@ export function Footer() {
           </div>
 
           <nav aria-label="Footer">
-            <p className="eyebrow text-bone/40">Site</p>
+            <p className="eyebrow text-bone/60">Site</p>
             <ul className="mt-5 space-y-3">
               {siteConfig.navLinks.map((link) => (
                 <li key={link.href}>
@@ -32,7 +32,7 @@ export function Footer() {
           </nav>
 
           <div>
-            <p className="eyebrow text-bone/40">Contact</p>
+            <p className="eyebrow text-bone/60">Contact</p>
             <ul className="mt-5 space-y-3">
               <li>
                 <a
@@ -67,7 +67,7 @@ export function Footer() {
           aria-hidden="true"
         />
 
-        <div className="mt-6 flex flex-col gap-3 text-xs text-bone/40 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-6 flex flex-col gap-3 text-xs text-bone/55 sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {new Date().getFullYear()} {siteConfig.shopName}. All rights
             reserved.

@@ -65,7 +65,7 @@ export function Hero() {
           </a>
         </div>
 
-        <p className="mt-5 text-sm text-bone/45">
+        <p className="mt-5 text-sm text-bone/60">
           No obligation. Every request is reviewed personally, usually with a
           reply the same day.
         </p>

@@ -21,7 +21,7 @@ export function MobileActionBar() {
         </a>
         <Link
           href="/#book"
-          className="eyebrow flex items-center justify-center bg-flame py-4 text-white"
+          className="eyebrow flex items-center justify-center bg-flame py-4 text-ink"
         >
           Book a slot
         </Link>

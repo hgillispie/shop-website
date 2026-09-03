@@ -37,8 +37,8 @@ const STEPS = [
 }[];
 
 const fieldClass =
-  "w-full border-ink/15 bg-white text-ink placeholder:text-ink/35 focus:border-flame focus:outline-flame";
-const labelClass = "eyebrow mb-2 block text-ink/45";
+  "w-full border-ink/15 bg-white text-ink placeholder:text-ink/65 focus:border-flame focus:outline-flame";
+const labelClass = "eyebrow mb-2 block text-ink/65";
 
 export function IntakeForm() {
   const [step, setStep] = useState(0);
@@ -137,7 +137,9 @@ export function IntakeForm() {
             <span
               className={cn(
                 "eyebrow mt-2.5 block text-[0.65rem] transition-colors",
-                i <= step ? "text-ink/70" : "text-ink/30",
+                // Both states stay readable; the flame bar above carries the
+                // active/pending distinction instead of text opacity.
+                i <= step ? "text-ink" : "text-ink/65",
               )}
             >
               {s.label}
@@ -168,7 +170,7 @@ export function IntakeForm() {
                 {errors.bikeYearMakeModel.message}
               </p>
             )}
-            <p className="mt-3 text-sm text-ink/45">
+            <p className="mt-3 text-sm text-ink/65">
               Not sure of the exact model? A rough description is fine.
             </p>
           </div>
@@ -281,7 +283,7 @@ export function IntakeForm() {
           <button
             type="button"
             onClick={() => setStep((s) => s - 1)}
-            className="btn btn-ghost eyebrow gap-2 text-ink/50 hover:bg-ink/5 hover:text-ink"
+            className="btn btn-ghost eyebrow gap-2 text-ink/65 hover:bg-ink/5 hover:text-ink"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Back
@@ -311,7 +313,7 @@ export function IntakeForm() {
         )}
       </div>
 
-      <p className="mt-5 text-xs text-ink/40">
+      <p className="mt-5 text-xs text-ink/65">
         Your details go straight to the shop. Submitting a request doesn&apos;t
         book a slot yet — you&apos;ll get a reply to confirm.
       </p>

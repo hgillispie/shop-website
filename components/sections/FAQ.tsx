@@ -6,11 +6,11 @@ export function FAQ() {
   return (
     <section
       id="faq"
-      className="scroll-mt-(--header-h) bg-bone py-20 sm:py-28"
+      className="scroll-mt-16 bg-bone py-20 sm:scroll-mt-20 sm:py-28"
     >
       <div className="mx-auto max-w-3xl px-5 sm:px-6">
         <Reveal>
-          <p className="eyebrow text-flame">Before you reach out</p>
+          <p className="eyebrow text-flame-deep">Before you reach out</p>
           <h2 className="display-caps mt-5 text-5xl text-ink sm:text-6xl">
             Good to know
           </h2>
@@ -32,11 +32,11 @@ export function FAQ() {
           ))}
         </div>
 
-        <p className="mt-10 text-center text-ink/60">
+        <p className="mt-10 text-center text-ink/65">
           Still not sure?{" "}
           <Link
             href="#book"
-            className="font-semibold text-flame underline underline-offset-4 hover:text-ember"
+            className="font-semibold text-flame-deep underline underline-offset-4 hover:text-flame"
           >
             Describe it in the form
           </Link>{" "}
