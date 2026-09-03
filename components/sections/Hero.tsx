@@ -27,10 +27,15 @@ export function Hero({ featured }: { featured: Product | null }) {
         className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-ink to-transparent"
         aria-hidden="true"
       />
-      <LogoMark
-        priority
-        className="pointer-events-none absolute -right-20 top-1/4 hidden h-[34rem] opacity-[0.07] lg:block"
-      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-1/2 hidden w-full max-w-6xl -translate-x-1/2 lg:block"
+      >
+        <LogoMark
+          priority
+          className="absolute left-6 top-1/2 h-[30rem] -translate-y-1/2 opacity-[0.07]"
+        />
+      </div>
 
       <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-5 pb-14 sm:px-6 sm:pb-20 lg:grid-cols-[1fr_360px] lg:items-stretch lg:gap-14">
         <div className="flex flex-col justify-center">
