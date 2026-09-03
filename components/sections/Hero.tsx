@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { siteConfig } from "@/data/site-config";
 import { LogoMark } from "@/components/brand/Logo";
 import { formatMoney } from "@/lib/shopify/money";
 import { TrackedLink } from "@/components/TrackedLink";
@@ -36,10 +35,10 @@ export function Hero({ featured }: { featured: Product | null }) {
       <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-5 pb-14 sm:px-6 sm:pb-20 lg:grid-cols-[1fr_360px] lg:items-end lg:gap-14">
         <div>
           <p className="eyebrow text-ember">
-            Harley-Davidson performance &amp; service · {siteConfig.city}
+            Harley-Davidson performance &amp; service · Upstate, SC
           </p>
 
-          <h1 className="display-slant mt-5 text-[3.5rem] leading-[0.88] sm:text-8xl lg:text-9xl">
+          <h1 className="display-slant mt-4 text-[2.5rem] leading-[0.9] sm:text-6xl xl:text-7xl">
             Dealership trained.
             <span className="block text-ember">Rider focused.</span>
           </h1>
