@@ -1,5 +1,57 @@
 @import "tailwindcss";
 
+/* rootcolor/rootscrollgutter would repaint every existing page, including the
+   live /admin and /store. daisyUI stays opt-in via component classes only. */
+@plugin "daisyui" {
+  themes: false;
+  exclude: rootcolor, rootscrollgutter;
+}
+
+@plugin "daisyui/theme" {
+  name: "swafford";
+  default: true;
+  color-scheme: dark;
+
+  --color-base-100: #201e1e;
+  --color-base-200: #1a1818;
+  --color-base-300: #2c2928;
+  --color-base-content: #f7f2ef;
+
+  /* Flame is the only action colour on the page — see the Von Restorff note
+     in the brand tokens below. Ember is decorative. */
+  --color-primary: #ec5407;
+  --color-primary-content: #fff7f2;
+  --color-secondary: #f58220;
+  --color-secondary-content: #201e1e;
+
+  /* Deliberately the OLD gold, not a brand colour. `accent` predates daisyUI
+     here and is still used by ~30 live /admin and /store files; letting
+     daisyUI claim the name would silently restyle all of them. */
+  --color-accent: #b3812f;
+  --color-accent-content: #ffffff;
+
+  --color-neutral: #2c2928;
+  --color-neutral-content: #f7f2ef;
+
+  --color-info: #4b9fd5;
+  --color-info-content: #06131c;
+  --color-success: #4f9d5a;
+  --color-success-content: #06130a;
+  --color-warning: #f58220;
+  --color-warning-content: #201e1e;
+  --color-error: #c8341b;
+  --color-error-content: #fff5f2;
+
+  --radius-selector: 0.125rem;
+  --radius-field: 0.125rem;
+  --radius-box: 0.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.28rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
 :root {
   --background: #fafaf9;
   --foreground: #171714;
@@ -12,6 +64,26 @@
   --border-dark: #262624;
   --accent: #b3812f;
   --accent-soft: #f1e6d3;
+
+  /* Swafford brand kit. Flame = actions only, ember = accents/eyebrows. */
+  --ink: #201e1e;
+  --ink-deep: #151313;
+  --ink-soft: #2c2928;
+  --bone: #f7f2ef;
+  --bone-dim: #b7ada8;
+  --flame: #ec5407;
+  --ember: #f58220;
+  --hairline: rgba(247, 242, 239, 0.14);
+
+  /* Nav bar + its checker strip. /store offsets its sticky sub-header against
+     this, so the two can't drift apart. */
+  --header-h: 70px;
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --header-h: 86px;
+  }
 }
 
 @theme inline {
@@ -26,7 +98,18 @@
   --color-border-dark: var(--border-dark);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
-  --font-sans: var(--font-geist-sans);
+
+  --color-ink: var(--ink);
+  --color-ink-deep: var(--ink-deep);
+  --color-ink-soft: var(--ink-soft);
+  --color-bone: var(--bone);
+  --color-bone-dim: var(--bone-dim);
+  --color-flame: var(--flame);
+  --color-ember: var(--ember);
+  --color-hairline: var(--hairline);
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-barlow-condensed);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -44,6 +127,44 @@ body {
   html {
     scroll-behavior: auto;
   }
+}
+
+/* Checkered-flag block, lifted from the logo. Size and colour are set by the
+   consumer via --checker-size / --checker-color. */
+@utility checkers {
+  background-image: repeating-conic-gradient(
+    var(--checker-color, #201e1e) 0% 25%,
+    transparent 0% 50%
+  );
+  background-size: var(--checker-size, 20px) var(--checker-size, 20px);
+}
+
+@utility display-caps {
+  font-family: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 0.92;
+}
+
+/* The logo's wordmark is obliqued, not a true italic — matching it keeps
+   headings and the mark reading as one system. */
+@utility display-slant {
+  font-family: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 0.92;
+}
+
+@utility eyebrow {
+  font-family: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  font-size: 0.75rem;
+  line-height: 1;
 }
 
 input[type="date"] {

@@ -2,8 +2,17 @@ export const siteConfig = {
   shopName: "Swafford Speed",
   tagline: "Independent Harley-Davidson mechanics.",
   phone: "(843)-666-9451",
+  phoneHref: "tel:+18436669451",
   email: "huntergillispie1@proton.me",
   city: "Taylors, SC",
+  // Only claims already signed off by the owner and live on the site — no
+  // review counts, ratings, or job numbers.
+  credentials: [
+    { value: "20 yrs", label: "Running H-D service departments" },
+    { value: "Dealership", label: "Trained technicians" },
+    { value: "Pan → M8", label: "Panhead through Milwaukee-Eight" },
+    { value: "1 at a time", label: "One bike in the shop, start to finish" },
+  ],
   // Real drop-off address — sent only in the private approval email/SMS,
   // never rendered on a public page (owner doesn't want walk-ins).
   address: "529 E Darby Road, Taylors, SC 29687",

@@ -1,58 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, Phone, X } from "lucide-react";
 import { siteConfig } from "@/data/site-config";
-import { ButtonLink } from "@/components/ui/button";
+import { Logo } from "@/components/brand/Logo";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <header
-      className="fixed inset-x-0 top-0 z-50 border-b border-border/60 backdrop-blur-md"
-      style={{ backgroundColor: "#b3812f" }}
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
+        scrolled || open
+          ? "bg-ink/95 backdrop-blur-md"
+          : "bg-gradient-to-b from-ink/85 to-transparent",
+      )}
     >
-      <nav
-        className="mx-auto flex h-16 max-w-6xl items-center justify-between border px-6 [border-style:groove]"
-        style={{ color: "#232e37", backgroundColor: "rgba(0, 0, 0, 1)" }}
-      >
-        <Link
-          href="/#top"
-          className="text-left text-xl font-semibold italic tracking-widest uppercase"
-          style={{
-            fontFamily: "var(--font-big-shoulders-stencil-text), display",
-            WebkitTextStroke: "0.5px currentColor",
-            color: "#b3812f",
-          }}
-        >
-          {siteConfig.shopName}
+      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-5 sm:h-20 sm:px-6">
+        <Link href="/#top" aria-label={siteConfig.shopName} className="shrink-0">
+          <Logo markClassName="h-9 sm:h-11" priority />
         </Link>
 
-        <ul className="hidden items-center gap-8 md:flex">
+        <ul className="hidden items-center gap-7 lg:flex">
           {siteConfig.navLinks.map((link) => (
             <li key={link.href}>
-              <a
+              <Link
                 href={link.href}
-                className="text-sm text-foreground/80 transition-colors hover:text-accent"
-                style={{ color: "#b3812f" }}
+                className="eyebrow text-bone/70 transition-colors hover:text-ember"
               >
                 {link.label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
 
-        <ButtonLink href="/#book" size="sm" className="hidden md:inline-flex">
-          Request an Appointment
-        </ButtonLink>
+        <div className="hidden items-center gap-4 md:flex">
+          <a
+            href={siteConfig.phoneHref}
+            className="flex items-center gap-2 text-sm font-semibold text-bone transition-colors hover:text-ember"
+          >
+            <Phone className="h-4 w-4 text-flame" aria-hidden="true" />
+            {siteConfig.phone}
+          </a>
+          <Link href="/#book" className="btn btn-primary eyebrow h-11 px-6">
+            Book a slot
+          </Link>
+        </div>
 
         <button
           type="button"
-          aria-label="Toggle menu"
-          className="text-foreground md:hidden"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          className="text-bone md:hidden"
           onClick={() => setOpen((v) => !v)}
         >
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -61,34 +71,51 @@ export function Navbar() {
 
       <div
         className={cn(
-          "grid overflow-hidden border-t border-border/60 bg-background transition-[grid-template-rows] duration-300 md:hidden",
+          "grid overflow-hidden bg-ink/95 backdrop-blur-md transition-[grid-template-rows] duration-300 md:hidden",
           open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
         )}
       >
-        <ul className="overflow-hidden px-6">
+        <ul className="overflow-hidden px-5">
           {siteConfig.navLinks.map((link) => (
-            <li key={link.href} className="border-b border-border/40 py-3">
-              <a
+            <li key={link.href} className="border-b border-hairline">
+              <Link
                 href={link.href}
-                className="text-sm text-foreground/80"
-                style={{ color: "#b3812f" }}
+                className="display-caps block py-4 text-2xl text-bone"
                 onClick={() => setOpen(false)}
               >
                 {link.label}
-              </a>
+              </Link>
             </li>
           ))}
-          <li className="py-4">
+          <li className="flex flex-col gap-3 py-5">
             <Link
               href="/#book"
-              className="inline-flex h-11 w-full items-center justify-center rounded-full bg-accent text-sm font-medium text-white"
+              className="btn btn-primary btn-block eyebrow"
               onClick={() => setOpen(false)}
             >
-              Request an Appointment
+              Request an appointment
             </Link>
+            <a
+              href={siteConfig.phoneHref}
+              className="btn btn-outline btn-block eyebrow border-hairline text-bone hover:border-ember hover:bg-transparent hover:text-ember"
+            >
+              <Phone className="h-4 w-4" aria-hidden="true" />
+              {siteConfig.phone}
+            </a>
           </li>
         </ul>
       </div>
+
+      <div
+        className="checkers h-1.5 w-full opacity-80"
+        style={
+          {
+            "--checker-color": "var(--flame)",
+            "--checker-size": "12px",
+          } as React.CSSProperties
+        }
+        aria-hidden="true"
+      />
     </header>
   );
 }

@@ -16,8 +16,8 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   return (
     <>
       <Navbar />
-      <div className="pt-16">
-        <div className="sticky top-16 z-40 border-b border-border/60 bg-background/95 backdrop-blur-sm">
+      <div className="pt-(--header-h)">
+        <div className="sticky top-(--header-h) z-40 border-b border-border/60 bg-background/95 backdrop-blur-sm">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-2.5">
             <Link href="/store" className="text-xs text-muted hover:text-accent">
               ← Shop

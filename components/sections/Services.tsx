@@ -1,46 +1,72 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { capabilities } from "@/data/services";
 import { Reveal } from "@/components/Reveal";
+
+const WORKSHOP_PHOTO =
+  "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Ff3d655989a5749679be1ebbef870d703";
 
 export function Services() {
   return (
     <section
       id="services"
-      className="-mt-[2px] scroll-mt-16 bg-[#b3812f] bg-[url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2F27b53bb4ca6041edac41a10af27fc3f7')] bg-cover bg-center bg-no-repeat py-24"
+      className="scroll-mt-(--header-h) bg-ink py-20 text-bone sm:py-28"
     >
-      <div className="mx-auto max-w-6xl px-6">
-        <Reveal className="max-w-2xl">
-          <p
-            className="mb-4 overflow-hidden rounded text-center text-base font-medium uppercase tracking-[0.3em]"
-            style={{
-              backgroundColor: "rgba(0, 0, 0, 1)",
-              borderWidth: "1px",
-              borderColor: "rgba(110, 110, 31, 1)",
-              borderStyle: "inset",
-              color: "#b3812f",
-            }}
-          >
+      <div className="mx-auto max-w-6xl px-5 sm:px-6">
+        <Reveal className="max-w-3xl">
+          <p className="eyebrow text-ember">What the shop does</p>
+          <h2 className="display-caps mt-5 text-5xl sm:text-6xl">
             Services offered
+          </h2>
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-bone/60">
+            Panhead through Milwaukee-Eight, vintage restoration through modern
+            performance work — all of it in-house.
           </p>
         </Reveal>
 
-        <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
-          {capabilities.map((capability) => (
-            <div key={capability.title} className="bg-background p-8">
-              <h3 className="text-lg font-semibold">{capability.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted">
+        <div className="mt-14 grid gap-px bg-hairline sm:grid-cols-2 lg:grid-cols-3">
+          {capabilities.map((capability, i) => (
+            <div
+              key={capability.title}
+              className="group relative bg-ink p-7 transition-colors hover:bg-ink-soft lg:p-8"
+            >
+              <span className="display-slant text-sm text-flame">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="display-caps mt-4 text-2xl">{capability.title}</h3>
+              <p className="mt-3.5 text-sm leading-relaxed text-bone/55">
                 {capability.description}
               </p>
             </div>
           ))}
         </div>
 
-        <div className="mt-10 overflow-hidden rounded-lg border border-border bg-[#c41d1d] bg-[url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Ff3d655989a5749679be1ebbef870d703')] bg-cover bg-center bg-no-repeat">
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Ff3d655989a5749679be1ebbef870d703"
-            alt="Harley-Davidson restoration work area"
-            className="h-[320px] w-full object-cover sm:h-[420px]"
-          />
-        </div>
+        <Reveal className="mt-14">
+          <div className="relative overflow-hidden">
+            <img
+              src={WORKSHOP_PHOTO}
+              alt="Harley-Davidson restoration work in progress"
+              className="h-[320px] w-full object-cover sm:h-[460px]"
+              loading="lazy"
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent"
+              aria-hidden="true"
+            />
+            <div className="absolute inset-x-0 bottom-0 flex flex-col gap-5 p-7 sm:flex-row sm:items-end sm:justify-between sm:p-10">
+              <p className="display-caps max-w-md text-3xl sm:text-4xl">
+                Don&apos;t see your job on the list?
+              </p>
+              <Link
+                href="#book"
+                className="btn btn-primary eyebrow h-12 shrink-0 gap-2 px-7"
+              >
+                Ask about it
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
