@@ -44,9 +44,9 @@ const architectsDaughter = Architects_Daughter({
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-const TITLE = "Harley-Davidson Mechanic in Taylors, SC | Swafford Speed";
+const TITLE = "Harley-Davidson Performance & Service in Upstate SC | Swafford Speed";
 const DESCRIPTION =
-  "Independent Harley-Davidson shop in Taylors, SC. Engine rebuilds, EFI tuning, vintage restoration, and custom fabrication from dealership-trained technicians. By appointment only.";
+  "Independent Harley-Davidson performance and service shop in Upstate SC. Power upgrades, suspension, brakes, EFI tuning, custom builds, repairs, and vintage restoration. By appointment only.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -54,11 +54,14 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   keywords: [
     "Harley-Davidson mechanic Taylors SC",
+    "Harley-Davidson performance upgrades Greenville SC",
     "independent Harley-Davidson repair Greenville SC",
     "Harley mechanic Spartanburg SC",
+    "Harley suspension and brake upgrades",
+    "Twin Cam performance shop",
+    "Milwaukee-Eight performance",
     "custom Harley fabrication",
     "vintage Harley restoration",
-    "Milwaukee-Eight engine rebuild",
   ],
   openGraph: {
     title: TITLE,

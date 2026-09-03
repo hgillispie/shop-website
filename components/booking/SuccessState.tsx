@@ -1,28 +1,26 @@
+"use client";
+
 import { CalendarCheck } from "lucide-react";
 
 export function SuccessState({ onReset }: { onReset: () => void }) {
   return (
-    <div className="rounded-lg border border-border bg-surface p-8 text-center sm:p-12">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent">
-        <CalendarCheck className="h-6 w-6" aria-hidden="true" />
+    <div className="border border-brand-ink/15 bg-white p-6 text-center sm:p-8">
+      <div className="mx-auto grid h-14 w-14 place-items-center bg-brand-orange text-brand-ink">
+        <CalendarCheck className="h-7 w-7" aria-hidden="true" />
       </div>
-      <h3 className="mt-6 text-2xl font-semibold tracking-tight">
-        Request received.
+      <h3 className="mt-6 font-display text-4xl uppercase leading-none text-brand-ink">
+        Request received
       </h3>
-      <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted">
-        This shop is <span className="font-medium text-foreground">appointment only</span>.
-        Your request will be reviewed personally — once your appointment slot
-        is approved, you&apos;ll receive a text confirmation with the shop&apos;s
-        address and drop-off time.
+      <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-brand-ink/65">
+        Your request will be reviewed personally. Once a spot is approved, you&apos;ll receive a text confirmation with the shop address and drop-off time.
       </p>
-      <p className="mx-auto mt-3 max-w-md text-xs text-muted">
-        No appointment is scheduled yet. If anything urgent comes up, keep an
-        eye on your phone for a call or text back.
+      <p className="mx-auto mt-3 max-w-md text-xs leading-5 text-brand-ink/45">
+        Nothing is scheduled yet, so keep an eye on your phone for a call or text back.
       </p>
       <button
         type="button"
         onClick={onReset}
-        className="mt-6 text-xs font-medium uppercase tracking-wide text-accent hover:underline"
+        className="mt-6 text-xs font-bold uppercase tracking-[0.12em] text-brand-rust underline-offset-4 hover:underline"
       >
         Submit another request
       </button>

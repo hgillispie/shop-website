@@ -12,6 +12,11 @@
   --border-dark: #262624;
   --accent: #b3812f;
   --accent-soft: #f1e6d3;
+  --brand-ink: #201e1e;
+  --brand-orange: #f58220;
+  --brand-rust: #ec5407;
+  --brand-paper: #f1ede6;
+  --brand-cream: #fffaf4;
 }
 
 @theme inline {
@@ -26,8 +31,14 @@
   --color-border-dark: var(--border-dark);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-rust: var(--brand-rust);
+  --color-brand-paper: var(--brand-paper);
+  --color-brand-cream: var(--brand-cream);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-big-shoulders-stencil-text);
 }
 
 html {
@@ -38,6 +49,21 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.landing-page {
+  background: var(--brand-paper);
+}
+
+.brand-checker {
+  background-color: var(--brand-cream);
+  background-image: conic-gradient(
+    var(--brand-ink) 25%,
+    var(--brand-cream) 0 50%,
+    var(--brand-ink) 0 75%,
+    var(--brand-cream) 0
+  );
+  background-size: 28px 28px;
 }
 
 @media (prefers-reduced-motion: reduce) {

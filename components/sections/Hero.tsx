@@ -1,61 +1,85 @@
-import { ButtonLink } from "@/components/ui/button";
+import { Check, MapPin, Phone } from "lucide-react";
+import Image from "next/image";
+import { Booking } from "@/components/sections/Booking";
+import { siteConfig } from "@/data/site-config";
+
+const HERO_IMAGE =
+  "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Ff34d3293ef974da897f5007b910db556";
 
 export function Hero() {
   return (
-    <section
-      id="top"
-      className="relative flex min-h-screen items-center overflow-hidden bg-surface-dark bg-cover bg-center pt-16 text-foreground-dark"
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Ff34d3293ef974da897f5007b910db556')",
-        backgroundColor: "rgba(0, 0, 0, 1)",
-        fontFamily: "var(--font-architects-daughter), sans-serif",
-      }}
-    >
-      <svg
-        className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06]"
+    <section id="top" className="relative isolate overflow-hidden bg-brand-ink pt-20 text-white">
+      <Image
+        src={HERO_IMAGE}
+        alt=""
+        fill
+        preload
+        sizes="100vw"
+        className="-z-20 object-cover object-center opacity-50 lg:object-[72%_center]"
+      />
+      <div
+        className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(32,30,30,0.98)_0%,rgba(32,30,30,0.88)_42%,rgba(32,30,30,0.58)_70%,rgba(32,30,30,0.72)_100%)]"
         aria-hidden="true"
-      >
-        <defs>
-          <pattern
-            id="grid"
-            width="48"
-            height="48"
-            patternUnits="userSpaceOnUse"
-          >
-            <path
-              d="M 48 0 L 0 0 0 48"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-            />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
-      </svg>
+      />
+      <div
+        className="absolute inset-0 -z-10 opacity-20 [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:48px_48px]"
+        aria-hidden="true"
+      />
 
-      <div className="relative mx-auto w-full max-w-6xl px-6 py-16">
-        <div>
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-            Upstate Harley-Davidson specialists
+      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(440px,540px)] lg:items-center lg:gap-16 lg:py-20">
+        <div className="max-w-2xl">
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-brand-orange">
+            <MapPin className="h-4 w-4" aria-hidden="true" />
+            Harley-Davidson Performance &amp; service
+          </p>
+          <h1 className="mt-6 font-display text-6xl uppercase leading-[0.9] tracking-[-0.025em] text-white sm:text-7xl xl:text-[92px]">
+            Dealership trained.
+            <span className="mt-2 block text-brand-orange">Rider focused.</span>
           </h1>
-          <h3 className="mt-5 text-base leading-relaxed text-muted-dark">
-            From seasonal maintainance to custom builds, no job too big or
-            small. Call today (843)-666-9451
-          </h3>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <ButtonLink href="#book" size="lg">
-              Request an Appointment
-            </ButtonLink>
+          <p className="mt-7 max-w-xl text-lg leading-8 text-white/75 sm:text-xl">
+            Twenty years of Harley-Davidson experience for performance upgrades, dialed-in builds, and service that keeps your bike ready to ride.
+          </p>
+
+          <ul className="mt-8 grid gap-3 text-sm text-white/80 sm:grid-cols-2">
+            {[
+              "Engine, suspension, and brake upgrades",
+              "Performance exhaust and EFI tuning",
+              "Custom builds",
+              "Vintage through Milwaukee-Eight",
+            ].map((item) => (
+              <li key={item} className="flex items-center gap-3">
+                <span className="grid h-5 w-5 shrink-0 place-items-center bg-brand-orange text-brand-ink">
+                  <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" />
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
             <a
-              href="#services"
-              className="text-sm font-medium text-foreground-dark/80 underline-offset-4 hover:text-accent hover:underline"
+              href="#book"
+              className="inline-flex h-14 items-center justify-center bg-brand-orange px-7 text-sm font-bold uppercase tracking-[0.13em] text-brand-ink transition-colors hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
-              See what we service
+              Tell us about your bike
+            </a>
+            <a
+              href={`tel:${siteConfig.phone.replace(/\D/g, "")}`}
+              className="inline-flex h-14 items-center justify-center gap-2 border border-white/25 px-6 text-sm font-semibold text-white transition-colors hover:border-white hover:bg-white hover:text-brand-ink focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              <Phone className="h-4 w-4" aria-hidden="true" />
+              {siteConfig.phone}
             </a>
           </div>
+          <p className="mt-4 text-xs leading-5 text-white/45">
+            Appointment request only. No payment or commitment required.
+          </p>
         </div>
+
+        <Booking />
       </div>
+
+      <div className="brand-checker h-4 border-y border-white/15" aria-hidden="true" />
     </section>
   );
 }
