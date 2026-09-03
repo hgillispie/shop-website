@@ -10,7 +10,7 @@ export const faqs = [
       "Yes. Twin Cam and Milwaukee-Eight work includes cams and power packages, intake and exhaust, EFI tuning, suspension, brakes, controls, and rider-fit upgrades.",
   },
   {
-    question: "Can you build a club-style or fully custom bike?",
+    question: "Can you build fully custom bikes?",
     answer:
       "Yes. Bars, risers, controls, fairings, lighting, wiring, suspension, exhaust, hardtail conversions, one-off fabrication, and complete builds are all within scope.",
   },

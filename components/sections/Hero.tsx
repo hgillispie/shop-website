@@ -47,8 +47,8 @@ export function Hero() {
           </h1>
 
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-bone/75">
-            Cams, suspension, exhaust, and tuning planned around how you
-            actually ride — plus the service work that keeps it all together.
+            Upgrades and adjustments planned around how you ride — plus the
+            service work that keeps it all together.
           </p>
 
           <ul className="mt-8 grid gap-3 text-sm text-bone/80 sm:grid-cols-2">
