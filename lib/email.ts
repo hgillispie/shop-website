@@ -62,6 +62,45 @@ export async function sendOwnerNewRequestEmail(request: AppointmentRequestRow) {
   });
 }
 
+// The only one of the three appointment emails that's a real "confirmation"
+// from the customer's point of view — given the new-brand HTML treatment
+// (see renderBrandedEmailShell) alongside the existing plain-text version,
+// which stays as the non-HTML-client fallback.
+function renderAppointmentConfirmedHtml(name: string, dropoff: string): string {
+  const e = escapeHtml;
+  const bodyHtml = `
+        <tr>
+          <td style="padding:24px 32px 0;">
+            <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:bold;letter-spacing:0.1em;color:${BRAND.orange};">
+              APPOINTMENT CONFIRMED
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px 32px 0;font-size:14px;line-height:1.5;color:${BRAND.dark};">
+            Hi ${e(name)},<br />
+            Your appointment is confirmed. See you then.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:18px 32px 0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fdf1e7;border-left:4px solid ${BRAND.orangeDark};">
+              <tr>
+                <td style="padding:14px 18px;font-family:Georgia,'Times New Roman',serif;font-size:16px;font-weight:bold;color:${BRAND.dark};">
+                  ${e(dropoff)}
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:18px 32px 0;font-size:13px;line-height:1.5;color:#555555;">
+            Drop off at: ${e(siteConfig.address)}
+          </td>
+        </tr>`;
+  return renderBrandedEmailShell(bodyHtml);
+}
+
 export async function sendCustomerApprovalEmail(
   request: AppointmentRequestRow,
   job: JobRow,
@@ -83,6 +122,7 @@ export async function sendCustomerApprovalEmail(
     from: FROM,
     to: request.email,
     subject: `Appointment confirmed — ${siteConfig.shopName}`,
+    html: renderAppointmentConfirmedHtml(request.name, dropoff),
     text: [
       `Hi ${request.name},`,
       "",
@@ -142,17 +182,76 @@ function escapeHtml(value: string): string {
 // the protection-bypass secret in a customer-facing email to work around
 // that is a worse trade than the problem it solves. Inlining sidesteps the
 // whole question — works regardless of what that setting is ever set to.
-let cachedLogoDataUri: string | null = null;
-function getLogoDataUri(): string | null {
-  if (cachedLogoDataUri) return cachedLogoDataUri;
+//
+// NOTE: the OLD logo-email.png asset is still used — just not from this
+// file anymore. lib/invoices/pdf.tsx has its own independent reader for
+// it (the print-invoice PDF attachment deliberately stayed on the old
+// look; the 2026-09-03 rebrand below was scoped to just the two HTML
+// emails in this file, not the print invoice/PDF). This file's own
+// version of that helper (getLogoDataUri) had no remaining callers once
+// renderInvoiceHtml moved to the new brand below, so it was removed
+// rather than left as dead code — don't recreate it pointing at the new
+// logo by mistake if a third email ever needs branding again; add a
+// fresh one deliberately instead.
+
+// 2026-09-03 rebrand — new lightning-bolt/checkered-flag logo + colors,
+// chosen to match the branding already applied to the Shopify checkout
+// page (Settings > Checkout > branding, on Shopify's side, not this
+// codebase). Deliberately scoped to just these two emails per the owner's
+// own call, not a site-wide rebrand — the main site nav/footer and the
+// print-invoice/PDF keep the original branding untouched.
+const BRAND = {
+  dark: "#201E1E",
+  orange: "#F58220",
+  orangeDark: "#EC5407",
+};
+
+let cachedNewLogoDataUri: string | null = null;
+function getNewBrandLogoDataUri(): string | null {
+  if (cachedNewLogoDataUri) return cachedNewLogoDataUri;
   try {
-    const filePath = path.join(process.cwd(), "public", "logo-email.png");
-    cachedLogoDataUri = `data:image/png;base64,${fs.readFileSync(filePath).toString("base64")}`;
-    return cachedLogoDataUri;
+    const filePath = path.join(process.cwd(), "public", "logo-swafford-email.png");
+    cachedNewLogoDataUri = `data:image/png;base64,${fs.readFileSync(filePath).toString("base64")}`;
+    return cachedNewLogoDataUri;
   } catch (error) {
-    console.error("[email] failed to read logo for inline embedding:", error);
+    console.error("[email] failed to read new-brand logo for inline embedding:", error);
     return null;
   }
+}
+
+// Shared chrome for the two rebranded emails — dark header bar with the
+// new logo centered (matching the solid dark checkout header, not the old
+// white-header-with-black-rule look), then whatever body content the
+// caller supplies, then the same footer both emails already used. The
+// logo is naturally tall (a lightning bolt, not a wide wordmark) — sized
+// down and centered rather than reusing the old wide-logo layout slot.
+function renderBrandedEmailShell(bodyHtml: string): string {
+  const logoUri = getNewBrandLogoDataUri();
+  const logoCell = logoUri
+    ? `<img src="${logoUri}" width="56" alt="${escapeHtml(siteConfig.shopName)}" style="display:block;" />`
+    : `<div style="font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:15px;letter-spacing:0.08em;color:#ffffff;">${escapeHtml(siteConfig.shopName.toUpperCase())}</div>`;
+
+  return `
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0eee9;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid #dddddd;">
+        <tr>
+          <td align="center" style="padding:26px 32px;background-color:${BRAND.dark};">
+            ${logoCell}
+          </td>
+        </tr>
+        ${bodyHtml}
+        <tr>
+          <td align="center" style="padding:12px 32px 30px;font-size:12px;color:#888888;line-height:1.6;">
+            Questions? Call or text ${escapeHtml(siteConfig.phone)}.<br />
+            &mdash; ${escapeHtml(siteConfig.shopName)}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`;
 }
 
 function renderInvoiceHtml(
@@ -160,10 +259,6 @@ function renderInvoiceHtml(
   payUrl: string | null,
   vehicle: string,
 ): string {
-  const logoUri = getLogoDataUri();
-  const logoCell = logoUri
-    ? `<img src="${logoUri}" width="120" alt="${escapeHtml(siteConfig.shopName)}" style="display:block;" />`
-    : `<div style="font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:15px;letter-spacing:0.08em;">${escapeHtml(siteConfig.shopName.toUpperCase())}</div>`;
   const e = escapeHtml;
 
   const jobRows = invoice.jobs
@@ -188,7 +283,7 @@ function renderInvoiceHtml(
       return `
       <tr>
         <td style="padding:${i === 0 ? "18" : "14"}px 32px 0;">
-          <div style="font-family:Georgia,'Times New Roman',serif;font-size:13px;font-weight:bold;color:#000000;margin-bottom:6px;">
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:13px;font-weight:bold;color:${BRAND.dark};margin-bottom:6px;">
             Job ${i + 1}: ${e(job.customerDescription || "Repair")}
           </div>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -208,28 +303,16 @@ function renderInvoiceHtml(
       ? `<tr><td style="padding:3px 0;font-size:13px;">Card processing fee</td><td align="right" style="padding:3px 0;font-size:13px;">${money(invoice.ccFeeCents)}</td></tr>`
       : "";
 
-  return `
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0eee9;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
-  <tr>
-    <td align="center">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid #dddddd;">
+  const bodyHtml = `
         <tr>
-          <td style="padding:28px 32px 18px;border-bottom:4px solid #000000;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-              <tr>
-                <td width="130" valign="middle">
-                  ${logoCell}
-                </td>
-                <td align="right" valign="middle">
-                  <div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:bold;letter-spacing:0.12em;color:#000000;">INVOICE</div>
-                  <div style="font-size:11px;color:#666666;margin-top:2px;">R.O. #${invoice.invoiceNumber}</div>
-                </td>
-              </tr>
-            </table>
+          <td style="padding:20px 32px 0;">
+            <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:bold;letter-spacing:0.1em;color:${BRAND.orange};">
+              INVOICE &middot; R.O. #${invoice.invoiceNumber}
+            </div>
           </td>
         </tr>
         <tr>
-          <td style="padding:22px 32px 0;font-size:14px;line-height:1.5;color:#222222;">
+          <td style="padding:8px 32px 0;font-size:14px;line-height:1.5;color:${BRAND.dark};">
             Hi ${e(invoice.customerName)},<br />
             Here&rsquo;s the invoice for your${vehicle ? ` ${e(vehicle)}` : " bike"}&rsquo;s recent visit${
               invoice.serviceAdvisor ? `, written up by ${e(invoice.serviceAdvisor)}` : ""
@@ -239,14 +322,14 @@ function renderInvoiceHtml(
         ${jobRows}
         <tr>
           <td style="padding:20px 32px 0;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="color:#222222;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="color:${BRAND.dark};">
               <tr><td style="padding:3px 0;font-size:13px;">Parts</td><td align="right" style="padding:3px 0;font-size:13px;">${money(invoice.partsTotalCents)}</td></tr>
               <tr><td style="padding:3px 0;font-size:13px;">Labor</td><td align="right" style="padding:3px 0;font-size:13px;">${money(invoice.laborTotalCents)}</td></tr>
               ${taxRow}
               ${ccFeeRow}
               <tr>
-                <td style="padding:10px 0 4px;border-top:2px solid #000000;font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:16px;color:#000000;">Total due</td>
-                <td align="right" style="padding:10px 0 4px;border-top:2px solid #000000;font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:16px;color:#000000;">${money(invoice.totalDueCents)}</td>
+                <td style="padding:10px 0 4px;border-top:2px solid ${BRAND.dark};font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:16px;color:${BRAND.dark};">Total due</td>
+                <td align="right" style="padding:10px 0 4px;border-top:2px solid ${BRAND.dark};font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:16px;color:${BRAND.dark};">${money(invoice.totalDueCents)}</td>
               </tr>
             </table>
           </td>
@@ -255,7 +338,7 @@ function renderInvoiceHtml(
           payUrl
             ? `<tr>
           <td align="center" style="padding:28px 32px 8px;">
-            <a href="${payUrl}" style="display:inline-block;background-color:#b3812f;color:#ffffff;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;padding:14px 40px;border-radius:999px;">Pay this invoice</a>
+            <a href="${payUrl}" style="display:inline-block;background-color:${BRAND.orangeDark};color:#ffffff;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;padding:14px 40px;border-radius:999px;">Pay this invoice</a>
           </td>
         </tr>`
             : `<tr>
@@ -263,17 +346,9 @@ function renderInvoiceHtml(
             A copy of this invoice is attached as a PDF.
           </td>
         </tr>`
-        }
-        <tr>
-          <td align="center" style="padding:12px 32px 30px;font-size:12px;color:#888888;line-height:1.6;">
-            Questions? Call or text ${e(siteConfig.phone)}.<br />
-            &mdash; ${e(siteConfig.shopName)}
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>`;
+        }`;
+
+  return renderBrandedEmailShell(bodyHtml);
 }
 
 // The owner's real complaint this answers: Shopify's own draft-order-invoice
