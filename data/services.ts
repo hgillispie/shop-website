@@ -12,7 +12,7 @@ export const capabilities = [
   {
     title: "Service & Diagnostics",
     description:
-      "Scheduled maintenance, electrical and drivability diagnostics, fuel systems, and repairs that keep modern and vintage bikes ready to ride.",
+      "Scheduled maintenance, drivability diagnostics, fuel systems, and repairs that keep modern and vintage bikes ready to ride.",
   },
   {
     title: "Club-Style & Custom Builds",
@@ -25,8 +25,8 @@ export const capabilities = [
       "Top-end work, ground-up rebuilds, clutch and transmission service across Evolution, Twin Cam, Milwaukee-Eight, and earlier platforms.",
   },
   {
-    title: "Vintage & Fabrication",
+    title: "Wiring, Lighting & Sound",
     description:
-      "Period-correct restoration, hardtail work, custom exhaust, brackets, and structural fabrication done in-house with the bike's purpose in mind.",
+      "Harness repairs, added lighting, accessory circuits, and the wiring behind speakers that cut out — traced back to the actual fault instead of patched over.",
   },
 ] as const;
