@@ -13,7 +13,7 @@ export function StructuredData() {
         "@id": `${SITE_URL}/#business`,
         name: siteConfig.shopName,
         description:
-          "Independent Harley-Davidson performance, custom fabrication, and vintage restoration shop serving Taylors, Greenville, and Spartanburg, SC. Appointment only.",
+          "Independent Harley-Davidson performance, service, suspension, tuning, custom fabrication, and vintage restoration shop serving Upstate South Carolina. Appointment only.",
         url: SITE_URL,
         telephone: siteConfig.phone,
         address: {

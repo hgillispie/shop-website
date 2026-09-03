@@ -152,10 +152,10 @@ export function IntakeForm() {
       </div>
 
       <div>
-        <Label htmlFor="details" className={labelClassName}>What does the bike need?</Label>
+        <Label htmlFor="details" className={labelClassName}>What do you want to fix, change, or improve?</Label>
         <Textarea
           id="details"
-          placeholder="Tell us what is happening or what you want to build."
+          placeholder="Tell us what is happening, what you want to change, and how you ride."
           {...register("details")}
           className={`${fieldClassName} min-h-28 resize-y`}
           aria-invalid={Boolean(errors.details)}

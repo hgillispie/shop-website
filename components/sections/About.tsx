@@ -28,7 +28,7 @@ export function About() {
           <div className="absolute -left-3 -top-3 h-28 w-28 bg-brand-orange" aria-hidden="true" />
           <Image
             src={SHOP_IMAGE}
-            alt="Harley-Davidson restoration work inside Swafford Speed"
+            alt="Harley-Davidson service and performance work inside Swafford Speed"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover grayscale-[15%]"
@@ -39,17 +39,17 @@ export function About() {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-orange">Why Swafford Speed</p>
           <h2 className="mt-5 font-display text-5xl uppercase leading-[0.95] sm:text-6xl">
-            The standard of a service department. The attention of an independent shop.
+            Dealer-level experience. Built for riders who expect more.
           </h2>
           <p className="mt-7 text-lg leading-8 text-white/65">
-            After two decades working in and running Harley-Davidson service departments, Swafford Speed was built around a simpler idea: fewer bikes, better communication, and work that holds up after the ride home.
+            After two decades working in and running Harley-Davidson service departments, Swafford Speed was built for riders who want a sharper, stronger, more personal bike—not a one-size-fits-all dealership package.
           </p>
 
           <ul className="mt-8 space-y-4 border-y border-white/15 py-6 text-sm text-white/75">
             {[
-              "Your request is reviewed by the person doing the work",
-              "You get a clear conversation before the wrenching starts",
-              "Vintage restoration and modern performance live under one roof",
+              "Power, suspension, brakes, and controls planned as a complete setup",
+              "Modern Twin Cam and Milwaukee-Eight performance expertise",
+              "Vintage restoration, fabrication, and full custom builds",
             ].map((item) => (
               <li key={item} className="flex gap-3">
                 <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-orange" strokeWidth={3} aria-hidden="true" />

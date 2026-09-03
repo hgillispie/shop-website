@@ -47,9 +47,7 @@ function BrandedNavbar() {
                 preload
               />
               <span className="hidden border-l border-white/20 pl-3 text-[10px] font-semibold uppercase leading-4 tracking-[0.2em] text-white/65 sm:block">
-                Harley-Davidson service
-                <br />
-                Taylors, South Carolina
+                Upstate, South Carolina
               </span>
             </Link>
 

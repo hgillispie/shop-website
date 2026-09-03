@@ -1,4 +1,3 @@
-import { Clock3, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { IntakeForm } from "@/components/booking/IntakeForm";
 
@@ -22,19 +21,8 @@ export function Booking() {
       </div>
 
       <p className="mt-5 text-sm leading-6 text-brand-ink/65">
-        Give us the basics. Every request is reviewed personally, and you&apos;ll hear back with next steps.
+        Tell us what needs attention or what you want to improve. Every request is reviewed personally, and you&apos;ll hear back with next steps.
       </p>
-
-      <div className="mt-4 grid grid-cols-2 gap-3 border-y border-brand-ink/10 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-brand-ink/65">
-        <span className="flex items-center gap-2">
-          <Clock3 className="h-4 w-4 text-brand-rust" aria-hidden="true" />
-          Usually same-day reply
-        </span>
-        <span className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-brand-rust" aria-hidden="true" />
-          No spam or sales pitch
-        </span>
-      </div>
 
       <div className="mt-6">
         <IntakeForm />

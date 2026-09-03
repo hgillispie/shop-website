@@ -30,22 +30,22 @@ export function Hero() {
         <div className="max-w-2xl">
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-brand-orange">
             <MapPin className="h-4 w-4" aria-hidden="true" />
-            Harley-Davidson service · Taylors, SC
+            Harley-Davidson Performance &amp; service
           </p>
           <h1 className="mt-6 font-display text-6xl uppercase leading-[0.9] tracking-[-0.025em] text-white sm:text-7xl xl:text-[92px]">
             Dealership trained.
             <span className="mt-2 block text-brand-orange">Rider focused.</span>
           </h1>
           <p className="mt-7 max-w-xl text-lg leading-8 text-white/75 sm:text-xl">
-            Twenty years of Harley-Davidson experience, now in an independent shop where your bike gets the time and attention it deserves.
+            Twenty years of Harley-Davidson experience for performance upgrades, dialed-in builds, and service that keeps your bike ready to ride.
           </p>
 
           <ul className="mt-8 grid gap-3 text-sm text-white/80 sm:grid-cols-2">
             {[
-              "One bike at a time",
+              "Engine, suspension, and brake upgrades",
+              "Performance exhaust and EFI tuning",
+              "Club-style and full custom builds",
               "Vintage through Milwaukee-Eight",
-              "Repairs, builds, and fabrication",
-              "Straight answers before work starts",
             ].map((item) => (
               <li key={item} className="flex items-center gap-3">
                 <span className="grid h-5 w-5 shrink-0 place-items-center bg-brand-orange text-brand-ink">

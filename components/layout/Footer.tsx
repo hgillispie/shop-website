@@ -25,7 +25,7 @@ export function Footer({ branded = false }: { branded?: boolean }) {
               Built around the bike.
             </p>
             <p className="mt-2 max-w-xs text-sm leading-6 text-white/55">
-              Independent Harley-Davidson service, repair, restoration, and custom work in {siteConfig.city}.
+              Harley-Davidson performance, service, restoration, and custom builds in Upstate South Carolina.
             </p>
           </div>
         </div>

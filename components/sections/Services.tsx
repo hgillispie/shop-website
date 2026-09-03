@@ -9,18 +9,18 @@ export function Services() {
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-rust">What rolls through the door</p>
             <h2 className="mt-4 font-display text-5xl uppercase leading-[0.95] text-brand-ink sm:text-6xl">
-              From routine service to full rebuilds.
+              Service it. Upgrade it. Make it yours.
             </h2>
           </div>
           <div className="lg:justify-self-end lg:max-w-xl">
             <p className="text-base leading-7 text-brand-ink/60">
-              Modern or vintage, stock or custom—the same standard applies: diagnose it carefully, explain it clearly, and do the work right.
+              From maintenance and diagnostics to power, handling, rider fit, and full builds, every setup is planned around the bike and the way you ride.
             </p>
             <a
               href="#book"
               className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-brand-rust underline decoration-2 underline-offset-4 hover:text-brand-ink"
             >
-              Request service <ArrowDownRight className="h-4 w-4" aria-hidden="true" />
+              Start your build or service request <ArrowDownRight className="h-4 w-4" aria-hidden="true" />
             </a>
           </div>
         </div>
