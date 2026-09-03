@@ -11,7 +11,7 @@ export const siteConfig = {
     "Engine, suspension, and brake upgrades",
     "Performance exhaust and EFI tuning",
     "Custom builds",
-    "Vintage through Milwaukee-Eight",
+    "Wiring, Sound, and Lighting",
   ],
   credentials: [
     { value: "20 yrs", label: "Inside Harley-Davidson service departments" },

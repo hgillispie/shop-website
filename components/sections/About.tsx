@@ -42,10 +42,7 @@ export function About() {
             Built for riders who want more than stock.
           </h2>
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink/70">
-            Most bikes that come through here don&apos;t need one part — they
-            need a plan. Power, handling, and rider fit get decided together, so
-            the bike works as a whole instead of a stack of upgrades that fight
-            each other.
+            Most bikes we see don&apos;t need one part — they need a plan.
           </p>
 
           <ul className="mt-8 space-y-4 border-y border-ink/15 py-6 text-sm text-ink/75">
