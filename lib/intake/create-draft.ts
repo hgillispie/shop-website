@@ -4,7 +4,8 @@ import { db } from "@/lib/db/client";
 import { intakeDrafts, jobs, type IntakeDraftRow, type IntakeExtraction, type JobRow } from "@/lib/db/schema";
 import { sendOwnerIntakeDraftEmail } from "@/lib/email";
 import { extractIntakeFromScreenshots } from "@/lib/intake/extract";
-import { draftJobDescription, draftJobTitle, mergeQuoteLists } from "@/lib/intake/fields";
+import { draftJobDescription, draftJobTitle, isUsablePhone, mergeQuoteLists } from "@/lib/intake/fields";
+import { pickCustomerByName } from "@/lib/intake/match";
 import { uploadIntakeImages } from "@/lib/storage";
 
 export type IntakeImage = {
@@ -84,18 +85,40 @@ async function extractFields(input: CaptureInput, imageUrls: string[]): Promise<
     sentimentScore: extracted?.sentimentScore ?? null,
     positiveQuotes: extracted?.positiveQuotes ?? [],
     negativeQuotes: extracted?.negativeQuotes ?? [],
+    ownerBrief: extracted?.ownerBrief ?? null,
+    recommendedNextStep: extracted?.recommendedNextStep ?? null,
+    urgency: extracted?.urgency ?? null,
+    missingInfo: extracted?.missingInfo ?? [],
+    matchedFromCrm: false,
+  };
+}
+
+async function fillFromCrm(extracted: IntakeExtraction): Promise<IntakeExtraction> {
+  if (isUsablePhone(extracted.phone) && extracted.email) return extracted;
+  if (!extracted.customerName) return extracted;
+
+  const rows = await db.query.customers.findMany();
+  const match = pickCustomerByName(extracted.customerName, rows);
+  if (!match) return extracted;
+
+  return {
+    ...extracted,
+    phone: isUsablePhone(extracted.phone) ? extracted.phone : match.customer.phone,
+    email: extracted.email ?? match.customer.email,
+    matchedFromCrm: !isUsablePhone(extracted.phone) || (!extracted.email && Boolean(match.customer.email)),
   };
 }
 
 async function createDraft(input: CaptureInput) {
   const photoUrls = await uploadImages(input.images);
-  const extracted = await extractFields(input, visionUrls(photoUrls, input.images));
+  const extracted = await fillFromCrm(await extractFields(input, visionUrls(photoUrls, input.images)));
   const title = draftJobTitle({
     bikeYearMakeModel: extracted.bikeYearMakeModel,
     customerName: extracted.customerName,
     subject: input.subject ?? null,
   });
   const description = draftJobDescription({
+    ownerBrief: extracted.ownerBrief,
     workNeeded: extracted.workNeeded,
     conversationSummary: extracted.conversationSummary,
     bodyText: input.bodyText ?? null,
@@ -154,9 +177,11 @@ async function appendToDraft(job: JobRow, draft: IntakeDraftRow, input: CaptureI
   const newUrls = await uploadImages(input.images);
   const photoUrls = [...draft.photoUrls, ...newUrls];
   const bodyText = [draft.bodyText, input.bodyText].filter(Boolean).join("\n");
-  const extracted = await extractFields(
-    { ...input, bodyText, fallbackName: draft.customerName ?? input.fallbackName },
-    photoUrls,
+  const extracted = await fillFromCrm(
+    await extractFields(
+      { ...input, bodyText, fallbackName: draft.customerName ?? input.fallbackName },
+      photoUrls,
+    ),
   );
   const merged: IntakeExtraction = {
     ...extracted,
@@ -169,6 +194,11 @@ async function appendToDraft(job: JobRow, draft: IntakeDraftRow, input: CaptureI
     sentimentScore: extracted.sentimentScore ?? draft.extracted?.sentimentScore ?? null,
     positiveQuotes: mergeQuoteLists(draft.extracted?.positiveQuotes, extracted.positiveQuotes),
     negativeQuotes: mergeQuoteLists(draft.extracted?.negativeQuotes, extracted.negativeQuotes),
+    ownerBrief: extracted.ownerBrief ?? draft.extracted?.ownerBrief ?? null,
+    recommendedNextStep: extracted.recommendedNextStep ?? draft.extracted?.recommendedNextStep ?? null,
+    urgency: extracted.urgency ?? draft.extracted?.urgency ?? null,
+    missingInfo: extracted.missingInfo.length > 0 ? extracted.missingInfo : draft.extracted?.missingInfo ?? [],
+    matchedFromCrm: extracted.matchedFromCrm || Boolean(draft.extracted?.matchedFromCrm),
   };
 
   const title = draftJobTitle({
@@ -177,6 +207,7 @@ async function appendToDraft(job: JobRow, draft: IntakeDraftRow, input: CaptureI
     subject: draft.subject ?? input.subject ?? null,
   });
   const description = draftJobDescription({
+    ownerBrief: merged.ownerBrief,
     workNeeded: merged.workNeeded,
     conversationSummary: merged.conversationSummary,
     bodyText,

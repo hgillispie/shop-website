@@ -76,6 +76,7 @@ export async function promoteIntakeDraft(
     subject: draft.subject,
   });
   const description = draftJobDescription({
+    ownerBrief: draft.extracted?.ownerBrief,
     workNeeded: next.workNeeded,
     conversationSummary: next.conversationSummary,
     bodyText: draft.bodyText,

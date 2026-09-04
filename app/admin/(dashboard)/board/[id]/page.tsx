@@ -52,7 +52,32 @@ export default async function JobDetailPage({
         </div>
       </div>
 
-      {job.description && (
+      {isDraft && draft?.extracted?.ownerBrief && (
+        <div className="mt-6 rounded-lg border border-accent/40 bg-surface p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">What this is</p>
+            {draft.extracted.urgency && draft.extracted.urgency !== "normal" && (
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-amber-800">
+                {draft.extracted.urgency} urgency
+              </span>
+            )}
+          </div>
+          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{draft.extracted.ownerBrief}</p>
+          {draft.extracted.recommendedNextStep && (
+            <p className="mt-3 text-sm">
+              <span className="font-medium">Next: </span>
+              {draft.extracted.recommendedNextStep}
+            </p>
+          )}
+          {(draft.extracted.missingInfo ?? []).length > 0 && (
+            <p className="mt-2 text-xs text-muted">
+              Still need: {draft.extracted.missingInfo.join(" · ")}
+            </p>
+          )}
+        </div>
+      )}
+
+      {job.description && !draft?.extracted?.ownerBrief && (
         <p className="mt-4 whitespace-pre-wrap text-sm text-foreground/90">{job.description}</p>
       )}
 

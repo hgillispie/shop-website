@@ -42,9 +42,15 @@ export function ApproveDraftForm({
       <div>
         <h2 className="text-sm font-semibold">Review extracted details</h2>
         <p className="mt-1 text-sm text-muted">
-          Approving creates (or matches) a customer, opens a ticket, and moves this
-          job to Backlog. Name and phone are required.
+          Approving creates the customer, ticket, and job. Name and phone are
+          required. If the number is blank, reply to Swaffbot with it — no need to
+          type it here.
         </p>
+        {draft.extracted?.matchedFromCrm && (
+          <p className="mt-2 text-xs text-muted">
+            Phone/email filled from a matching customer already in the CRM.
+          </p>
+        )}
       </div>
       {error && (
         <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">

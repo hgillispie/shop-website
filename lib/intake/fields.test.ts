@@ -10,7 +10,9 @@ import {
   isIntakeImageType,
   isUsablePhone,
   parseFromHeader,
+  parseOwnerContactReply,
 } from "./fields.ts";
+import { pickCustomerByName } from "./match.ts";
 
 test("blankToNull strips placeholders", () => {
   assert.equal(blankToNull("  "), null);
@@ -65,6 +67,10 @@ test("coerceExtraction defaults missing sentiment and quotes", () => {
   assert.equal(extracted.sentimentScore, null);
   assert.deepEqual(extracted.positiveQuotes, []);
   assert.deepEqual(extracted.negativeQuotes, []);
+  assert.equal(extracted.ownerBrief, null);
+  assert.equal(extracted.urgency, null);
+  assert.deepEqual(extracted.missingInfo, []);
+  assert.equal(extracted.matchedFromCrm, false);
 });
 
 test("draftJobTitle prefers name + bike", () => {
@@ -93,4 +99,25 @@ test("telegram allowlist is open until ids are set", () => {
   assert.equal(isAllowedTelegramUser(42, ""), true);
   assert.equal(isAllowedTelegramUser(42, "42, 99"), true);
   assert.equal(isAllowedTelegramUser(7, "42,99"), false);
+});
+
+test("owner can send a phone or contact line instead of using the admin form", () => {
+  assert.deepEqual(parseOwnerContactReply("864-555-0100 jamie@shop.test"), {
+    phone: "864-555-0100",
+    email: "jamie@shop.test",
+    acceptedMatch: false,
+  });
+  assert.equal(parseOwnerContactReply("yes").acceptedMatch, true);
+  assert.equal(parseOwnerContactReply("later").phone, null);
+});
+
+test("CRM name match requires a unique strong hit", () => {
+  const customers = [
+    { id: "1", name: "Big Tom Ostrander", phone: "864-555-0259", email: "bigtom@example.com" },
+    { id: "2", name: "Marcus Webb", phone: "864-555-0001", email: null },
+    { id: "3", name: "Marcus Webb", phone: "864-555-0002", email: null },
+  ];
+  assert.equal(pickCustomerByName("Tom Ostrander", customers)?.customer.id, "1");
+  assert.equal(pickCustomerByName("Marcus", customers), null);
+  assert.equal(pickCustomerByName("Nobody", customers), null);
 });

@@ -15,10 +15,10 @@ Quick-facts for the third-party services this app talks to. Read the relevant bi
 Domain `swaffordspeed.com` is verified for sending. Logo images in HTML emails are base64-inlined, not linked by URL. Inbound: `email.received` webhook → `/api/resend/inbound` (Svix headers, `RESEND_WEBHOOK_SECRET`). Body/attachments are **not** in the webhook — fetch via `emails.receiving.get` + attachments API. Put the MX record on a subdomain (e.g. `inbound.swaffordspeed.com`) so it does not steal existing mail. Allowlist is `OWNER_EMAIL` plus optional `INTAKE_ALLOWED_SENDERS`.
 
 ## Telegram (owner screenshot intake)
-Bot token `TELEGRAM_BOT_TOKEN`. Webhook `/api/telegram/webhook` verified with `TELEGRAM_WEBHOOK_SECRET` (`X-Telegram-Bot-Api-Secret-Token`). Register with `node scripts/register-telegram-webhook.mjs <https-url>`. Send screenshots as an album so they stay on one Open Draft. Optional `TELEGRAM_ALLOWED_USER_IDS` (from `/start`). Same extract/approve pipeline as Resend inbound.
+Bot token `TELEGRAM_BOT_TOKEN`. Webhook `/api/telegram/webhook` verified with `TELEGRAM_WEBHOOK_SECRET` (`X-Telegram-Bot-Api-Secret-Token`). Register with `node scripts/register-telegram-webhook.mjs <https-url>`. Send screenshots as an album so they stay on one Open Draft. After photos, reply with the customer’s number or share their contact card — iMessage screenshots usually hide the phone. Optional `TELEGRAM_ALLOWED_USER_IDS` (from `/start`). Same extract/approve pipeline as Resend inbound. You cannot SMS a Telegram bot from the regular Messages app.
 
 ## Groq (vision OCR)
-Qwen 3.6 27B (`qwen/qwen3.6-27b`) via the OpenAI-compatible Groq API. Used for intake screenshots: CRM fields, conversation sentiment (0–100), and verbatim customer quotes. Skip extraction (still create the draft) if `GROQ_API_KEY` is missing. Llama 4 Scout is no longer on this Groq account.
+Qwen 3.6 27B (`qwen/qwen3.6-27b`) via the OpenAI-compatible Groq API. Used for intake screenshots: CRM fields, a shop-foreman brief (what’s going on / next step / urgency), conversation sentiment (0–100), and verbatim customer quotes. Skip extraction (still create the draft) if `GROQ_API_KEY` is missing. Llama 4 Scout is no longer on this Groq account.
 
 ## Printify (merch fulfillment)
 No direct API integration in this app anymore — fulfillment runs entirely through Printify's own official Shopify app. The only Printify-adjacent code here is the `products/create` webhook, which auto-publishes a newly-synced product to the Headless channel.

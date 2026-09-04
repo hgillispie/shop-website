@@ -6,9 +6,9 @@ const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "qwen/qwen3.6-27b";
 const MAX_IMAGES = 5;
 
-const SYSTEM_PROMPT = `You extract repair-shop CRM fields from iMessage/SMS/WhatsApp screenshots and any accompanying email text.
+const SYSTEM_PROMPT = `You help a one-person motorcycle shop. The owner is a technician, not an office person. Read iMessage/SMS/WhatsApp screenshots plus any caption or email text, then return JSON only.
 
-Return JSON only with these keys:
+Keys:
 - customerName: string | null
 - phone: string | null
 - email: string | null
@@ -18,17 +18,25 @@ Return JSON only with these keys:
 - sentimentScore: number | null
 - positiveQuotes: string[]
 - negativeQuotes: string[]
+- ownerBrief: string | null
+- recommendedNextStep: string | null
+- urgency: "low" | "normal" | "high" | null
+- missingInfo: string[]
 
-Rules:
-- Only use information visible in the images or email text. Never invent a name, phone, email, bike, or quote.
-- phone should be the customer's number if it appears (contact header, message bubble, signature). Not the shop owner's number unless that is clearly the only number and labeled as the customer.
-- bikeYearMakeModel like "2017 Harley Softail" when year/make/model (or any subset) is mentioned.
-- workNeeded is what the customer wants done (symptoms, service, parts).
-- conversationSummary is 2-5 sentences covering the thread.
-- sentimentScore is 0–100 for how the customer feels about the shop/work (100 = delighted, 50 = mixed/unclear, 0 = upset). Null only if there is no customer conversation at all.
-- positiveQuotes are verbatim customer sentences that praise the shop, the work, the owner, or the experience. Copy the customer's words. Never paraphrase. Never invent. Empty array if none. Skip short thanks ("thanks", "ok"). Prefer lines that could appear as a testimonial.
-- negativeQuotes are verbatim customer sentences that complain, are frustrated, or unhappy. Copy the customer's words. Empty array if none.
-- Use null when a field is not actually present. Arrays may be empty.`;
+Facts vs judgment:
+- Never invent a name, phone, email, bike, or quote. If it is not visible, use null / [].
+- phone is the customer's number if it appears in the header, a bubble, a signature, or the caption/email the shop owner typed. The owner often pastes the number in the caption because iMessage hides it. Do not use the shop's own number.
+- email same rule — usually missing from texts; check the caption.
+- bikeYearMakeModel like "2017 Harley Softail" when any subset is mentioned.
+- workNeeded is the repair they want (symptoms, service, parts).
+- conversationSummary is 2-5 factual sentences.
+- sentimentScore is 0–100 for how they feel about the shop/work (100 delighted, 50 mixed, 0 upset). Null only if there is no customer conversation.
+- positiveQuotes / negativeQuotes are verbatim customer sentences. Never paraphrase. Skip "thanks" / "ok".
+- ownerBrief is the useful part: 3-6 sentences for the technician. What is going on, what they actually want, how they sound, anything that will bite him if he ignores it. Write like a shop foreman, not a CRM.
+- recommendedNextStep is one concrete action (text a drop-off window, order a part, wait for a photo, call them back). Not "review the ticket".
+- urgency: high = bike down / angry / safety; normal = typical shop work; low = curiosity or later.
+- missingInfo is what he still needs (phone, year, VIN, photos of the leak). Empty if nothing important is missing.
+- Use null when a field is not actually present.`;
 
 type ContentPart =
   | { type: "text"; text: string }
@@ -52,8 +60,8 @@ export async function extractIntakeFromScreenshots(input: {
         input.subject ? `Email subject: ${input.subject}` : null,
         input.bodyText ? `Email body:\n${input.bodyText.slice(0, 4000)}` : "Email body: (empty)",
         input.imageUrls.length === 0
-          ? "No screenshots were attached. Extract whatever you can from the email text."
-          : `${input.imageUrls.length} screenshot(s) follow. Read the conversation bubbles, contact header, and any bike/work details.`,
+          ? "No screenshots were attached. Use the caption/email text."
+          : `${input.imageUrls.length} screenshot(s) follow. Read bubbles, the contact header, and the owner's caption — the number is often only in the caption.`,
       ]
         .filter(Boolean)
         .join("\n\n"),
@@ -73,7 +81,7 @@ export async function extractIntakeFromScreenshots(input: {
     body: JSON.stringify({
       model: GROQ_MODEL,
       temperature: 0,
-      max_tokens: 1200,
+      max_tokens: 1600,
       reasoning_effort: "none",
       response_format: { type: "json_object" },
       messages: [

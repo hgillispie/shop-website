@@ -140,6 +140,8 @@ export const tickets = pgTable("tickets", {
   updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
 });
 
+export type IntakeUrgency = "low" | "normal" | "high";
+
 export type IntakeExtraction = {
   customerName: string | null;
   phone: string | null;
@@ -152,6 +154,12 @@ export type IntakeExtraction = {
   // Verbatim customer sentences only — never paraphrased or invented.
   positiveQuotes: string[];
   negativeQuotes: string[];
+  // Shop-owner brief: what is going on, what they want, how they sound, what to do.
+  ownerBrief: string | null;
+  recommendedNextStep: string | null;
+  urgency: IntakeUrgency | null;
+  missingInfo: string[];
+  matchedFromCrm: boolean;
 };
 
 // Screenshot/email intake — a draft job lands in the Open Drafts column

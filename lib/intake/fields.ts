@@ -94,6 +94,11 @@ export function coerceExtraction(raw: unknown): IntakeExtraction {
     sentimentScore: coerceSentimentScore(obj.sentimentScore ?? obj.sentiment),
     positiveQuotes: coerceQuoteList(obj.positiveQuotes ?? obj.quotes),
     negativeQuotes: coerceQuoteList(obj.negativeQuotes),
+    ownerBrief: str("ownerBrief") ?? str("brief") ?? str("analysis"),
+    recommendedNextStep: str("recommendedNextStep") ?? str("nextStep"),
+    urgency: coerceUrgency(obj.urgency),
+    missingInfo: coerceStringList(obj.missingInfo ?? obj.missing),
+    matchedFromCrm: obj.matchedFromCrm === true,
   };
 }
 
@@ -142,6 +147,57 @@ export function mergeQuoteLists(...lists: Array<string[] | null | undefined>): s
   return coerceQuoteList(lists.flatMap((list) => list ?? []));
 }
 
+export function coerceUrgency(value: unknown): IntakeExtraction["urgency"] {
+  const raw = typeof value === "string" ? value.trim().toLowerCase() : "";
+  if (raw === "low" || raw === "normal" || raw === "high") return raw;
+  if (raw === "medium" || raw === "med") return "normal";
+  if (raw === "urgent" || raw === "asap") return "high";
+  return null;
+}
+
+export function coerceStringList(value: unknown, max = 8): string[] {
+  const items = typeof value === "string" ? [value] : Array.isArray(value) ? value : [];
+  const out: string[] = [];
+  for (const item of items) {
+    const text = blankToNull(typeof item === "string" ? item : undefined);
+    if (!text) continue;
+    out.push(text.length > 120 ? `${text.slice(0, 119).trimEnd()}…` : text);
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
+const YES = /^(y|yes|yeah|yep|correct|that'?s (them|him|her|it)|use that)$/i;
+
+export function isAffirmativeReply(text: string): boolean {
+  return YES.test(text.trim());
+}
+
+export function parseOwnerContactReply(text: string): {
+  phone: string | null;
+  email: string | null;
+  acceptedMatch: boolean;
+} {
+  const trimmed = text.trim();
+  const emailMatch = trimmed.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  return {
+    phone: firstUsablePhone(trimmed),
+    email: emailMatch?.[0]?.toLowerCase() ?? null,
+    acceptedMatch: isAffirmativeReply(trimmed),
+  };
+}
+
+function firstUsablePhone(text: string): string | null {
+  const candidates = text.match(
+    /(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}|\+?\d{10,15}/g,
+  );
+  if (!candidates) return null;
+  for (const raw of candidates) {
+    if (isUsablePhone(raw)) return raw;
+  }
+  return null;
+}
+
 export function draftJobTitle(input: {
   bikeYearMakeModel: string | null;
   customerName: string | null;
@@ -157,11 +213,13 @@ export function draftJobTitle(input: {
 }
 
 export function draftJobDescription(input: {
+  ownerBrief?: string | null;
   workNeeded: string | null;
   conversationSummary: string | null;
   bodyText: string | null;
 }): string {
   return (
+    input.ownerBrief ||
     input.workNeeded ||
     input.conversationSummary ||
     blankToNull(input.bodyText)?.slice(0, 2000) ||
