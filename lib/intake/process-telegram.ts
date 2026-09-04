@@ -34,7 +34,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 async function reply(chatId: number, text: string) {
   try {
-    await reply(chatId, text);
+    await sendTelegramMessage(chatId, text);
   } catch (error) {
     console.warn("[telegram] reply failed:", error);
   }
