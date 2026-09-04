@@ -4,6 +4,7 @@ import path from "node:path";
 import { siteConfig } from "@/data/site-config";
 import type {
   AppointmentRequestRow,
+  IntakeDraftRow,
   JobRow,
   ServiceInvoiceJobRow,
   ServiceInvoicePartsLineRow,
@@ -514,5 +515,39 @@ export async function sendInvoiceCopyEmail(invoice: InvoiceWithJobs, pdfBuffer: 
         content: pdfBuffer,
       },
     ],
+  });
+}
+
+export async function sendOwnerIntakeDraftEmail(input: {
+  job: JobRow;
+  draft: IntakeDraftRow;
+}) {
+  const resend = getResendConfigured();
+  if (!resend || !OWNER_EMAIL) {
+    console.warn("[email] OWNER_EMAIL or RESEND_API_KEY missing — logging intake draft instead.");
+    console.info("[email] intake draft:", input.job.id, input.job.title);
+    return;
+  }
+
+  const { job, draft } = input;
+  await resend.emails.send({
+    from: FROM,
+    to: OWNER_EMAIL,
+    subject: `New intake draft — ${job.title}`,
+    text: [
+      "A screenshot thread was processed into an Open Draft on the job board.",
+      "",
+      draft.customerName ? `Customer: ${draft.customerName}` : "Customer: (not extracted — fill in before approving)",
+      draft.customerPhone ? `Phone: ${draft.customerPhone}` : "Phone: (not extracted — required to approve)",
+      draft.customerEmail ? `Email: ${draft.customerEmail}` : null,
+      draft.bikeYearMakeModel ? `Bike: ${draft.bikeYearMakeModel}` : null,
+      "",
+      draft.workNeeded ? `Work needed:\n${draft.workNeeded}` : null,
+      draft.conversationSummary ? `Summary:\n${draft.conversationSummary}` : null,
+      "",
+      `Review & approve: ${SITE_URL}/admin/board/${job.id}`,
+    ]
+      .filter((line): line is string => line !== null)
+      .join("\n"),
   });
 }

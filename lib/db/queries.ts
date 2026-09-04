@@ -42,14 +42,18 @@ export function getJobById(id: string) {
     // was set directly on the job itself (see approveRequest in
     // app/admin/(dashboard)/requests/actions.ts) — resolve either way
     // rather than assuming every job has the direct link.
-    with: { request: { with: { customer: true } }, customer: true },
+    with: {
+      request: { with: { customer: true } },
+      customer: true,
+      intakeDraft: true,
+    },
   });
 }
 
 export function getJobs() {
   return db.query.jobs.findMany({
     orderBy: [desc(jobs.createdAt)],
-    with: { request: true },
+    with: { request: true, intakeDraft: true },
   });
 }
 

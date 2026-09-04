@@ -18,10 +18,17 @@ export const requestStatusEnum = pgEnum("request_status", [
 ]);
 
 export const jobStatusEnum = pgEnum("job_status", [
+  "open_draft",
   "backlog",
   "in_progress",
   "waiting_on_customer",
   "complete",
+]);
+
+export const intakeDraftStatusEnum = pgEnum("intake_draft_status", [
+  "pending_review",
+  "approved",
+  "discarded",
 ]);
 
 export const ticketStatusEnum = pgEnum("ticket_status", [
@@ -111,6 +118,46 @@ export const tickets = pgTable("tickets", {
   updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
 });
 
+export type IntakeExtraction = {
+  customerName: string | null;
+  phone: string | null;
+  email: string | null;
+  bikeYearMakeModel: string | null;
+  workNeeded: string | null;
+  conversationSummary: string | null;
+};
+
+// Screenshot/email intake — a draft job lands in the Open Drafts column
+// with extracted fields here. Customer + ticket are created only when the
+// owner approves (see lib/intake/promote.ts).
+export const intakeDrafts = pgTable("intake_drafts", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  jobId: text("job_id")
+    .notNull()
+    .unique()
+    .references(() => jobs.id, { onDelete: "cascade" }),
+  // Resend receiving email id — webhook deliveries are at-least-once.
+  resendEmailId: text("resend_email_id").unique(),
+  telegramMediaGroupId: text("telegram_media_group_id").unique(),
+  source: text("source").notNull().default("email"),
+  fromEmail: text("from_email"),
+  subject: text("subject"),
+  bodyText: text("body_text"),
+  photoUrls: text("photo_urls").array().notNull().default([]),
+  customerName: text("customer_name"),
+  customerPhone: text("customer_phone"),
+  customerEmail: text("customer_email"),
+  bikeYearMakeModel: text("bike_year_make_model"),
+  workNeeded: text("work_needed"),
+  conversationSummary: text("conversation_summary"),
+  extracted: jsonb("extracted").$type<IntakeExtraction | null>(),
+  status: intakeDraftStatusEnum("status").notNull().default("pending_review"),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
+});
+
 // First-party analytics — no third-party account needed. One row per page
 // load, captured via a client-side beacon (see lib/analytics-client.ts).
 export const pageViews = pgTable("page_views", {
@@ -193,6 +240,17 @@ export const jobsRelations = relations(jobs, ({ one }) => ({
   customer: one(customers, {
     fields: [jobs.customerId],
     references: [customers.id],
+  }),
+  intakeDraft: one(intakeDrafts, {
+    fields: [jobs.id],
+    references: [intakeDrafts.jobId],
+  }),
+}));
+
+export const intakeDraftsRelations = relations(intakeDrafts, ({ one }) => ({
+  job: one(jobs, {
+    fields: [intakeDrafts.jobId],
+    references: [jobs.id],
   }),
 }));
 
@@ -356,6 +414,8 @@ export type CustomerRow = typeof customers.$inferSelect;
 export type NewCustomerRow = typeof customers.$inferInsert;
 export type TicketRow = typeof tickets.$inferSelect;
 export type NewTicketRow = typeof tickets.$inferInsert;
+export type IntakeDraftRow = typeof intakeDrafts.$inferSelect;
+export type NewIntakeDraftRow = typeof intakeDrafts.$inferInsert;
 export type PageViewRow = typeof pageViews.$inferSelect;
 export type AnalyticsEventRow = typeof analyticsEvents.$inferSelect;
 export type IpRuleRow = typeof ipRules.$inferSelect;

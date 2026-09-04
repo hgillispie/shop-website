@@ -1,0 +1,79 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import {
+  blankToNull,
+  coerceExtraction,
+  draftJobTitle,
+  extractEmailAddress,
+  htmlToText,
+  isAllowedTelegramUser,
+  isIntakeImageType,
+  isUsablePhone,
+  parseFromHeader,
+} from "./fields.ts";
+
+test("blankToNull strips placeholders", () => {
+  assert.equal(blankToNull("  "), null);
+  assert.equal(blankToNull("n/a"), null);
+  assert.equal(blankToNull("Unknown"), null);
+  assert.equal(blankToNull("Pat"), "Pat");
+});
+
+test("parseFromHeader handles display names and bare addresses", () => {
+  assert.deepEqual(parseFromHeader("Pat Smith <pat@example.com>"), {
+    name: "Pat Smith",
+    email: "pat@example.com",
+  });
+  assert.deepEqual(parseFromHeader("owner@shop.com"), {
+    name: null,
+    email: "owner@shop.com",
+  });
+  assert.equal(extractEmailAddress("Name <A@B.COM>"), "a@b.com");
+});
+
+test("htmlToText keeps line breaks and drops tags", () => {
+  const text = htmlToText("<p>Hello</p><br>World &amp; bike");
+  assert.match(text, /Hello/);
+  assert.match(text, /World & bike/);
+});
+
+test("coerceExtraction maps aliases and nulls junk", () => {
+  const extracted = coerceExtraction({
+    name: "Jamie",
+    customerPhone: "864-555-0100",
+    bike: "2017 Softail",
+    work: "n/a",
+  });
+  assert.equal(extracted.customerName, "Jamie");
+  assert.equal(extracted.phone, "864-555-0100");
+  assert.equal(extracted.bikeYearMakeModel, "2017 Softail");
+  assert.equal(extracted.workNeeded, null);
+});
+
+test("draftJobTitle prefers name + bike", () => {
+  assert.equal(
+    draftJobTitle({
+      customerName: "Jamie",
+      bikeYearMakeModel: "2017 Softail",
+      subject: "fwd",
+    }),
+    "Jamie — 2017 Softail",
+  );
+  assert.equal(
+    draftJobTitle({ customerName: null, bikeYearMakeModel: null, subject: "Screenshots" }),
+    "Screenshots",
+  );
+});
+
+test("phone and image helpers", () => {
+  assert.equal(isUsablePhone("864-555-0100"), true);
+  assert.equal(isUsablePhone("123"), false);
+  assert.equal(isIntakeImageType("image/png"), true);
+  assert.equal(isIntakeImageType("application/pdf"), false);
+});
+
+test("telegram allowlist is open until ids are set", () => {
+  assert.equal(isAllowedTelegramUser(42, ""), true);
+  assert.equal(isAllowedTelegramUser(42, "42, 99"), true);
+  assert.equal(isAllowedTelegramUser(7, "42,99"), false);
+});

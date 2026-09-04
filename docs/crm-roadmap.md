@@ -1,6 +1,6 @@
 # CRM & Board Roadmap
 
-**Status: proposed, not yet approved or built.** This document captures research and a phased plan discussed on 2026-08-14. Nothing below is implemented — check with the owner and re-read the current `lib/db/schema.ts` / admin code before assuming any of it is still accurate or still wanted.
+**Status: partially built (2026-09-04).** Phase 3B screenshot intake is live in this repo (Telegram + Resend email → Open Drafts column → owner approve creates customer + job + ticket). Phases 1–2 and 3A below are still proposed. Re-read `lib/db/schema.ts` / admin code before assuming anything else here exists.
 
 ## Context
 

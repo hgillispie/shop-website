@@ -5,7 +5,7 @@ Quick orientation for picking up this repo cold. Companions: [`INTEGRATIONS.md`]
 **This is live production** (`swaffordspeed.com`, branch `main`), not a sandbox — real customers, real owner. When unsure whether something is safe/live/current, check `git log`/current code or ask, rather than assuming.
 
 ## Stack
-Next.js 16 App Router + TS + Tailwind v4 + React 19 · Neon Postgres via Drizzle (`neon-http` — **no transactions**, sequential writes only) · Resend (email) · Twilio (SMS, currently paused via `SMS_ENABLED=false`) · Vercel Blob (photo uploads) · Shopify (storefront + repair-invoice payments) · hosted on Vercel.
+Next.js 16 App Router + TS + Tailwind v4 + React 19 · Neon Postgres via Drizzle (`neon-http` — **no transactions**, sequential writes only) · Resend (email, including inbound screenshot intake) · Telegram bot (screenshot intake) · Groq Llama 4 Scout (vision OCR) · Twilio (SMS, currently paused via `SMS_ENABLED=false`) · Vercel Blob (photo uploads) · Shopify (storefront + repair-invoice payments) · hosted on Vercel.
 
 **AGENTS.md says "this is NOT the Next.js you know" — real, not decoration.** Conventions have shifted (favicon/icon files, `next/script`, `middleware`→`proxy`). Check `node_modules/next/dist/docs/` for anything Next-API-shaped rather than assuming from training data.
 
@@ -20,9 +20,11 @@ Next.js 16 App Router + TS + Tailwind v4 + React 19 · Neon Postgres via Drizzle
 - `/admin/*` — session-gated by `middleware.ts` (cookie + `jose` JWT). Requests inbox, CRM, Kanban board, calendar, analytics, repair invoices (+ PDF stream + print view).
 - `/api/appointments`, `/api/analytics/pageview` — public POST endpoints.
 - `/api/shopify/webhooks/{orders-paid,products-create}` — HMAC-verified Shopify webhooks.
+- `/api/resend/inbound` — Svix-verified Resend `email.received` webhook (screenshot intake).
+- `/api/telegram/webhook` — Telegram bot webhook (screenshot intake; `X-Telegram-Bot-Api-Secret-Token`).
 
 ## Data model (`lib/db/schema.ts`) — three separate trees, not unified
-1. **CRM/booking**: `customers` ← `appointment_requests` / `jobs` (Kanban board) / `tickets`.
+1. **CRM/booking**: `customers` ← `appointment_requests` / `jobs` (Kanban board, including `open_draft`) / `tickets` / `intake_drafts` (screenshot extraction pending owner approve).
 2. **Repair invoices**: `service_invoices` → `..._jobs` → `..._parts_lines`. **Deliberately standalone, no FK to customers/jobs** — real decision, not an oversight.
 3. **Ops**: `page_views`, `ip_rules`, `admin_users`.
 
@@ -37,7 +39,7 @@ No local table for merch orders — Shopify/Printify own that data entirely.
 Ask rather than assume, especially for: which branch is actually current, whether a proposed plan (e.g. `docs/crm-roadmap.md`) has been built yet, whether an env var exists in the environment scope you're about to rely on, and anything payment/credential/DNS-related. See `OPERATIONS.md`'s "Known open items" for the specific known-shaky areas.
 
 ## More detail
-`docs/shopify-migration-plan.md` (original spec — file names in it are stale), `docs/crm-roadmap.md` (**proposed, not built**), `.claude/skills/shopify-api-auth/`, `.claude/skills/printify-shopify-catalog-sync/`.
+`docs/shopify-migration-plan.md` (original spec — file names in it are stale), `docs/crm-roadmap.md` (Phase 3B screenshot intake is built: Telegram + Resend email → Open Drafts → approve creates customer/job/ticket), `.claude/skills/shopify-api-auth/`, `.claude/skills/printify-shopify-catalog-sync/`.
 
 ## Keeping this current
 Skill `update-project-docs` — run it after a *significant* change (new integration, schema change, deploy-process change, a real gotcha discovered, a status flip like proposed→built). Not needed after routine changes. When unsure, ask.

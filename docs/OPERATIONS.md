@@ -23,5 +23,5 @@ Registrar is GoDaddy. Vercel's actual required records (confirmed via `vercel do
 - Twilio credentials and the admin password hash are unrotated, per the owner's own explicit deferral (not an oversight — don't rotate without being asked).
 - `middleware.ts` uses a convention Next 16 marks deprecated in favor of `proxy` — not yet migrated, low urgency.
 - Old Shopify webhook subscriptions still point at a stale preview URL alongside the current production one (harmless redundancy, not cleaned up).
-- `docs/crm-roadmap.md` is a researched, proposed plan — confirm with the owner before assuming any phase of it is approved or built.
+- `docs/crm-roadmap.md` Phase 3B (screenshot intake) is built: Telegram + Resend email land in Open Drafts; approve creates the customer, job, and ticket. Remaining phases (board clutter window, match-confirmation UI) are still proposed.
 - Cloud Agent secrets must be **Personal**-scoped to reach the agent VM (an Environment-scoped secret won't inject on a run with no saved environment). The `VERCEL_TOKEN` in use is a team/project token — it works against the REST API (`?teamId=`) but the `vercel` CLI rejects it (`whoami` → "User not found"); use the REST API for env/deploy management, or a personal access token if you need the CLI.

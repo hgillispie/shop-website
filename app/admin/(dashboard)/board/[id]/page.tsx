@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getJobById } from "@/lib/db/queries";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DeleteJobButton } from "@/components/admin/DeleteJobButton";
+import { ApproveDraftForm } from "@/components/admin/ApproveDraftForm";
 import { ButtonLink } from "@/components/ui/button";
 
 export default async function JobDetailPage({
@@ -18,6 +19,8 @@ export default async function JobDetailPage({
   // Fall back to the request's own customer link for jobs created before
   // customerId was set directly on the job (see approveRequest).
   const customer = job.customer ?? request?.customer ?? null;
+  const draft = job.intakeDraft;
+  const isDraft = job.status === "open_draft";
 
   return (
     <div className="max-w-3xl">
@@ -31,22 +34,48 @@ export default async function JobDetailPage({
             #{job.jobNumber} {job.title}
           </h1>
           <p className="mt-1 text-sm text-muted">
-            {job.dropoffAt
-              ? `Drop-off ${job.dropoffAt.toLocaleString()}`
-              : "No drop-off scheduled"}
+            {isDraft
+              ? `Open draft from ${draft?.source === "telegram" ? "Telegram" : "email"} — not yet a customer or ticket`
+              : job.dropoffAt
+                ? `Drop-off ${job.dropoffAt.toLocaleString()}`
+                : "No drop-off scheduled"}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <StatusBadge status={job.status} />
-          <DeleteJobButton
-            jobId={job.id}
-            confirmText={`Delete job #${job.jobNumber} (${job.title})? This can't be undone.`}
-          />
+          {!isDraft && (
+            <DeleteJobButton
+              jobId={job.id}
+              confirmText={`Delete job #${job.jobNumber} (${job.title})? This can't be undone.`}
+            />
+          )}
         </div>
       </div>
 
       {job.description && (
         <p className="mt-4 whitespace-pre-wrap text-sm text-foreground/90">{job.description}</p>
+      )}
+
+      {isDraft && draft && (
+        <ApproveDraftForm jobId={job.id} jobNumber={job.jobNumber} draft={draft} />
+      )}
+
+      {draft && draft.photoUrls.length > 0 && (
+        <div className="mt-6">
+          <p className="text-xs uppercase text-muted">Screenshots</p>
+          <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {draft.photoUrls.map((url) => (
+              <a key={url} href={url} target="_blank" rel="noreferrer">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={url}
+                  alt=""
+                  className="aspect-square rounded-md border border-border object-cover"
+                />
+              </a>
+            ))}
+          </div>
+        </div>
       )}
 
       {customer && (
@@ -123,16 +152,18 @@ export default async function JobDetailPage({
         </div>
       )}
 
-      <div className="mt-8 rounded-lg border border-accent/30 bg-accent-soft p-6">
-        <h2 className="text-sm font-semibold">Ready to write up the paperwork?</h2>
-        <p className="mt-1 text-sm text-muted">
-          Starts a new invoice with this customer and vehicle already filled in — everything stays
-          editable before you print.
-        </p>
-        <ButtonLink href={`/admin/invoices/new?fromJobId=${job.id}`} className="mt-4">
-          Create Invoice
-        </ButtonLink>
-      </div>
+      {!isDraft && (
+        <div className="mt-8 rounded-lg border border-accent/30 bg-accent-soft p-6">
+          <h2 className="text-sm font-semibold">Ready to write up the paperwork?</h2>
+          <p className="mt-1 text-sm text-muted">
+            Starts a new invoice with this customer and vehicle already filled in — everything stays
+            editable before you print.
+          </p>
+          <ButtonLink href={`/admin/invoices/new?fromJobId=${job.id}`} className="mt-4">
+            Create Invoice
+          </ButtonLink>
+        </div>
+      )}
     </div>
   );
 }

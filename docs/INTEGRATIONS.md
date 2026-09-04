@@ -12,7 +12,13 @@ Quick-facts for the third-party services this app talks to. Read the relevant bi
 - Tap to Pay on iPhone (in-store POS) and Apple Pay on the web checkout are **fully independent** — activating one doesn't affect the other.
 
 ## Resend (email)
-Domain `swaffordspeed.com` is verified for sending. Logo images in HTML emails are base64-inlined, not linked by URL (email clients like Outlook have poor inline-SVG support, and linking risks hitting an auth wall depending on hosting config — inlining sidesteps both). Resend also has an **Inbound** feature (receive mail at a verified domain via an MX record) — not currently used by this app, but relevant if a `noreply@` mailbox is ever needed for a third-party verification step.
+Domain `swaffordspeed.com` is verified for sending. Logo images in HTML emails are base64-inlined, not linked by URL. Inbound: `email.received` webhook → `/api/resend/inbound` (Svix headers, `RESEND_WEBHOOK_SECRET`). Body/attachments are **not** in the webhook — fetch via `emails.receiving.get` + attachments API. Put the MX record on a subdomain (e.g. `inbound.swaffordspeed.com`) so it does not steal existing mail. Allowlist is `OWNER_EMAIL` plus optional `INTAKE_ALLOWED_SENDERS`.
+
+## Telegram (owner screenshot intake)
+Bot token `TELEGRAM_BOT_TOKEN`. Webhook `/api/telegram/webhook` verified with `TELEGRAM_WEBHOOK_SECRET` (`X-Telegram-Bot-Api-Secret-Token`). Register with `node scripts/register-telegram-webhook.mjs <https-url>`. Send screenshots as an album so they stay on one Open Draft. Optional `TELEGRAM_ALLOWED_USER_IDS` (from `/start`). Same extract/approve pipeline as Resend inbound.
+
+## Groq (vision OCR)
+Llama 4 Scout (`meta-llama/llama-4-scout-17b-16e-instruct`) via the OpenAI-compatible Groq API. Used only for intake screenshots. Skip extraction (still create the draft) if `GROQ_API_KEY` is missing.
 
 ## Printify (merch fulfillment)
 No direct API integration in this app anymore — fulfillment runs entirely through Printify's own official Shopify app. The only Printify-adjacent code here is the `products/create` webhook, which auto-publishes a newly-synced product to the Headless channel.
@@ -21,4 +27,4 @@ No direct API integration in this app anymore — fulfillment runs entirely thro
 Paused (`SMS_ENABLED=false`) pending the owner's A2P 10DLC brand registration. Code is correct and ready; don't expect anything to actually send until that flag flips.
 
 ## Neon / Vercel Blob
-Neon Postgres via Drizzle — see `PROJECT_CONTEXT.md` for the no-transactions constraint. Vercel Blob is only used for appointment-intake photo uploads (`lib/storage.ts`) — no other file-upload use case exists.
+Neon Postgres via Drizzle — see `PROJECT_CONTEXT.md` for the no-transactions constraint. Vercel Blob stores appointment-intake photos and screenshot-intake images (`lib/storage.ts`).

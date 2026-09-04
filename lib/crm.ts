@@ -44,9 +44,11 @@ export async function createTicketForRequest(input: {
   customerId: string;
   subject: string;
   details: string;
+  jobId?: string | null;
 }) {
   await db.insert(tickets).values({
     customerId: input.customerId,
+    jobId: input.jobId ?? null,
     subject: input.subject,
     details: input.details,
     status: "open",

@@ -14,7 +14,7 @@ export default async function AdminCalendarPage() {
       </p>
 
       <div className="mt-8">
-        <MonthCalendar jobs={jobs} />
+        <MonthCalendar jobs={jobs.filter((job) => job.status !== "open_draft")} />
       </div>
     </div>
   );

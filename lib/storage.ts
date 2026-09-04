@@ -29,3 +29,32 @@ export async function uploadAppointmentPhotos(photos: File[]): Promise<string[]>
 
   return uploads;
 }
+
+export async function uploadIntakeImages(
+  files: { bytes: Buffer; filename: string; contentType: string }[],
+): Promise<string[]> {
+  if (files.length === 0) return [];
+
+  if (!BLOB_CONFIGURED) {
+    console.warn(
+      "[storage] BLOB_READ_WRITE_TOKEN is not set — skipping intake image upload. " +
+        `${files.length} image(s) will not be stored.`,
+    );
+    return [];
+  }
+
+  const uploads = await Promise.all(
+    files.map(async (file, index) => {
+      const safeName = file.filename.replace(/[^a-zA-Z0-9._-]/g, "-") || `screenshot-${index}.png`;
+      const pathname = `intake/${Date.now()}-${index}-${safeName}`;
+      const blob = await put(pathname, file.bytes, {
+        access: "public",
+        addRandomSuffix: true,
+        contentType: file.contentType,
+      });
+      return blob.url;
+    }),
+  );
+
+  return uploads;
+}

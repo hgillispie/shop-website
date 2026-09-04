@@ -7,6 +7,7 @@ const REQUEST_STYLES: Record<string, string> = {
 };
 
 const JOB_STYLES: Record<string, string> = {
+  open_draft: "bg-orange-100 text-orange-800",
   backlog: "bg-zinc-100 text-zinc-700",
   in_progress: "bg-blue-100 text-blue-800",
   waiting_on_customer: "bg-amber-100 text-amber-800",
@@ -27,6 +28,7 @@ const LABELS: Record<string, string> = {
   pending: "Pending",
   approved: "Approved",
   declined: "Declined",
+  open_draft: "Open Draft",
   backlog: "Backlog",
   in_progress: "In Progress",
   waiting_on_customer: "Waiting on Customer",
