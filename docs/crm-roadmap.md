@@ -1,6 +1,6 @@
 # CRM & Board Roadmap
 
-**Status: partially built (2026-09-04).** Phase 3B screenshot intake is live in this repo (Telegram + Resend email → Open Drafts column → owner approve creates customer + job + ticket). Phases 1–2 and 3A below are still proposed. Re-read `lib/db/schema.ts` / admin code before assuming anything else here exists.
+**Status: partially built (2026-09-04).** Phase 3B screenshot intake is live (Telegram + Resend email → Open Drafts → owner approve creates customer + job + ticket). Customer health scores, verbatim quote capture, and a ranked “ask for a Google review first” queue on `/admin/crm` are also live. Phases 1–2 and 3A below are still proposed. Re-read `lib/db/schema.ts` / admin code before assuming anything else here exists.
 
 ## Context
 

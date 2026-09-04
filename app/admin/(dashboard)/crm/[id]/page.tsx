@@ -1,17 +1,26 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
-  getCustomerById,
-  getJobsForCustomer,
+  getCustomerHealthView,
   getRequestsForCustomer,
-  getTicketsForCustomer,
 } from "@/lib/db/queries";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { HealthBadge } from "@/components/admin/HealthBadge";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createTicket, deleteCustomer, deleteTicket, updateTicketStatus } from "../actions";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  addCustomerQuote,
+  createTicket,
+  deleteCustomer,
+  deleteQuote,
+  deleteTicket,
+  toggleQuoteForSite,
+  updateReviewOutreach,
+  updateTicketStatus,
+} from "../actions";
 
 const TICKET_STATUSES = [
   "open",
@@ -27,14 +36,12 @@ export default async function CustomerDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const customer = await getCustomerById(id);
-  if (!customer) notFound();
-
-  const [requests, jobs, tickets] = await Promise.all([
-    getRequestsForCustomer(id),
-    getJobsForCustomer(id),
-    getTicketsForCustomer(id),
-  ]);
+  const view = await getCustomerHealthView(id);
+  if (!view) notFound();
+  const customer = view.customer;
+  const jobs = view.jobs;
+  const tickets = view.tickets;
+  const requests = await getRequestsForCustomer(id);
 
   return (
     <div className="max-w-3xl">
@@ -50,6 +57,7 @@ export default async function CustomerDetailPage({
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <HealthBadge score={view.health.score} />
           <span className="rounded-full bg-surface px-3 py-1 text-xs capitalize text-muted">
             {customer.source}
           </span>
@@ -60,6 +68,114 @@ export default async function CustomerDetailPage({
             />
           </form>
         </div>
+      </div>
+
+      {view.health.reasons.length > 0 && (
+        <p className="mt-3 text-xs text-muted">{view.health.reasons.join(" · ")}</p>
+      )}
+
+      <div className="mt-6 rounded-lg border border-border bg-surface p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold">Google review</h2>
+            <p className="mt-1 text-sm text-muted">
+              {view.outreach.eligible
+                ? "Ask this person next — completed work and health line up."
+                : customer.reviewOutreach === "not_asked"
+                  ? "Not first in line yet. Finish work, or wait until the conversation is clearly good."
+                  : `Status: ${customer.reviewOutreach.replace(/_/g, " ")}.`}
+            </p>
+          </div>
+          <form action={updateReviewOutreach} className="flex flex-wrap gap-2">
+            <input type="hidden" name="customerId" value={customer.id} />
+            {customer.reviewOutreach === "not_asked" ? (
+              <>
+                <Button type="submit" name="reviewOutreach" value="asked" size="sm">
+                  Mark asked
+                </Button>
+                <Button type="submit" name="reviewOutreach" value="reviewed" size="sm" variant="outline">
+                  They reviewed
+                </Button>
+                <Button type="submit" name="reviewOutreach" value="skip" size="sm" variant="ghost">
+                  Skip
+                </Button>
+              </>
+            ) : (
+              <Button type="submit" name="reviewOutreach" value="not_asked" size="sm" variant="outline">
+                Put back in queue
+              </Button>
+            )}
+          </form>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
+          Quotes ({view.quotes.length})
+        </h2>
+        <p className="mt-1 text-xs text-muted">
+          Direct lines from their texts. Flag the good ones for later use on the site.
+        </p>
+        <div className="mt-3 space-y-3">
+          {view.quotes.map((quote) => (
+            <div key={quote.id} className="rounded-lg border border-border p-4">
+              <blockquote className="text-sm">“{quote.quote}”</blockquote>
+              <p className="mt-2 text-xs capitalize text-muted">
+                {quote.sentiment} · {quote.source}
+                {quote.approvedForSite ? " · flagged for site" : ""}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {quote.sentiment === "positive" && (
+                  <form action={toggleQuoteForSite}>
+                    <input type="hidden" name="quoteId" value={quote.id} />
+                    <input type="hidden" name="customerId" value={customer.id} />
+                    <input
+                      type="hidden"
+                      name="approvedForSite"
+                      value={quote.approvedForSite ? "true" : "false"}
+                    />
+                    <Button type="submit" size="sm" variant="outline">
+                      {quote.approvedForSite ? "Remove from site list" : "Use on site later"}
+                    </Button>
+                  </form>
+                )}
+                <form action={deleteQuote}>
+                  <input type="hidden" name="quoteId" value={quote.id} />
+                  <input type="hidden" name="customerId" value={customer.id} />
+                  <DeleteButton confirmText="Delete this quote?" />
+                </form>
+              </div>
+            </div>
+          ))}
+          {view.quotes.length === 0 && (
+            <p className="text-sm text-muted">No quotes yet. Approve a screenshot thread, or add one below.</p>
+          )}
+        </div>
+        <form
+          action={addCustomerQuote}
+          className="mt-4 space-y-3 rounded-lg border border-dashed border-border p-4"
+        >
+          <input type="hidden" name="customerId" value={customer.id} />
+          <div>
+            <Label htmlFor="quote">Add a quote in their words</Label>
+            <Textarea id="quote" name="quote" required minLength={16} />
+          </div>
+          <div>
+            <Label htmlFor="sentiment">Tone</Label>
+            <select
+              id="sentiment"
+              name="sentiment"
+              defaultValue="positive"
+              className="mt-1 h-9 rounded-md border border-border bg-background px-2 text-xs"
+            >
+              <option value="positive">Compliment</option>
+              <option value="negative">Complaint</option>
+            </select>
+          </div>
+          <Button type="submit" size="sm" variant="outline">
+            Save quote
+          </Button>
+        </form>
       </div>
 
       {(customer.address || customer.notes) && (

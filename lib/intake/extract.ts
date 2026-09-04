@@ -15,14 +15,20 @@ Return JSON only with these keys:
 - bikeYearMakeModel: string | null
 - workNeeded: string | null
 - conversationSummary: string | null
+- sentimentScore: number | null
+- positiveQuotes: string[]
+- negativeQuotes: string[]
 
 Rules:
-- Only use information visible in the images or email text. Never invent a name, phone, email, or bike.
+- Only use information visible in the images or email text. Never invent a name, phone, email, bike, or quote.
 - phone should be the customer's number if it appears (contact header, message bubble, signature). Not the shop owner's number unless that is clearly the only number and labeled as the customer.
 - bikeYearMakeModel like "2017 Harley Softail" when year/make/model (or any subset) is mentioned.
 - workNeeded is what the customer wants done (symptoms, service, parts).
 - conversationSummary is 2-5 sentences covering the thread.
-- Use null when a field is not actually present.`;
+- sentimentScore is 0–100 for how the customer feels about the shop/work (100 = delighted, 50 = mixed/unclear, 0 = upset). Null only if there is no customer conversation at all.
+- positiveQuotes are verbatim customer sentences that praise the shop, the work, the owner, or the experience. Copy the customer's words. Never paraphrase. Never invent. Empty array if none. Skip short thanks ("thanks", "ok"). Prefer lines that could appear as a testimonial.
+- negativeQuotes are verbatim customer sentences that complain, are frustrated, or unhappy. Copy the customer's words. Empty array if none.
+- Use null when a field is not actually present. Arrays may be empty.`;
 
 type ContentPart =
   | { type: "text"; text: string }
@@ -67,7 +73,7 @@ export async function extractIntakeFromScreenshots(input: {
     body: JSON.stringify({
       model: GROQ_MODEL,
       temperature: 0,
-      max_tokens: 800,
+      max_tokens: 1200,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM_PROMPT },

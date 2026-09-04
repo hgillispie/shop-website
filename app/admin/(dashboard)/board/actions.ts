@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth/session";
 import { db } from "@/lib/db/client";
 import { jobs, jobStatusEnum, tickets } from "@/lib/db/schema";
+import { refreshCustomerHealth } from "@/lib/crm/health-sync";
 import {
   IntakePromoteError,
   promoteIntakeDraft,
@@ -47,6 +48,7 @@ export async function updateJobStatus(
     await promoteIntakeDraft(jobId, status as LiveJobStatus);
   } else {
     await db.update(jobs).set({ status, updatedAt: new Date() }).where(eq(jobs.id, jobId));
+    if (job.customerId) await refreshCustomerHealth(job.customerId);
   }
 
   revalidateJobPaths();

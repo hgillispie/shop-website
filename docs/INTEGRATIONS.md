@@ -18,7 +18,7 @@ Domain `swaffordspeed.com` is verified for sending. Logo images in HTML emails a
 Bot token `TELEGRAM_BOT_TOKEN`. Webhook `/api/telegram/webhook` verified with `TELEGRAM_WEBHOOK_SECRET` (`X-Telegram-Bot-Api-Secret-Token`). Register with `node scripts/register-telegram-webhook.mjs <https-url>`. Send screenshots as an album so they stay on one Open Draft. Optional `TELEGRAM_ALLOWED_USER_IDS` (from `/start`). Same extract/approve pipeline as Resend inbound.
 
 ## Groq (vision OCR)
-Llama 4 Scout (`meta-llama/llama-4-scout-17b-16e-instruct`) via the OpenAI-compatible Groq API. Used only for intake screenshots. Skip extraction (still create the draft) if `GROQ_API_KEY` is missing.
+Llama 4 Scout (`meta-llama/llama-4-scout-17b-16e-instruct`) via the OpenAI-compatible Groq API. Used for intake screenshots: CRM fields, conversation sentiment (0–100), and verbatim customer quotes. Skip extraction (still create the draft) if `GROQ_API_KEY` is missing.
 
 ## Printify (merch fulfillment)
 No direct API integration in this app anymore — fulfillment runs entirely through Printify's own official Shopify app. The only Printify-adjacent code here is the `products/create` webhook, which auto-publishes a newly-synced product to the Headless channel.

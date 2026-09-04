@@ -8,6 +8,8 @@ import {
   type IntakeDraftRow,
 } from "@/lib/db/schema";
 import { createTicketForRequest, findOrCreateCustomer } from "@/lib/crm";
+import { saveExtractedQuotes } from "@/lib/crm/quotes";
+import { refreshCustomerHealth } from "@/lib/crm/health-sync";
 import {
   blankToNull,
   draftJobDescription,
@@ -110,6 +112,15 @@ export async function promoteIntakeDraft(
       updatedAt: new Date(),
     })
     .where(eq(intakeDrafts.id, draft.id));
+
+  await saveExtractedQuotes({
+    customerId: customer.id,
+    intakeDraftId: draft.id,
+    source: draft.source === "telegram" ? "telegram" : "intake",
+    positiveQuotes: draft.extracted?.positiveQuotes ?? [],
+    negativeQuotes: draft.extracted?.negativeQuotes ?? [],
+  });
+  await refreshCustomerHealth(customer.id);
 }
 
 function mergeDraftFields(draft: IntakeDraftRow, fields?: DraftFieldInput) {

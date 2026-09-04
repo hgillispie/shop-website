@@ -43,11 +43,28 @@ test("coerceExtraction maps aliases and nulls junk", () => {
     customerPhone: "864-555-0100",
     bike: "2017 Softail",
     work: "n/a",
+    sentimentScore: "90",
+    positiveQuotes: [
+      "You guys crushed the wiring on my Softail",
+      "thanks",
+      "You guys crushed the wiring on my Softail",
+    ],
+    negativeQuotes: "This is taking way too long and I'm frustrated",
   });
   assert.equal(extracted.customerName, "Jamie");
   assert.equal(extracted.phone, "864-555-0100");
   assert.equal(extracted.bikeYearMakeModel, "2017 Softail");
   assert.equal(extracted.workNeeded, null);
+  assert.equal(extracted.sentimentScore, 90);
+  assert.deepEqual(extracted.positiveQuotes, ["You guys crushed the wiring on my Softail"]);
+  assert.deepEqual(extracted.negativeQuotes, ["This is taking way too long and I'm frustrated"]);
+});
+
+test("coerceExtraction defaults missing sentiment and quotes", () => {
+  const extracted = coerceExtraction({});
+  assert.equal(extracted.sentimentScore, null);
+  assert.deepEqual(extracted.positiveQuotes, []);
+  assert.deepEqual(extracted.negativeQuotes, []);
 });
 
 test("draftJobTitle prefers name + bike", () => {

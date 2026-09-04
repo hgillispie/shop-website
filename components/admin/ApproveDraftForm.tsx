@@ -100,6 +100,25 @@ export function ApproveDraftForm({
           defaultValue={draft.conversationSummary ?? ""}
         />
       </div>
+      {draft.extracted &&
+        ((draft.extracted.positiveQuotes ?? []).length > 0 ||
+          (draft.extracted.negativeQuotes ?? []).length > 0) && (
+          <div className="rounded-md border border-border bg-background p-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted">
+              Quotes from the thread
+            </p>
+            {(draft.extracted.positiveQuotes ?? []).map((quote) => (
+              <p key={quote} className="mt-2 text-sm">
+                “{quote}”
+              </p>
+            ))}
+            {(draft.extracted.negativeQuotes ?? []).map((quote) => (
+              <p key={quote} className="mt-2 text-sm text-muted">
+                Complaint: “{quote}”
+              </p>
+            ))}
+          </div>
+        )}
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" size="sm" disabled={pending}>
           {pending ? "Approving…" : "Approve draft"}

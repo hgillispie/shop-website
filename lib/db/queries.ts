@@ -1,8 +1,11 @@
 import "server-only";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
+import { averageIntakeSentiment } from "@/lib/crm/health";
+import { buildCustomerHealthView, rankAskFirstQueue } from "@/lib/crm/dashboard";
 import {
   appointmentRequests,
+  customerQuotes,
   customers,
   ipRules,
   jobs,
@@ -94,6 +97,82 @@ export function getAllTickets() {
   return db.query.tickets.findMany({
     orderBy: [desc(tickets.createdAt)],
     with: { customer: true },
+  });
+}
+
+export function getQuotesForCustomer(customerId: string) {
+  return db.query.customerQuotes.findMany({
+    where: eq(customerQuotes.customerId, customerId),
+    orderBy: [desc(customerQuotes.createdAt)],
+  });
+}
+
+export function getAllCustomerQuotes() {
+  return db.query.customerQuotes.findMany({
+    orderBy: [desc(customerQuotes.createdAt)],
+  });
+}
+
+function groupByCustomerId<T extends { customerId: string | null }>(rows: T[]): Map<string, T[]> {
+  const grouped = new Map<string, T[]>();
+  for (const row of rows) {
+    if (!row.customerId) continue;
+    const list = grouped.get(row.customerId) ?? [];
+    list.push(row);
+    grouped.set(row.customerId, list);
+  }
+  return grouped;
+}
+
+export async function getCrmHealthViews() {
+  const [customerRows, jobRows, ticketRows, quoteRows] = await Promise.all([
+    getCustomers(),
+    db.query.jobs.findMany({ with: { intakeDraft: true } }),
+    db.query.tickets.findMany(),
+    getAllCustomerQuotes(),
+  ]);
+
+  const jobsByCustomer = groupByCustomerId(jobRows);
+  const ticketsByCustomer = groupByCustomerId(ticketRows);
+  const quotesByCustomer = groupByCustomerId(quoteRows);
+
+  const views = customerRows.map((customer) => {
+    const customerJobs = jobsByCustomer.get(customer.id) ?? [];
+    return buildCustomerHealthView({
+      customer,
+      jobs: customerJobs,
+      tickets: ticketsByCustomer.get(customer.id) ?? [],
+      quotes: quotesByCustomer.get(customer.id) ?? [],
+      intakeSentiment: averageIntakeSentiment(
+        customerJobs.map((job) => job.intakeDraft?.extracted?.sentimentScore),
+      ),
+    });
+  });
+
+  return { views, askFirst: rankAskFirstQueue(views) };
+}
+
+export async function getCustomerHealthView(customerId: string) {
+  const customer = await getCustomerById(customerId);
+  if (!customer) return null;
+
+  const [customerJobs, customerTickets, quotes] = await Promise.all([
+    db.query.jobs.findMany({
+      where: eq(jobs.customerId, customerId),
+      with: { intakeDraft: true },
+    }),
+    getTicketsForCustomer(customerId),
+    getQuotesForCustomer(customerId),
+  ]);
+
+  return buildCustomerHealthView({
+    customer,
+    jobs: customerJobs,
+    tickets: customerTickets,
+    quotes,
+    intakeSentiment: averageIntakeSentiment(
+      customerJobs.map((job) => job.intakeDraft?.extracted?.sentimentScore),
+    ),
   });
 }
 

@@ -91,7 +91,55 @@ export function coerceExtraction(raw: unknown): IntakeExtraction {
     bikeYearMakeModel: str("bikeYearMakeModel") ?? str("bike"),
     workNeeded: str("workNeeded") ?? str("work"),
     conversationSummary: str("conversationSummary") ?? str("summary"),
+    sentimentScore: coerceSentimentScore(obj.sentimentScore ?? obj.sentiment),
+    positiveQuotes: coerceQuoteList(obj.positiveQuotes ?? obj.quotes),
+    negativeQuotes: coerceQuoteList(obj.negativeQuotes),
   };
+}
+
+export function normalizeQuote(quote: string): string {
+  return quote
+    .replace(/^[\s"'“”‘’]+|[\s"'“”‘’]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+export function isUsableQuote(quote: string): boolean {
+  const cleaned = quote.replace(/^[\s"'“”‘’]+|[\s"'“”‘’]+$/g, "").trim();
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  return cleaned.length >= 16 && words.length >= 4;
+}
+
+export function coerceSentimentScore(value: unknown): number | null {
+  if (typeof value === "string" && /^(positive|happy|good)$/i.test(value.trim())) return 80;
+  if (typeof value === "string" && /^(negative|unhappy|bad)$/i.test(value.trim())) return 25;
+  if (typeof value === "string" && /^(neutral|mixed)$/i.test(value.trim())) return 50;
+  const numeric = typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
+  if (!Number.isFinite(numeric)) return null;
+  const scaled = numeric >= 0 && numeric <= 1 ? numeric * 100 : numeric;
+  return Math.round(Math.min(100, Math.max(0, scaled)));
+}
+
+export function coerceQuoteList(value: unknown): string[] {
+  const items = typeof value === "string" ? [value] : Array.isArray(value) ? value : [];
+  const seen = new Set<string>();
+  const quotes: string[] = [];
+  for (const item of items) {
+    const raw = blankToNull(typeof item === "string" ? item : undefined);
+    if (!raw || !isUsableQuote(raw)) continue;
+    const cleaned = raw.replace(/^[\s"'“”‘’]+|[\s"'“”‘’]+$/g, "").trim();
+    const key = normalizeQuote(cleaned);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    quotes.push(cleaned.length > 280 ? `${cleaned.slice(0, 279).trimEnd()}…` : cleaned);
+    if (quotes.length >= 8) break;
+  }
+  return quotes;
+}
+
+export function mergeQuoteLists(...lists: Array<string[] | null | undefined>): string[] {
+  return coerceQuoteList(lists.flatMap((list) => list ?? []));
 }
 
 export function draftJobTitle(input: {

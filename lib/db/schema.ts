@@ -8,6 +8,7 @@ import {
   serial,
   text,
   timestamp,
+  unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -39,6 +40,22 @@ export const ticketStatusEnum = pgEnum("ticket_status", [
   "closed",
 ]);
 
+export const reviewOutreachEnum = pgEnum("review_outreach", [
+  "not_asked",
+  "asked",
+  "reviewed",
+  "skip",
+]);
+
+export const quoteSentimentEnum = pgEnum("quote_sentiment", [
+  "positive",
+  "neutral",
+  "negative",
+]);
+
+export type QuoteSentiment = (typeof quoteSentimentEnum.enumValues)[number];
+export type ReviewOutreach = (typeof reviewOutreachEnum.enumValues)[number];
+
 export const ipRuleActionEnum = pgEnum("ip_rule_action", ["flag", "block"]);
 
 // Repair-invoice payment lifecycle via Shopify Draft Orders (Task 2 of
@@ -62,6 +79,11 @@ export const customers = pgTable("customers", {
   notes: text("notes"),
   // How this customer first entered the system — informs CRM reporting.
   source: text("source").notNull().default("form"),
+  // 0–100 snapshot from lib/crm/health.ts (jobs + tickets + quotes + intake sentiment).
+  healthScore: integer("health_score"),
+  healthScoredAt: timestamp("health_scored_at", { mode: "date" }),
+  reviewOutreach: reviewOutreachEnum("review_outreach").notNull().default("not_asked"),
+  reviewAskedAt: timestamp("review_asked_at", { mode: "date" }),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
 });
@@ -125,6 +147,11 @@ export type IntakeExtraction = {
   bikeYearMakeModel: string | null;
   workNeeded: string | null;
   conversationSummary: string | null;
+  // 0–100 how happy the customer sounds about the shop/work. Null if there is no conversation.
+  sentimentScore: number | null;
+  // Verbatim customer sentences only — never paraphrased or invented.
+  positiveQuotes: string[];
+  negativeQuotes: string[];
 };
 
 // Screenshot/email intake — a draft job lands in the Open Drafts column
@@ -157,6 +184,31 @@ export const intakeDrafts = pgTable("intake_drafts", {
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
 });
+
+// Verbatim customer lines pulled from intake screenshots (or added by the
+// owner). Positive ones can be flagged for later site testimonials; the
+// Google-review queue prefers people who already said something kind.
+export const customerQuotes = pgTable(
+  "customer_quotes",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    customerId: text("customer_id")
+      .notNull()
+      .references(() => customers.id, { onDelete: "cascade" }),
+    intakeDraftId: text("intake_draft_id").references(() => intakeDrafts.id, {
+      onDelete: "set null",
+    }),
+    quote: text("quote").notNull(),
+    normalizedQuote: text("normalized_quote").notNull(),
+    sentiment: quoteSentimentEnum("sentiment").notNull(),
+    source: text("source").notNull().default("intake"),
+    approvedForSite: boolean("approved_for_site").notNull().default(false),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+  },
+  (table) => [unique("customer_quotes_customer_normalized").on(table.customerId, table.normalizedQuote)],
+);
 
 // First-party analytics — no third-party account needed. One row per page
 // load, captured via a client-side beacon (see lib/analytics-client.ts).
@@ -258,6 +310,18 @@ export const customersRelations = relations(customers, ({ many }) => ({
   requests: many(appointmentRequests),
   jobs: many(jobs),
   tickets: many(tickets),
+  quotes: many(customerQuotes),
+}));
+
+export const customerQuotesRelations = relations(customerQuotes, ({ one }) => ({
+  customer: one(customers, {
+    fields: [customerQuotes.customerId],
+    references: [customers.id],
+  }),
+  intakeDraft: one(intakeDrafts, {
+    fields: [customerQuotes.intakeDraftId],
+    references: [intakeDrafts.id],
+  }),
 }));
 
 export const ticketsRelations = relations(tickets, ({ one }) => ({
@@ -416,6 +480,8 @@ export type TicketRow = typeof tickets.$inferSelect;
 export type NewTicketRow = typeof tickets.$inferInsert;
 export type IntakeDraftRow = typeof intakeDrafts.$inferSelect;
 export type NewIntakeDraftRow = typeof intakeDrafts.$inferInsert;
+export type CustomerQuoteRow = typeof customerQuotes.$inferSelect;
+export type NewCustomerQuoteRow = typeof customerQuotes.$inferInsert;
 export type PageViewRow = typeof pageViews.$inferSelect;
 export type AnalyticsEventRow = typeof analyticsEvents.$inferSelect;
 export type IpRuleRow = typeof ipRules.$inferSelect;

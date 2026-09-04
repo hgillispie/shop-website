@@ -24,7 +24,7 @@ Next.js 16 App Router + TS + Tailwind v4 + React 19 · Neon Postgres via Drizzle
 - `/api/telegram/webhook` — Telegram bot webhook (screenshot intake; `X-Telegram-Bot-Api-Secret-Token`).
 
 ## Data model (`lib/db/schema.ts`) — three separate trees, not unified
-1. **CRM/booking**: `customers` ← `appointment_requests` / `jobs` (Kanban board, including `open_draft`) / `tickets` / `intake_drafts` (screenshot extraction pending owner approve).
+1. **CRM/booking**: `customers` (health score + Google-review outreach) ← `appointment_requests` / `jobs` (Kanban, including `open_draft`) / `tickets` / `intake_drafts` / `customer_quotes` (verbatim lines for later site use).
 2. **Repair invoices**: `service_invoices` → `..._jobs` → `..._parts_lines`. **Deliberately standalone, no FK to customers/jobs** — real decision, not an oversight.
 3. **Ops**: `page_views`, `ip_rules`, `admin_users`.
 
@@ -39,7 +39,7 @@ No local table for merch orders — Shopify/Printify own that data entirely.
 Ask rather than assume, especially for: which branch is actually current, whether a proposed plan (e.g. `docs/crm-roadmap.md`) has been built yet, whether an env var exists in the environment scope you're about to rely on, and anything payment/credential/DNS-related. See `OPERATIONS.md`'s "Known open items" for the specific known-shaky areas.
 
 ## More detail
-`docs/shopify-migration-plan.md` (original spec — file names in it are stale), `docs/crm-roadmap.md` (Phase 3B screenshot intake is built: Telegram + Resend email → Open Drafts → approve creates customer/job/ticket), `.claude/skills/shopify-api-auth/`, `.claude/skills/printify-shopify-catalog-sync/`.
+`docs/shopify-migration-plan.md` (original spec — file names in it are stale), `docs/crm-roadmap.md` (Phase 3B screenshot intake is built; CRM health / quotes / Google-review queue are built), `.claude/skills/shopify-api-auth/`, `.claude/skills/printify-shopify-catalog-sync/`.
 
 ## Keeping this current
 Skill `update-project-docs` — run it after a *significant* change (new integration, schema change, deploy-process change, a real gotcha discovered, a status flip like proposed→built). Not needed after routine changes. When unsure, ask.

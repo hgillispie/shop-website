@@ -4,7 +4,7 @@ import { db } from "@/lib/db/client";
 import { intakeDrafts, jobs, type IntakeDraftRow, type IntakeExtraction, type JobRow } from "@/lib/db/schema";
 import { sendOwnerIntakeDraftEmail } from "@/lib/email";
 import { extractIntakeFromScreenshots } from "@/lib/intake/extract";
-import { draftJobDescription, draftJobTitle } from "@/lib/intake/fields";
+import { draftJobDescription, draftJobTitle, mergeQuoteLists } from "@/lib/intake/fields";
 import { uploadIntakeImages } from "@/lib/storage";
 
 export type IntakeImage = {
@@ -81,6 +81,9 @@ async function extractFields(input: CaptureInput, imageUrls: string[]): Promise<
     bikeYearMakeModel: extracted?.bikeYearMakeModel ?? null,
     workNeeded: extracted?.workNeeded ?? null,
     conversationSummary: extracted?.conversationSummary ?? input.bodyText ?? null,
+    sentimentScore: extracted?.sentimentScore ?? null,
+    positiveQuotes: extracted?.positiveQuotes ?? [],
+    negativeQuotes: extracted?.negativeQuotes ?? [],
   };
 }
 
@@ -155,15 +158,27 @@ async function appendToDraft(job: JobRow, draft: IntakeDraftRow, input: CaptureI
     { ...input, bodyText, fallbackName: draft.customerName ?? input.fallbackName },
     photoUrls,
   );
+  const merged: IntakeExtraction = {
+    ...extracted,
+    customerName: extracted.customerName ?? draft.customerName,
+    phone: extracted.phone ?? draft.customerPhone,
+    email: extracted.email ?? draft.customerEmail,
+    bikeYearMakeModel: extracted.bikeYearMakeModel ?? draft.bikeYearMakeModel,
+    workNeeded: extracted.workNeeded ?? draft.workNeeded,
+    conversationSummary: extracted.conversationSummary ?? draft.conversationSummary,
+    sentimentScore: extracted.sentimentScore ?? draft.extracted?.sentimentScore ?? null,
+    positiveQuotes: mergeQuoteLists(draft.extracted?.positiveQuotes, extracted.positiveQuotes),
+    negativeQuotes: mergeQuoteLists(draft.extracted?.negativeQuotes, extracted.negativeQuotes),
+  };
 
   const title = draftJobTitle({
-    bikeYearMakeModel: extracted.bikeYearMakeModel ?? draft.bikeYearMakeModel,
-    customerName: extracted.customerName ?? draft.customerName,
+    bikeYearMakeModel: merged.bikeYearMakeModel,
+    customerName: merged.customerName,
     subject: draft.subject ?? input.subject ?? null,
   });
   const description = draftJobDescription({
-    workNeeded: extracted.workNeeded ?? draft.workNeeded,
-    conversationSummary: extracted.conversationSummary ?? draft.conversationSummary,
+    workNeeded: merged.workNeeded,
+    conversationSummary: merged.conversationSummary,
     bodyText,
   });
 
@@ -178,13 +193,13 @@ async function appendToDraft(job: JobRow, draft: IntakeDraftRow, input: CaptureI
     .set({
       bodyText,
       photoUrls,
-      customerName: extracted.customerName ?? draft.customerName,
-      customerPhone: extracted.phone ?? draft.customerPhone,
-      customerEmail: extracted.email ?? draft.customerEmail,
-      bikeYearMakeModel: extracted.bikeYearMakeModel ?? draft.bikeYearMakeModel,
-      workNeeded: extracted.workNeeded ?? draft.workNeeded,
-      conversationSummary: extracted.conversationSummary ?? draft.conversationSummary,
-      extracted,
+      customerName: merged.customerName,
+      customerPhone: merged.phone,
+      customerEmail: merged.email,
+      bikeYearMakeModel: merged.bikeYearMakeModel,
+      workNeeded: merged.workNeeded,
+      conversationSummary: merged.conversationSummary,
+      extracted: merged,
       updatedAt: new Date(),
     })
     .where(eq(intakeDrafts.id, draft.id))
