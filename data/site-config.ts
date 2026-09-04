@@ -1,8 +1,8 @@
 export const siteConfig = {
   shopName: "Swafford Speed",
   tagline: "Harley-Davidson performance, service, and custom work.",
-  phone: "(843)-666-9451",
-  phoneHref: "tel:+18436669451",
+  phone: "864-666-9451",
+  phoneHref: "tel:+18646669451",
   email: "swaffordspeed@gmail.com",
   city: "Taylors, SC",
   // Only claims already signed off by the owner and live on the site — no
