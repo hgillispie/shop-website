@@ -13,22 +13,20 @@ export default function AdminLoginPage() {
   const [state, formAction, isPending] = useActionState(login, initialState);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-dark px-6 text-foreground-dark">
+    <div className="flex min-h-screen items-center justify-center bg-ink px-6 text-bone">
       <div className="w-full max-w-sm">
-        <p className="mb-2 text-xs font-medium uppercase tracking-[0.3em] text-accent">
-          Shop Admin
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
+        <p className="eyebrow mb-2 text-ember">Shop Admin</p>
+        <h1 className="display-caps text-4xl">Sign in</h1>
 
         <form action={formAction} className="mt-8 space-y-5">
           <div>
-            <Label htmlFor="email" className="text-muted-dark">
+            <Label htmlFor="email" className="text-bone/55">
               Username
             </Label>
             <Input id="email" name="email" type="text" required autoComplete="username" />
           </div>
           <div>
-            <Label htmlFor="password" className="text-muted-dark">
+            <Label htmlFor="password" className="text-bone/55">
               Password
             </Label>
             <Input
@@ -41,7 +39,7 @@ export default function AdminLoginPage() {
           </div>
 
           {state.error && (
-            <p className="rounded-md bg-red-950/40 px-4 py-3 text-sm text-red-300">
+            <p className="border border-red-400/40 bg-red-950/40 px-4 py-3 text-sm text-red-200">
               {state.error}
             </p>
           )}

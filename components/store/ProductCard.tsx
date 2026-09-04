@@ -16,19 +16,19 @@ export function ProductCard({ product }: { product: Product }) {
     <>
       <Link
         href={`/store/products/${product.handle}`}
-        className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 transition-colors hover:border-accent"
+        className="group relative block"
       >
-        <div className="relative aspect-square overflow-hidden bg-surface">
+        <div className="relative aspect-square overflow-hidden bg-ink-soft">
           {image ? (
             // Printify/Shopify-hosted images, same posture as this repo's
             // other image usage — no next/image remotePatterns configured.
             <img
               src={image.url}
               alt={image.altText ?? product.title}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-sm text-muted">
+            <div className="flex h-full w-full items-center justify-center text-sm text-bone/50">
               No image
             </div>
           )}
@@ -41,18 +41,18 @@ export function ProductCard({ product }: { product: Product }) {
               e.stopPropagation();
               setQuickViewOpen(true);
             }}
-            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-background/90 text-foreground opacity-0 shadow-sm transition-opacity group-hover:opacity-100 hover:text-accent"
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center bg-ink/80 text-bone opacity-0 transition-opacity group-hover:opacity-100 hover:text-ember"
           >
             <ZoomIn className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
-        <div className="flex flex-col gap-1 p-4">
-          <h3 className="text-sm font-medium text-foreground">{product.title}</h3>
-          <p className="text-sm text-muted">
-            {isRange ? "From " : ""}
-            {formatMoney(product.priceRange.min)}
-          </p>
-        </div>
+        <h3 className="display-caps mt-3 text-base text-bone transition-colors group-hover:text-ember">
+          {product.title}
+        </h3>
+        <p className="mt-0.5 text-sm text-bone/60">
+          {isRange ? "From " : ""}
+          {formatMoney(product.priceRange.min)}
+        </p>
       </Link>
 
       <QuickViewModal

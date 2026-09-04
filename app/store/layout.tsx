@@ -16,15 +16,18 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   return (
     <>
       <Navbar />
-      <div className="pt-(--header-h)">
-        <div className="sticky top-(--header-h) z-40 border-b border-border/60 bg-background/95 backdrop-blur-sm">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-2.5">
-            <Link href="/store" className="text-xs text-muted hover:text-accent">
-              ← Shop
+      <div className="bg-ink pt-(--header-h) text-bone">
+        <div className="sticky top-(--header-h) z-40 border-b border-hairline bg-ink/95 backdrop-blur-sm">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3 sm:px-6">
+            <Link
+              href="/"
+              className="eyebrow text-bone/70 transition-colors hover:text-ember"
+            >
+              ← Home
             </Link>
             <Link
               href="/store/cart"
-              className="text-xs font-medium text-foreground hover:text-accent"
+              className="eyebrow text-bone/70 transition-colors hover:text-ember"
             >
               Cart{cart && cart.totalQuantity > 0 ? ` (${cart.totalQuantity})` : ""}
             </Link>

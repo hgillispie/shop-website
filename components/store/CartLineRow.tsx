@@ -25,8 +25,8 @@ export function CartLineRow({ line }: { line: CartLine }) {
   }
 
   return (
-    <div className="flex items-center gap-4 border-b border-border/60 py-4 last:border-b-0">
-      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-surface">
+    <div className="flex items-center gap-4 border-b border-hairline py-4 last:border-b-0">
+      <div className="h-20 w-20 shrink-0 overflow-hidden bg-ink-soft">
         {line.image ? (
           <img
             src={line.image.url}
@@ -37,15 +37,15 @@ export function CartLineRow({ line }: { line: CartLine }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-1">
-        <p className="text-sm font-medium text-foreground">{line.title}</p>
+        <p className="display-caps text-base text-bone">{line.title}</p>
         {line.variantTitle !== "Default Title" ? (
-          <p className="text-xs text-muted">{line.variantTitle}</p>
+          <p className="text-xs text-bone/55">{line.variantTitle}</p>
         ) : null}
         <button
           type="button"
           onClick={remove}
           disabled={isPending}
-          className="text-left text-xs text-muted underline decoration-dotted hover:text-accent disabled:opacity-50"
+          className="text-left text-xs text-bone/55 underline decoration-dotted hover:text-ember disabled:opacity-50"
         >
           Remove
         </button>
@@ -57,7 +57,7 @@ export function CartLineRow({ line }: { line: CartLine }) {
           aria-label="Decrease quantity"
           onClick={() => setQuantity(line.quantity - 1)}
           disabled={isPending}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-sm disabled:opacity-50"
+          className="btn btn-square btn-sm btn-outline border-hairline text-bone disabled:opacity-50"
         >
           −
         </button>
@@ -67,7 +67,7 @@ export function CartLineRow({ line }: { line: CartLine }) {
           aria-label="Increase quantity"
           onClick={() => setQuantity(line.quantity + 1)}
           disabled={isPending}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-sm disabled:opacity-50"
+          className="btn btn-square btn-sm btn-outline border-hairline text-bone disabled:opacity-50"
         >
           +
         </button>

@@ -35,11 +35,11 @@ export default async function AdminDashboardLayout({
   const session = await getSession();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="admin-shell min-h-screen bg-background">
       <header className="border-b border-border bg-surface">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-8">
-            <span className="text-sm font-semibold tracking-widest uppercase">
+            <span className="eyebrow text-flame-deep">
               Shop Admin
             </span>
             <nav className="flex items-center gap-6">

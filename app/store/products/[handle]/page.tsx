@@ -17,15 +17,20 @@ export default async function ProductPage({
   if (!product) notFound();
 
   return (
-    <main className="mx-auto max-w-5xl px-6 pt-12 pb-24">
+    <main className="mx-auto max-w-5xl px-5 pt-12 pb-24 sm:px-6">
       <div className="grid gap-10 md:grid-cols-2">
         <ProductGallery images={product.images} title={product.title} />
 
         <div className="flex flex-col gap-6">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{product.title}</h1>
+            <p className="eyebrow text-ember">Shop</p>
+            <h1 className="display-caps mt-3 text-3xl text-bone sm:text-4xl">
+              {product.title}
+            </h1>
             {product.description ? (
-              <p className="mt-3 text-sm leading-relaxed text-muted">{product.description}</p>
+              <p className="mt-3 text-sm leading-relaxed text-bone/65">
+                {product.description}
+              </p>
             ) : null}
           </div>
 

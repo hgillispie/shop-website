@@ -2,11 +2,11 @@ import { CalendarCheck } from "lucide-react";
 
 export function SuccessState({ onReset }: { onReset: () => void }) {
   return (
-    <div className="rounded-lg border border-border bg-surface p-8 text-center sm:p-12">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent">
+    <div className="border border-ink/10 bg-white p-8 text-center sm:p-12">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center bg-accent-soft text-flame-deep">
         <CalendarCheck className="h-6 w-6" aria-hidden="true" />
       </div>
-      <h3 className="mt-6 text-2xl font-semibold tracking-tight">
+      <h3 className="display-caps mt-6 text-3xl text-ink">
         Request received.
       </h3>
       <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted">
@@ -22,7 +22,7 @@ export function SuccessState({ onReset }: { onReset: () => void }) {
       <button
         type="button"
         onClick={onReset}
-        className="mt-6 text-xs font-medium uppercase tracking-wide text-accent hover:underline"
+        className="eyebrow mt-6 text-flame-deep hover:underline"
       >
         Submit another request
       </button>

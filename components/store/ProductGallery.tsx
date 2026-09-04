@@ -20,7 +20,7 @@ export function ProductGallery({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="aspect-square overflow-hidden rounded-2xl bg-surface">
+      <div className="aspect-square overflow-hidden bg-ink-soft">
         {active ? (
           <img
             src={active.url}
@@ -39,8 +39,8 @@ export function ProductGallery({
               aria-label={`Show image ${i + 1} of ${images.length}`}
               aria-current={i === selected}
               className={cn(
-                "aspect-square overflow-hidden rounded-lg bg-surface ring-2 ring-offset-2 ring-offset-background transition-colors",
-                i === selected ? "ring-accent" : "ring-transparent hover:ring-border",
+                "aspect-square overflow-hidden bg-ink-soft ring-2 ring-offset-2 ring-offset-ink transition-colors",
+                i === selected ? "ring-ember" : "ring-transparent hover:ring-hairline",
               )}
             >
               <img

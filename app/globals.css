@@ -26,11 +26,8 @@
   --color-secondary: #f58220;
   --color-secondary-content: #201e1e;
 
-  /* Deliberately the OLD gold, not a brand colour. `accent` predates daisyUI
-     here and is still used by ~30 live /admin and /store files; letting
-     daisyUI claim the name would silently restyle all of them. */
-  --color-accent: #b3812f;
-  --color-accent-content: #ffffff;
+  --color-accent: #ec5407;
+  --color-accent-content: #201e1e;
 
   --color-neutral: #2c2928;
   --color-neutral-content: #f7f2ef;
@@ -64,8 +61,10 @@
   --muted-dark: #a1a19b;
   --border: #e5e4e0;
   --border-dark: #262624;
-  --accent: #b3812f;
-  --accent-soft: #f1e6d3;
+  /* Flame-deep so `text-accent` on light admin surfaces still clears WCAG AA.
+     Fills use daisyUI primary / --flame. */
+  --accent: #c23f04;
+  --accent-soft: #fde8dc;
 
   /* Swafford brand kit. Flame = actions only, ember = accents/eyebrows. */
   --ink: #201e1e;
@@ -171,6 +170,44 @@ body {
   letter-spacing: 0.28em;
   font-size: 0.75rem;
   line-height: 1;
+}
+
+/* Admin keeps its layout; titles pick up the lander display face. DaisyUI's
+   swafford theme is dark, so fields/outline buttons get a light-surface
+   override here instead of restyling every admin page. */
+.admin-shell h1 {
+  font-family: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.admin-shell .input,
+.admin-shell .select,
+.admin-shell .textarea {
+  background-color: #fff;
+  color: var(--ink);
+  border-color: color-mix(in oklab, var(--ink) 16%, transparent);
+}
+
+.admin-shell .btn {
+  border-radius: 2px;
+}
+
+.admin-shell .btn-outline {
+  color: var(--ink);
+  background-color: transparent;
+  border-color: color-mix(in oklab, var(--ink) 22%, transparent);
+}
+
+.admin-shell .btn-outline:hover {
+  background-color: color-mix(in oklab, var(--ink) 5%, transparent);
+  border-color: var(--flame-deep);
+  color: var(--flame-deep);
+}
+
+.admin-shell .btn-ghost {
+  color: var(--ink);
 }
 
 input[type="date"] {

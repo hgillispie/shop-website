@@ -15,15 +15,16 @@ export default async function StorePage() {
   });
 
   return (
-    <main className="mx-auto max-w-6xl px-6 pt-12 pb-24">
-      <h1 className="mb-10 text-3xl font-semibold tracking-tight">Shop</h1>
+    <main className="mx-auto max-w-6xl px-5 pt-12 pb-24 sm:px-6">
+      <p className="eyebrow text-ember">Merch</p>
+      <h1 className="display-caps mt-3 mb-10 text-4xl text-bone sm:text-5xl">Shop</h1>
 
       {products.length === 0 ? (
-        <p className="text-sm text-muted">
+        <p className="text-sm text-bone/60">
           Nothing&rsquo;s in the store yet — check back soon.
         </p>
       ) : (
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

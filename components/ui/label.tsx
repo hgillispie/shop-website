@@ -8,7 +8,7 @@ export function Label({
   return (
     <label
       className={cn(
-        "mb-2 block text-xs font-medium uppercase tracking-wide text-muted",
+        "eyebrow mb-2 block text-muted",
         className,
       )}
       {...props}

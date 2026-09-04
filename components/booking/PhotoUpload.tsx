@@ -66,15 +66,15 @@ export function PhotoUpload({ files, onChange }: PhotoUploadProps) {
           addFiles(e.dataTransfer.files);
         }}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border bg-surface px-4 py-10 text-center transition-colors",
-          dragActive && "border-accent bg-accent-soft",
+          "flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-ink/20 bg-white px-4 py-10 text-center transition-colors",
+          dragActive && "border-flame bg-accent-soft",
         )}
       >
-        <ImagePlus className="h-6 w-6 text-muted" aria-hidden="true" />
-        <p className="text-sm text-foreground">
+        <ImagePlus className="h-6 w-6 text-ink/50" aria-hidden="true" />
+        <p className="text-sm text-ink">
           Drop photos here, or tap to upload from your phone
         </p>
-        <p className="text-xs text-muted">
+        <p className="text-xs text-ink/60">
           Bike overview, damage, or wiring. Up to {PHOTO_LIMITS.maxFiles} photos, 8MB each
         </p>
         <input
@@ -93,7 +93,7 @@ export function PhotoUpload({ files, onChange }: PhotoUploadProps) {
       {previews.length > 0 && (
         <ul className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
           {previews.map((src, index) => (
-            <li key={src} className="relative aspect-square overflow-hidden rounded-md border border-border">
+            <li key={src} className="relative aspect-square overflow-hidden border border-ink/15">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={src} alt="" className="h-full w-full object-cover" />
               <button

@@ -18,17 +18,22 @@ export function QuickViewModal({
   const titleId = `quick-view-${product.id}`;
 
   return (
-    <Dialog open={open} onClose={onClose} labelledBy={titleId} className="max-w-3xl">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      labelledBy={titleId}
+      className="max-w-3xl border border-hairline bg-ink-soft text-bone"
+    >
       <div className="grid gap-6 sm:grid-cols-2">
         <ProductGallery images={product.images} title={product.title} />
 
         <div className="flex flex-col gap-4">
           <div>
-            <h2 id={titleId} className="text-xl font-semibold tracking-tight">
+            <h2 id={titleId} className="display-caps text-2xl text-bone">
               {product.title}
             </h2>
             {product.description ? (
-              <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-muted">
+              <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-bone/65">
                 {product.description}
               </p>
             ) : null}
@@ -38,7 +43,7 @@ export function QuickViewModal({
 
           <Link
             href={`/store/products/${product.handle}`}
-            className="text-center text-xs text-muted hover:text-accent"
+            className="eyebrow text-center text-bone/55 transition-colors hover:text-ember"
             onClick={onClose}
           >
             View full details

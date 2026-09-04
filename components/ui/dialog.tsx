@@ -76,7 +76,7 @@ export function Dialog({
         aria-labelledby={labelledBy}
         tabIndex={-1}
         className={cn(
-          "relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-surface p-6 shadow-xl focus:outline-none",
+          "relative max-h-[90vh] w-full max-w-2xl overflow-y-auto bg-surface p-6 shadow-xl focus:outline-none",
           className,
         )}
       >
@@ -84,7 +84,7 @@ export function Dialog({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 z-10 text-muted transition-colors hover:text-foreground"
+          className="absolute right-4 top-4 z-10 text-current/50 transition-colors hover:text-current"
         >
           <X className="h-5 w-5" aria-hidden="true" />
         </button>

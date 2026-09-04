@@ -75,15 +75,13 @@ export function AddToCartForm({ product }: { product: Product }) {
       {hasRealOptions &&
         product.options.map((option) => (
           <div key={option.name} className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium tracking-wide text-muted uppercase">
-              {option.name}
-            </label>
+            <label className="eyebrow text-ember">{option.name}</label>
             <select
               value={selected[option.name]}
               onChange={(e) =>
                 setSelected((prev) => ({ ...prev, [option.name]: e.target.value }))
               }
-              className="h-11 rounded-lg border border-border bg-background px-3 text-sm"
+              className="select select-bordered h-11 w-full"
             >
               {option.values.map((value) => (
                 <option key={value} value={value}>
@@ -95,18 +93,18 @@ export function AddToCartForm({ product }: { product: Product }) {
         ))}
 
       <div className="flex items-center gap-3">
-        <label className="text-xs font-medium tracking-wide text-muted uppercase">Qty</label>
+        <label className="eyebrow text-ember">Qty</label>
         <input
           type="number"
           min={1}
           value={quantity}
           onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
-          className="h-11 w-20 rounded-lg border border-border bg-background px-3 text-sm"
+          className="input input-bordered h-11 w-20"
         />
       </div>
 
       {selectedVariant && !selectedVariant.availableForSale ? (
-        <p className="text-sm text-muted">This option is sold out.</p>
+        <p className="text-sm text-bone/60">This option is sold out.</p>
       ) : null}
 
       <Button
@@ -124,10 +122,10 @@ export function AddToCartForm({ product }: { product: Product }) {
 
       {selectedVariant && selectedVariant.availableForSale ? (
         <>
-          <div className="flex items-center gap-3 text-xs tracking-wide text-muted uppercase">
-            <span className="h-px flex-1 bg-border" />
+          <div className="eyebrow flex items-center gap-3 text-bone/50">
+            <span className="h-px flex-1 bg-hairline" />
             or
-            <span className="h-px flex-1 bg-border" />
+            <span className="h-px flex-1 bg-hairline" />
           </div>
           <Button type="button" variant="outline" onClick={handleBuyNow} disabled={busy} size="lg">
             {isBuyingNow ? "Redirecting…" : "Buy now"}
@@ -135,7 +133,7 @@ export function AddToCartForm({ product }: { product: Product }) {
         </>
       ) : null}
 
-      {feedback ? <p className="text-sm text-muted">{feedback}</p> : null}
+      {feedback ? <p className="text-sm text-bone/60">{feedback}</p> : null}
     </div>
   );
 }
