@@ -6,7 +6,7 @@ import { TrackedLink } from "@/components/TrackedLink";
 import type { Product } from "@/lib/shopify/types";
 
 const SHOP_PHOTO =
-  "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Ff34d3293ef974da897f5007b910db556";
+  "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Fbca7bdd0928f4f368bd3df793ee29cdc?format=webp&width=1920";
 
 export function Hero({ featured }: { featured: Product | null }) {
   return (
@@ -20,7 +20,7 @@ export function Hero({ featured }: { featured: Product | null }) {
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-r from-ink via-ink/90 to-ink/60"
+        className="absolute inset-0 bg-gradient-to-r from-ink via-ink/95 to-ink/90 lg:via-ink/90 lg:to-ink/60"
         aria-hidden="true"
       />
       <div
@@ -29,7 +29,7 @@ export function Hero({ featured }: { featured: Product | null }) {
       />
       <LogoMark
         priority
-        className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[30rem] -translate-x-1/2 -translate-y-1/2 opacity-[0.07] lg:block"
+        className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[30rem] -translate-x-1/2 -translate-y-1/2 opacity-[0.06] lg:block"
       />
 
       <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-5 pb-14 sm:px-6 sm:pb-20 lg:grid-cols-[1fr_360px] lg:items-stretch lg:gap-14">
