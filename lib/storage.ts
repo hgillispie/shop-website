@@ -1,6 +1,12 @@
 import { put } from "@vercel/blob";
 
-const BLOB_CONFIGURED = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const BLOB_CONFIGURED = Boolean(
+  process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID,
+);
+
+function asDataUri(file: { bytes: Buffer; contentType: string }): string {
+  return `data:${file.contentType};base64,${file.bytes.toString("base64")}`;
+}
 
 // Uploads intake photos to Vercel Blob so only lightweight URLs (not raw
 // binaries) travel through the webhook payload to Zapier/Make.
@@ -37,24 +43,27 @@ export async function uploadIntakeImages(
 
   if (!BLOB_CONFIGURED) {
     console.warn(
-      "[storage] BLOB_READ_WRITE_TOKEN is not set — skipping intake image upload. " +
-        `${files.length} image(s) will not be stored.`,
+      "[storage] Blob is not configured — keeping intake images as data URIs so drafts still have screenshots.",
     );
-    return [];
+    return files.map(asDataUri);
   }
 
-  const uploads = await Promise.all(
-    files.map(async (file, index) => {
-      const safeName = file.filename.replace(/[^a-zA-Z0-9._-]/g, "-") || `screenshot-${index}.png`;
-      const pathname = `intake/${Date.now()}-${index}-${safeName}`;
-      const blob = await put(pathname, file.bytes, {
-        access: "public",
-        addRandomSuffix: true,
-        contentType: file.contentType,
-      });
-      return blob.url;
-    }),
-  );
-
-  return uploads;
+  try {
+    const uploads = await Promise.all(
+      files.map(async (file, index) => {
+        const safeName = file.filename.replace(/[^a-zA-Z0-9._-]/g, "-") || `screenshot-${index}.png`;
+        const pathname = `intake/${Date.now()}-${index}-${safeName}`;
+        const blob = await put(pathname, file.bytes, {
+          access: "public",
+          addRandomSuffix: true,
+          contentType: file.contentType,
+        });
+        return blob.url;
+      }),
+    );
+    return uploads;
+  } catch (error) {
+    console.error("[storage] blob upload failed — falling back to data URIs:", error);
+    return files.map(asDataUri);
+  }
 }
