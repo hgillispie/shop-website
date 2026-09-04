@@ -29,7 +29,7 @@ export function Hero({ featured }: { featured: Product | null }) {
       />
       <LogoMark
         priority
-        className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[30rem] -translate-x-1/2 -translate-y-1/2 opacity-10 lg:block"
+        className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[30rem] -translate-x-1/2 -translate-y-1/2 opacity-[0.08] lg:block"
       />
 
       <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-5 pb-14 sm:px-6 sm:pb-20 lg:grid-cols-[1fr_360px] lg:items-stretch lg:gap-14">
