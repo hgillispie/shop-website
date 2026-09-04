@@ -3,7 +3,7 @@ import type { IntakeExtraction } from "@/lib/db/schema";
 import { coerceExtraction } from "@/lib/intake/fields";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct";
+const GROQ_MODEL = "qwen/qwen3.6-27b";
 const MAX_IMAGES = 5;
 
 const SYSTEM_PROMPT = `You extract repair-shop CRM fields from iMessage/SMS/WhatsApp screenshots and any accompanying email text.
@@ -74,6 +74,7 @@ export async function extractIntakeFromScreenshots(input: {
       model: GROQ_MODEL,
       temperature: 0,
       max_tokens: 1200,
+      reasoning_effort: "none",
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM_PROMPT },

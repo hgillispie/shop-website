@@ -5,7 +5,7 @@ Quick orientation for picking up this repo cold. Companions: [`INTEGRATIONS.md`]
 **This is live production** (`swaffordspeed.com`, branch `main`), not a sandbox — real customers, real owner. When unsure whether something is safe/live/current, check `git log`/current code or ask, rather than assuming.
 
 ## Stack
-Next.js 16 App Router + TS + Tailwind v4 + React 19 · Neon Postgres via Drizzle (`neon-http` — **no transactions**, sequential writes only) · Resend (email, including inbound screenshot intake) · Telegram bot (screenshot intake) · Groq Llama 4 Scout (vision OCR) · Twilio (SMS, currently paused via `SMS_ENABLED=false`) · Vercel Blob (photo uploads) · Shopify (storefront + repair-invoice payments) · hosted on Vercel.
+Next.js 16 App Router + TS + Tailwind v4 + React 19 · Neon Postgres via Drizzle (`neon-http` — **no transactions**, sequential writes only) · Resend (email, including inbound screenshot intake) · Telegram bot (screenshot intake) · Groq Qwen 3.6 27B (vision OCR) · Twilio (SMS, currently paused via `SMS_ENABLED=false`) · Vercel Blob (photo uploads) · Shopify (storefront + repair-invoice payments) · hosted on Vercel.
 
 **AGENTS.md says "this is NOT the Next.js you know" — real, not decoration.** Conventions have shifted (favicon/icon files, `next/script`, `middleware`→`proxy`). Check `node_modules/next/dist/docs/` for anything Next-API-shaped rather than assuming from training data.
 
