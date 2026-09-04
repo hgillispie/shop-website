@@ -32,6 +32,14 @@ export type TelegramUpdate = {
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
+async function reply(chatId: number, text: string) {
+  try {
+    await reply(chatId, text);
+  } catch (error) {
+    console.warn("[telegram] reply failed:", error);
+  }
+}
+
 export async function processTelegramUpdate(update: TelegramUpdate): Promise<{
   ok: true;
   skipped?: string;
@@ -45,7 +53,7 @@ export async function processTelegramUpdate(update: TelegramUpdate): Promise<{
 
   const text = (message.text ?? "").trim();
   if (text === "/start" || text === "/help") {
-    await sendTelegramMessage(
+    await reply(
       message.chat.id,
       [
         "Send screenshots of a customer text thread (an album keeps them on one draft).",
@@ -57,7 +65,7 @@ export async function processTelegramUpdate(update: TelegramUpdate): Promise<{
   }
 
   if (!isAllowedTelegramUser(from.id)) {
-    await sendTelegramMessage(
+    await reply(
       message.chat.id,
       `Not on the allowlist. Your Telegram user id is ${from.id} — add it to TELEGRAM_ALLOWED_USER_IDS.`,
     );
@@ -67,7 +75,7 @@ export async function processTelegramUpdate(update: TelegramUpdate): Promise<{
   const images = await collectImages(message);
   const bodyText = message.caption ?? message.text ?? null;
   if (images.length === 0 && !bodyText) {
-    await sendTelegramMessage(
+    await reply(
       message.chat.id,
       "Send a screenshot (or an album of screenshots) of the customer thread.",
     );
@@ -85,12 +93,12 @@ export async function processTelegramUpdate(update: TelegramUpdate): Promise<{
 
   const url = `${SITE_URL.replace(/\/$/, "")}/admin/board/${saved.job.id}`;
   if (saved.appended) {
-    await sendTelegramMessage(
+    await reply(
       message.chat.id,
       `Added to draft #${saved.job.jobNumber}. ${url}`,
     );
   } else {
-    await sendTelegramMessage(
+    await reply(
       message.chat.id,
       `Open Draft #${saved.job.jobNumber} is ready for review. ${url}`,
     );
