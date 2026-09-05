@@ -153,6 +153,58 @@ export async function getProducts({ first = 48 }: { first?: number } = {}): Prom
   return data.products.edges.map((e) => mapProduct(e.node));
 }
 
+export type ProductSitemapEntry = {
+  handle: string;
+  updatedAt: string | null;
+};
+
+type ProductSitemapQuery = {
+  products: {
+    pageInfo: { hasNextPage: boolean; endCursor: string | null };
+    edges: { node: { handle: string; updatedAt?: string | null } }[];
+  };
+};
+
+// Lightweight catalog walk for sitemap.xml — handle + updatedAt only.
+// Paginates the same `products(first: 48, sortKey: TITLE)` query the store
+// listing uses so every published Headless-channel product is included.
+export async function getProductSitemapEntries(): Promise<ProductSitemapEntry[]> {
+  const entries: ProductSitemapEntry[] = [];
+  let cursor: string | null = null;
+  let pages = 0;
+
+  while (pages < 20) {
+    pages += 1;
+    const data: ProductSitemapQuery = await storefrontFetch<ProductSitemapQuery>(
+      /* GraphQL */ `
+        query ProductSitemap($first: Int!, $after: String) {
+          products(first: $first, after: $after, sortKey: TITLE) {
+            pageInfo { hasNextPage endCursor }
+            edges { node { handle updatedAt } }
+          }
+        }
+      `,
+      { first: 48, after: cursor },
+    );
+
+    for (const edge of data.products.edges) {
+      if (edge.node.handle) {
+        entries.push({
+          handle: edge.node.handle,
+          updatedAt: edge.node.updatedAt ?? null,
+        });
+      }
+    }
+
+    if (!data.products.pageInfo.hasNextPage || !data.products.pageInfo.endCursor) {
+      break;
+    }
+    cursor = data.products.pageInfo.endCursor;
+  }
+
+  return entries;
+}
+
 export async function getProductByHandle(handle: string): Promise<Product | null> {
   const data = await storefrontFetch<{ product: unknown | null }>(
     /* GraphQL */ `
