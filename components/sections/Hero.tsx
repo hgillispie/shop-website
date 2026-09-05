@@ -3,10 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { LogoMark } from "@/components/brand/Logo";
 import { formatMoney } from "@/lib/shopify/money";
 import { TrackedLink } from "@/components/TrackedLink";
+import { shopPhotos } from "@/data/photos";
 import type { Product } from "@/lib/shopify/types";
-
-const SHOP_PHOTO =
-  "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Fed01bfd4f5f54ac5bb7c4c770872c795?format=webp&width=1920";
 
 export function Hero({ featured }: { featured: Product | null }) {
   return (
@@ -14,10 +12,11 @@ export function Hero({ featured }: { featured: Product | null }) {
       id="top"
       className="relative overflow-hidden bg-ink pt-24 text-bone sm:pt-28"
     >
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${SHOP_PHOTO}')` }}
-        aria-hidden="true"
+      <img
+        src={shopPhotos.hero.src}
+        alt={shopPhotos.hero.alt}
+        className="absolute inset-0 h-full w-full object-cover object-center"
+        fetchPriority="high"
       />
       <div
         className="absolute inset-0 bg-gradient-to-r from-ink via-ink/95 to-ink/90 lg:via-ink/90 lg:to-ink/45"

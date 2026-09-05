@@ -1,8 +1,6 @@
 import { Check } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
-
-const SHOP_PHOTO =
-  "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Fcee12a5000a24d0292047a9e0e8181c1";
+import { shopPhotos } from "@/data/photos";
 
 const POINTS = [
   "Power, suspension, brakes, and controls planned as a complete setup",
@@ -19,8 +17,8 @@ export function About() {
       <div className="mx-auto grid max-w-6xl gap-12 px-5 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-16">
         <Reveal className="relative">
           <img
-            src={SHOP_PHOTO}
-            alt="Harley-Davidson service and performance work inside Swafford Speed"
+            src={shopPhotos.aboutPrimary.src}
+            alt={shopPhotos.aboutPrimary.alt}
             className="aspect-4/5 w-full object-cover"
             loading="lazy"
           />
