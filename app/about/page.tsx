@@ -10,10 +10,26 @@ import { AnalyticsBeacon } from "@/components/AnalyticsBeacon";
 import { TrackedLink } from "@/components/TrackedLink";
 import { siteConfig } from "@/data/site-config";
 
+const TITLE = "About the Shop | Swafford Speed";
+const DESCRIPTION =
+  "Who works on your bike, what Swafford Speed handles, and answers to the questions worth asking before booking a Harley-Davidson build or service in Taylors, SC.";
+
 export const metadata: Metadata = {
-  title: "About the Shop | Swafford Speed",
-  description:
-    "Who works on your bike, what Swafford Speed handles, and answers to the questions worth asking before booking a Harley-Davidson build or service in Taylors, SC.",
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/about",
+    siteName: siteConfig.shopName,
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 export default function AboutPage() {
