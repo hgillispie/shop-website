@@ -6,12 +6,30 @@ export const VCARD_FILENAME = "swafford-speed.vcf";
 export const CANONICAL_SITE_URL = "https://swaffordspeed.com";
 export const CANONICAL_VCARD_URL = `${CANONICAL_SITE_URL}${VCARD_PATH}`;
 
-// Public-only fields, kept in lockstep with `data/site-config.ts` (the
-// vCard test fails if shopName / email / phoneHref drift). Do not add
-// `siteConfig.address` — that drop-off street is private (no walk-ins).
-const SHOP_NAME = "Swafford Speed";
-const WORK_TEL = "+18646669451";
-const WORK_EMAIL = "swaffordspeed@gmail.com";
+/**
+ * Confirmed public contact. ZIP comes from `siteConfig.address`
+ * (`529 E Darby Road, Taylors, SC 29687`) — not invented.
+ */
+export const shopContact = {
+  givenName: "Matt",
+  familyName: "Daves",
+  formattedName: "Matt Daves",
+  organization: "Swafford Speed",
+  tel: "+18646669451",
+  email: "swaffordspeed@gmail.com",
+  url: CANONICAL_SITE_URL,
+  street: "529 E Darby Road",
+  locality: "Taylors",
+  region: "SC",
+  postalCode: "29687",
+  country: "US",
+  note: "Harley-Davidson performance & custom shop, Upstate SC",
+} as const;
+
+export const shopContactAddressLine = [
+  shopContact.street,
+  `${shopContact.locality}, ${shopContact.region} ${shopContact.postalCode}`,
+].join(", ");
 
 function escapeVcard(value: string): string {
   return value
@@ -33,24 +51,20 @@ function foldLine(line: string): string {
   return parts.join("\r\n");
 }
 
-/**
- * Organization vCard for the shop. Includes fields that are already public
- * on the site (email, city). Omits `siteConfig.address` on purpose — that
- * drop-off street is private (no walk-ins) and must not go on a printed QR.
- */
 export function buildShopVcard(): string {
+  const c = shopContact;
   const lines = [
     "BEGIN:VCARD",
     "VERSION:3.0",
     "PRODID:-//Swafford Speed//Contact//EN",
-    `FN:${escapeVcard(SHOP_NAME)}`,
-    `ORG:${escapeVcard(SHOP_NAME)}`,
-    "X-ABShowAs:COMPANY",
-    `TEL;TYPE=WORK,VOICE:${WORK_TEL}`,
-    `EMAIL;TYPE=WORK:${WORK_EMAIL}`,
-    `URL:${CANONICAL_SITE_URL}`,
-    "ADR;TYPE=WORK:;;;Taylors;SC;;US",
-    `NOTE:${escapeVcard("Harley-Davidson performance & custom shop, Upstate SC")}`,
+    `FN:${escapeVcard(c.formattedName)}`,
+    `N:${escapeVcard(c.familyName)};${escapeVcard(c.givenName)};;;`,
+    `ORG:${escapeVcard(c.organization)}`,
+    `TEL;TYPE=WORK,VOICE:${c.tel}`,
+    `EMAIL;TYPE=WORK:${c.email}`,
+    `URL:${c.url}`,
+    `ADR;TYPE=WORK:;;${escapeVcard(c.street)};${escapeVcard(c.locality)};${escapeVcard(c.region)};${c.postalCode};${c.country}`,
+    `NOTE:${escapeVcard(c.note)}`,
     "END:VCARD",
   ];
 

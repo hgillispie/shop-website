@@ -8,6 +8,8 @@ import { ContactQr } from "@/components/card/ContactQr";
 import { siteConfig } from "@/data/site-config";
 import {
   CANONICAL_VCARD_URL,
+  shopContact,
+  shopContactAddressLine,
   VCARD_FILENAME,
   VCARD_PATH,
 } from "@/lib/vcard";
@@ -15,10 +17,8 @@ import {
 export const metadata: Metadata = {
   title: `Save Contact | ${siteConfig.shopName}`,
   description:
-    "Save Swafford Speed to your phone. Harley-Davidson performance and custom shop, Taylors, SC.",
+    "Save Matt Daves / Swafford Speed to your phone. Harley-Davidson performance and custom shop, Taylors, SC.",
 };
-
-const NOTE = "Harley-Davidson performance & custom shop, Upstate SC";
 
 export default function CardPage() {
   return (
@@ -30,11 +30,14 @@ export default function CardPage() {
           <div className="mx-auto max-w-6xl">
             <p className="eyebrow text-ember">Contact card</p>
             <h1 className="display-slant mt-5 text-[3rem] leading-[0.9] sm:text-7xl">
-              {siteConfig.shopName}
+              {shopContact.formattedName}
             </h1>
+            <p className="mt-3 display-caps text-2xl text-ember sm:text-3xl">
+              {shopContact.organization}
+            </p>
             <p className="mt-5 max-w-xl text-sm leading-relaxed text-bone/65 sm:text-base">
-              {NOTE}. Scan the QR or tap Save to Contacts — iPhone opens the
-              native Add sheet; Android can download the same vCard.
+              {shopContact.note}. Scan the QR or tap Save to Contacts — iPhone
+              opens the native Add sheet; Android can download the same vCard.
             </p>
 
             <div className="mt-12 grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-start">
@@ -43,9 +46,12 @@ export default function CardPage() {
                   <LogoMark className="h-16" />
                   <div>
                     <p className="display-caps text-3xl sm:text-4xl">
-                      {siteConfig.shopName}
+                      {shopContact.formattedName}
                     </p>
-                    <p className="mt-2 text-sm text-bone/60">{NOTE}</p>
+                    <p className="mt-1.5 text-sm font-semibold text-ember">
+                      {shopContact.organization}
+                    </p>
+                    <p className="mt-2 text-sm text-bone/60">{shopContact.note}</p>
                   </div>
                 </div>
 
@@ -76,10 +82,10 @@ export default function CardPage() {
                       <dt className="eyebrow text-bone/45">Email</dt>
                       <dd className="mt-1.5">
                         <a
-                          href={`mailto:${siteConfig.email}`}
+                          href={`mailto:${shopContact.email}`}
                           className="text-bone/80 transition-colors hover:text-ember"
                         >
-                          {siteConfig.email}
+                          {shopContact.email}
                         </a>
                       </dd>
                     </div>
@@ -90,8 +96,10 @@ export default function CardPage() {
                       aria-hidden="true"
                     />
                     <div>
-                      <dt className="eyebrow text-bone/45">Location</dt>
-                      <dd className="mt-1.5 text-bone/80">{siteConfig.city}</dd>
+                      <dt className="eyebrow text-bone/45">Address</dt>
+                      <dd className="mt-1.5 text-bone/80">
+                        {shopContactAddressLine}
+                      </dd>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">

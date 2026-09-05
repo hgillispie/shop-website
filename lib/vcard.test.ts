@@ -4,6 +4,8 @@ import {
   buildShopVcard,
   CANONICAL_SITE_URL,
   CANONICAL_VCARD_URL,
+  shopContact,
+  shopContactAddressLine,
   VCARD_HEADERS,
   VCARD_PATH,
 } from "./vcard.ts";
@@ -17,26 +19,27 @@ test("vCard is version 3.0 with CRLF and a trailing newline", () => {
   assert.equal(body.includes("\n") && !body.includes("\r\n") ? "lf" : "crlf", "crlf");
 });
 
-test("vCard carries the confirmed public shop fields", () => {
+test("vCard carries the confirmed person, shop, and address fields", () => {
   const lines = new Set(buildShopVcard().trimEnd().split("\r\n"));
+  assert.ok(lines.has("FN:Matt Daves"));
+  assert.ok(lines.has("N:Daves;Matt;;;"));
   assert.ok(lines.has(`ORG:${siteConfig.shopName}`));
-  assert.ok(lines.has(`FN:${siteConfig.shopName}`));
   assert.ok(lines.has(`TEL;TYPE=WORK,VOICE:${siteConfig.phoneHref.replace(/^tel:/, "")}`));
   assert.ok(lines.has(`URL:${CANONICAL_SITE_URL}`));
-  assert.ok(lines.has("ADR;TYPE=WORK:;;;Taylors;SC;;US"));
+  assert.ok(lines.has("ADR;TYPE=WORK:;;529 E Darby Road;Taylors;SC;29687;US"));
   assert.ok(
     lines.has("NOTE:Harley-Davidson performance & custom shop\\, Upstate SC"),
   );
   assert.ok(lines.has(`EMAIL;TYPE=WORK:${siteConfig.email}`));
-  assert.ok(lines.has("X-ABShowAs:COMPANY"));
 });
 
-test("vCard does not invent a person or leak the private drop-off street", () => {
-  const body = buildShopVcard();
-  assert.ok(!body.split("\r\n").some((line) => line.startsWith("N:")));
-  assert.doesNotMatch(body, /Darby/i);
-  assert.doesNotMatch(body, /529/);
-  assert.doesNotMatch(body, /29687/);
+test("street and ZIP match the real address already in site config", () => {
+  assert.equal(siteConfig.address, "529 E Darby Road, Taylors, SC 29687");
+  assert.equal(shopContact.street, "529 E Darby Road");
+  assert.equal(shopContact.postalCode, "29687");
+  assert.equal(shopContactAddressLine, siteConfig.address);
+  assert.match(buildShopVcard(), /529 E Darby Road/);
+  assert.match(buildShopVcard(), /29687/);
 });
 
 test("QR / NFC target is the short .vcf path, not /card", () => {
