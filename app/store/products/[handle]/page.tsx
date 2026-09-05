@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { AddToCartForm } from "@/components/store/AddToCartForm";
+import { ProductDetails } from "@/components/store/ProductDetails";
 import { ProductGallery } from "@/components/store/ProductGallery";
 import { getProductByHandle } from "@/lib/shopify/storefront";
 
@@ -27,14 +28,10 @@ export default async function ProductPage({
             <h1 className="display-caps mt-3 text-3xl text-bone sm:text-4xl">
               {product.title}
             </h1>
-            {product.description ? (
-              <p className="mt-3 text-sm leading-relaxed text-bone/65">
-                {product.description}
-              </p>
-            ) : null}
           </div>
 
           <AddToCartForm product={product} />
+          <ProductDetails description={product.description} />
         </div>
       </div>
     </main>

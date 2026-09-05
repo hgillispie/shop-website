@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Dialog } from "@/components/ui/dialog";
 import { ProductGallery } from "@/components/store/ProductGallery";
+import { ProductDetails } from "@/components/store/ProductDetails";
 import { AddToCartForm } from "@/components/store/AddToCartForm";
 import type { Product } from "@/lib/shopify/types";
 
@@ -32,14 +33,10 @@ export function QuickViewModal({
             <h2 id={titleId} className="display-caps text-2xl text-bone">
               {product.title}
             </h2>
-            {product.description ? (
-              <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-bone/65">
-                {product.description}
-              </p>
-            ) : null}
           </div>
 
           <AddToCartForm product={product} />
+          <ProductDetails description={product.description} />
 
           <Link
             href={`/store/products/${product.handle}`}
