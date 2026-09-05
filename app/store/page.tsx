@@ -14,6 +14,8 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: "/store",
+    siteName: siteConfig.shopName,
+    locale: "en_US",
     type: "website",
   },
   twitter: {

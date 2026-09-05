@@ -43,6 +43,8 @@ export async function generateMetadata({
       title,
       description,
       url: `/store/products/${product.handle}`,
+      siteName: siteConfig.shopName,
+      locale: "en_US",
       type: "website",
       images: image
         ? [{ url: image.url, alt: image.altText ?? product.title }]
