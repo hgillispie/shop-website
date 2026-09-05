@@ -5,35 +5,39 @@ import { useRouter } from "next/navigation";
 import { addToCartAction } from "@/app/store/actions";
 import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/shopify/money";
-import type { Product, ProductVariant } from "@/lib/shopify/types";
-
-function variantMatches(variant: ProductVariant, selected: Record<string, string>) {
-  return variant.selectedOptions.every((opt) => selected[opt.name] === opt.value);
-}
+import type { Product } from "@/lib/shopify/types";
+import {
+  availableVariants,
+  defaultSelectedOptions,
+  findVariant,
+  selectOption,
+  valuesForOption,
+} from "@/lib/store/variants";
 
 export function AddToCartForm({ product }: { product: Product }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isBuyingNow, startBuyNowTransition] = useTransition();
   const [quantity, setQuantity] = useState(1);
-  // Simplest correct default: first listed value per option. Not "smart"
-  // about cross-option availability (e.g. picking an in-stock combo) —
-  // fine for a small catalog, and sold-out combos are already surfaced
-  // below rather than silently allowed through.
+  // Default to the first available variant. Independent option defaults
+  // (Color[0] × Size[0]) can name a combo that was never published —
+  // White/S on flash-pocket-tee — and the CTA then reads Unavailable.
   const [selected, setSelected] = useState<Record<string, string>>(() =>
-    Object.fromEntries(product.options.map((o) => [o.name, o.values[0]])),
+    defaultSelectedOptions(product),
   );
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const selectedVariant = useMemo(
-    () => product.variants.find((v) => variantMatches(v, selected)) ?? null,
-    [product.variants, selected],
+    () => findVariant(product, selected),
+    [product, selected],
   );
+  const canAdd = Boolean(selectedVariant?.availableForSale);
+  const catalogSoldOut = availableVariants(product).length === 0;
 
   const hasRealOptions = product.options.some((o) => o.values.length > 1);
 
   function handleAdd() {
-    if (!selectedVariant) return;
+    if (!selectedVariant?.availableForSale) return;
     setFeedback(null);
     startTransition(async () => {
       try {
@@ -56,7 +60,7 @@ export function AddToCartForm({ product }: { product: Product }) {
   // guest buyer wants here. window.location.href, not the Next router —
   // checkoutUrl is a real cross-origin redirect to Shopify's own domain.
   function handleBuyNow() {
-    if (!selectedVariant) return;
+    if (!selectedVariant?.availableForSale) return;
     setFeedback(null);
     startBuyNowTransition(async () => {
       try {
@@ -79,11 +83,11 @@ export function AddToCartForm({ product }: { product: Product }) {
             <select
               value={selected[option.name]}
               onChange={(e) =>
-                setSelected((prev) => ({ ...prev, [option.name]: e.target.value }))
+                setSelected((prev) => selectOption(product, prev, option.name, e.target.value))
               }
               className="select select-bordered h-11 w-full"
             >
-              {option.values.map((value) => (
+              {valuesForOption(product, option.name, selected).map((value) => (
                 <option key={value} value={value}>
                   {value}
                 </option>
@@ -110,17 +114,19 @@ export function AddToCartForm({ product }: { product: Product }) {
       <Button
         type="button"
         onClick={handleAdd}
-        disabled={busy || !selectedVariant || !selectedVariant.availableForSale}
+        disabled={busy || !canAdd}
         size="lg"
       >
         {isPending
           ? "Adding…"
-          : selectedVariant
+          : canAdd && selectedVariant
             ? `Add to cart — ${formatMoney(selectedVariant.price)}`
-            : "Unavailable"}
+            : catalogSoldOut
+              ? "Sold out"
+              : "Unavailable"}
       </Button>
 
-      {selectedVariant && selectedVariant.availableForSale ? (
+      {canAdd ? (
         <>
           <div className="eyebrow flex items-center gap-3 text-bone/50">
             <span className="h-px flex-1 bg-hairline" />
