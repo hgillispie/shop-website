@@ -1,8 +1,26 @@
+import type { Metadata } from "next";
 import { ProductCard } from "@/components/store/ProductCard";
+import { siteConfig } from "@/data/site-config";
 import { getProducts } from "@/lib/shopify/storefront";
 
-export const metadata = {
-  title: "Shop",
+const TITLE = `Shop | ${siteConfig.shopName}`;
+const DESCRIPTION =
+  "Official Swafford Speed merch — tees, hoodies, and shop gear from the Harley-Davidson performance shop in Taylors, SC.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/store",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 export default async function StorePage() {
