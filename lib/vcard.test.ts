@@ -42,9 +42,10 @@ test("street and ZIP match the real address already in site config", () => {
   assert.match(buildShopVcard(), /29687/);
 });
 
-test("QR / NFC target is the short .vcf path, not /card", () => {
+test("QR / NFC target is the hosted .vcf URL, not an embedded vCard payload", () => {
   assert.equal(VCARD_PATH, "/c.vcf");
   assert.equal(CANONICAL_VCARD_URL, "https://swaffordspeed.com/c.vcf");
+  assert.ok(!CANONICAL_VCARD_URL.includes("BEGIN:VCARD"));
   assert.equal(VCARD_HEADERS["Content-Type"], "text/vcard; charset=utf-8");
   assert.match(VCARD_HEADERS["Content-Disposition"], /^inline;/);
 });

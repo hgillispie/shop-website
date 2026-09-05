@@ -18,6 +18,16 @@ export const metadata: Metadata = {
   title: `Save Contact | ${siteConfig.shopName}`,
   description:
     "Save Matt Daves / Swafford Speed to your phone. Harley-Davidson performance and custom shop, Taylors, SC.",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
 };
 
 export default function CardPage() {
