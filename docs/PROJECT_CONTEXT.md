@@ -15,7 +15,7 @@ Next.js 16 App Router + TS + Tailwind v4 + React 19 · Neon Postgres via Drizzle
 - `feature/store` — abandoned earlier e-commerce attempt (Stripe+Printify direct, no Shopify). Superseded, not live. Don't resurrect without asking.
 
 ## Routes (high level — read the actual file for specifics)
-- `/`, `/privacy`, `/terms` — marketing/static.
+- `/`, `/privacy`, `/terms`, `/card` — marketing/static. `/card` is the branded save-to-contacts page; `/c.vcf` is the public vCard (`text/vcard`, inline) that Camera/NFC should open directly — do not put a landing page in front of that URL.
 - `/store`, `/store/products/[handle]`, `/store/cart` — Shopify-backed storefront. **`/store` degrades to an empty-state on API failure that looks identical to "no products" from outside** — if debugging an empty store, check actual content/env vars, not just HTTP status.
 - `/admin/*` — session-gated by `middleware.ts` (cookie + `jose` JWT). Requests inbox, CRM, Kanban board, calendar, analytics, repair invoices (+ PDF stream + print view).
 - `/api/appointments`, `/api/analytics/pageview` — public POST endpoints.
