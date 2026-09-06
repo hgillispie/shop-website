@@ -6,8 +6,8 @@ const SHOP_PHOTO =
 
 const POINTS = [
   "Power, suspension, brakes, and controls planned as a complete setup",
-  "Modern Twin Cam and Milwaukee-Eight performance expertise",
-  "Vintage restoration, fabrication, and full custom builds",
+  "Choppers, club-style, and custom builds — vintage through Milwaukee-Eight",
+  "V-twin repair and diagnostics that keep the bike on the road",
 ];
 
 export function About() {
@@ -43,6 +43,8 @@ export function About() {
           </h2>
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink/70">
             Most bikes we see don&apos;t need one part — they need a plan.
+            Chopper, club-style, bagger, or a daily V-twin: we figure out the
+            work, then do it one bike at a time.
           </p>
 
           <ul className="mt-8 space-y-4 border-y border-ink/15 py-6 text-sm text-ink/75">

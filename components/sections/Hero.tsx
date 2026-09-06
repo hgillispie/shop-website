@@ -35,13 +35,18 @@ export function Hero({ featured }: { featured: Product | null }) {
       <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-5 pb-14 sm:px-6 sm:pb-20 lg:grid-cols-[1fr_360px] lg:items-stretch lg:gap-14">
         <div className="flex flex-col justify-center">
           <p className="eyebrow text-ember">
-            Harley-Davidson performance &amp; service · Upstate, SC
+            Harley customs, choppers &amp; repair · Upstate SC
           </p>
 
           <h1 className="display-slant mt-4 text-[2.5rem] leading-[0.9] sm:text-6xl xl:text-7xl">
-            Dealership trained.
-            <span className="block text-ember">Rider focused.</span>
+            Come ride with us.
           </h1>
+
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-bone/75 sm:text-lg">
+            Independent shop in Taylors. Chopper and custom Harley builds,
+            club-style and bagger work, V-twin repair — Panhead through
+            Milwaukee-Eight. Appointment only. No walk-ins.
+          </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link

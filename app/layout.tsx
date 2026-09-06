@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Barlow_Condensed, Inter } from "next/font/google";
 import "./globals.css";
+import {
+  TITLE_TEMPLATE,
+  SITE_NAME,
+  defaultDescription,
+  defaultTitle,
+  keywords,
+} from "@/data/seo";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -20,36 +27,28 @@ const geistMono = Geist_Mono({
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-const TITLE =
-  "Harley-Davidson Performance & Custom Shop in Taylors, SC | Swafford Speed";
-const DESCRIPTION =
-  "Harley-Davidson performance upgrades, custom and club-style builds, suspension and brakes, EFI tuning, and service in Taylors, SC. Dealership-trained, by appointment only.";
+const DEFAULT_TITLE = `${defaultTitle} | ${SITE_NAME}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: TITLE,
-  description: DESCRIPTION,
-  keywords: [
-    "Harley-Davidson performance shop Taylors SC",
-    "Harley performance upgrades Greenville SC",
-    "club style Harley build South Carolina",
-    "Milwaukee-Eight cams and tuning",
-    "Harley suspension and brake upgrades",
-    "custom Harley fabrication",
-    "vintage Harley restoration",
-  ],
+  title: {
+    default: DEFAULT_TITLE,
+    template: TITLE_TEMPLATE,
+  },
+  description: defaultDescription,
+  keywords: [...keywords],
   openGraph: {
-    title: TITLE,
-    description: DESCRIPTION,
+    title: DEFAULT_TITLE,
+    description: defaultDescription,
     url: SITE_URL,
-    siteName: "Swafford Speed",
+    siteName: SITE_NAME,
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: TITLE,
-    description: DESCRIPTION,
+    title: DEFAULT_TITLE,
+    description: defaultDescription,
   },
 };
 

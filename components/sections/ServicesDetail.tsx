@@ -11,9 +11,9 @@ export function ServicesDetail() {
           Service it. Upgrade it. Make it yours.
         </h2>
         <p className="mt-6 max-w-xl text-lg leading-relaxed text-bone/60">
-          From maintenance and diagnostics to power, handling, rider fit, and
-          full builds, every setup is planned around the bike and the way you
-          ride.
+          From motorcycle repair and diagnostics to power, handling, rider fit,
+          and chopper or club-style builds, every setup is planned around the
+          bike and the way you ride.
         </p>
 
         <div className="mt-12 grid gap-px bg-hairline sm:grid-cols-2 lg:grid-cols-3">

@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth/session";
 import { NavDropdown } from "@/components/admin/NavDropdown";
 
 export const metadata: Metadata = {
+  title: "Admin",
   robots: { index: false, follow: false },
 };
 

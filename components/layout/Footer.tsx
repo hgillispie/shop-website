@@ -29,8 +29,8 @@ export function Footer() {
           <div className="pt-1">
             <p className="display-caps text-2xl">Built around the bike.</p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-bone/60">
-              Harley-Davidson performance, service, restoration, and custom
-              builds in Upstate South Carolina.
+              Harley-Davidson performance, chopper and custom builds, and
+              V-twin repair in Upstate South Carolina.
             </p>
           </div>
         </div>

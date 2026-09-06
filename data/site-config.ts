@@ -1,6 +1,6 @@
 export const siteConfig = {
   shopName: "Swafford Speed",
-  tagline: "Harley-Davidson performance, service, and custom work.",
+  tagline: "Harley customs, choppers, and V-twin repair — Upstate SC.",
   phone: "864-666-9451",
   phoneHref: "tel:+18646669451",
   email: "swaffordspeed@gmail.com",
@@ -8,13 +8,13 @@ export const siteConfig = {
   // Only claims already signed off by the owner and live on the site — no
   // review counts, ratings, or job numbers.
   heroPoints: [
-    "Engine, suspension, and brake upgrades",
-    "Performance exhaust and EFI tuning",
-    "Custom builds",
-    "Wiring, Sound, and Lighting",
+    "Chopper, club-style, and custom builds",
+    "Harley performance, suspension, and brakes",
+    "V-twin service and repair",
+    "Wiring, sound, and lighting",
   ],
   credentials: [
-    { value: "20 yrs", label: "Inside Harley-Davidson service departments" },
+    { value: "20 yrs", label: "Dealership-trained — now an independent shop" },
     { value: "Pan → M8", label: "Panhead through Milwaukee-Eight" },
     { value: "In-house", label: "Tuning, fabrication, and build work" },
     { value: "1 at a time", label: "Your bike isn't sharing the lift" },
