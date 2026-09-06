@@ -9,10 +9,6 @@ export function Services() {
         <h2 className="display-caps text-4xl text-ink sm:text-5xl">
           What we do
         </h2>
-        <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink/70">
-          Chopper and custom Harley work, club-style and bagger builds, and
-          V-twin repair — planned around the bike you actually ride.
-        </p>
 
         <ul className="mt-8 grid gap-px border-t border-ink/15 sm:grid-cols-2 lg:grid-cols-3">
           {capabilities.map((capability, i) => (

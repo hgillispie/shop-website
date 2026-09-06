@@ -10,14 +10,14 @@ export const capabilities = [
       "Shocks, fork and cartridge upgrades, brake packages, and chassis setup for a bike that turns, stops, and stays composed when pushed.",
   },
   {
-    title: "Motorcycle Repair & Diagnostics",
+    title: "Service & Diagnostics",
     description:
-      "V-twin repair, scheduled maintenance, drivability diagnostics, and fuel-system work that keeps modern and vintage Harleys ready to ride.",
+      "Scheduled maintenance, drivability diagnostics, fuel systems, and repairs that keep modern and vintage bikes ready to ride.",
   },
   {
-    title: "Club-Style, Chopper & Custom",
+    title: "Club-Style & Custom Builds",
     description:
-      "Choppers, club-style, and bagger builds — bars, risers, controls, fairings, lighting, exhaust, ergonomics, and one-off details around how you ride.",
+      "Bars, risers, controls, fairings, lighting, exhaust, ergonomics, and one-off details built around your riding position and style.",
   },
   {
     title: "Engine & Transmission",

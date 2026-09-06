@@ -12,7 +12,7 @@ export const faqs = [
   {
     question: "Can you build fully custom bikes?",
     answer:
-      "Yes. Choppers, club-style, and bagger builds — bars, risers, controls, fairings, lighting, wiring, suspension, exhaust, hardtail conversions, one-off fabrication, and complete customs.",
+      "Yes. Bars, risers, controls, fairings, lighting, wiring, suspension, exhaust, hardtail conversions, one-off fabrication, and complete builds are all within scope.",
   },
   {
     question: "Do you still work on vintage Harley-Davidsons?",

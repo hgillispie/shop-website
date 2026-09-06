@@ -8,41 +8,50 @@ import {
   defaultTitle,
   homeDescription,
 } from "../data/seo.ts";
-import { siteConfig } from "../data/site-config.ts";
 import { capabilities } from "../data/services.ts";
 
-const publicCopy = [
+const metadataCopy = [
   defaultTitle,
   defaultDescription,
   homeDescription,
   aboutTitle,
   aboutDescription,
   businessJsonLdDescription,
-  siteConfig.tagline,
-  ...capabilities.map((item) => `${item.title} ${item.description}`),
 ].join("\n");
 
-describe("public SEO copy", () => {
-  it("targets chopper, custom, and repair search without a street address", () => {
+describe("SEO metadata", () => {
+  it("names chopper, custom, and repair work without a street address", () => {
     assert.match(defaultTitle, /chopper/i);
     assert.match(defaultDescription, /chopper/i);
     assert.match(defaultDescription, /appointment only/i);
-    assert.match(aboutTitle, /chopper|custom|repair/i);
+    assert.match(aboutTitle, /custom|repair/i);
+    assert.match(aboutDescription, /chopper/i);
     assert.match(businessJsonLdDescription, /independent/i);
     assert.match(businessJsonLdDescription, /upstate/i);
-    assert.doesNotMatch(publicCopy, /529 E Darby/i);
-    assert.doesNotMatch(publicCopy, /streetAddress/);
-    assert.ok(
-      capabilities.some((item) => /chopper/i.test(`${item.title} ${item.description}`)),
-    );
-    assert.ok(
-      capabilities.some((item) => /repair/i.test(`${item.title} ${item.description}`)),
-    );
+    assert.doesNotMatch(metadataCopy, /529 E Darby/i);
+    assert.doesNotMatch(metadataCopy, /streetAddress/);
   });
 
   it("does not claim dealer status", () => {
     assert.doesNotMatch(defaultDescription, /\bdealer\b/i);
     assert.doesNotMatch(businessJsonLdDescription, /official dealer|authorized dealer/i);
-    assert.match(siteConfig.credentials[0].label, /independent shop/i);
+  });
+
+  it("keeps service list names free of chopper keyword stuffing", () => {
+    assert.equal(
+      capabilities.some((item) => /chopper/i.test(item.title)),
+      false,
+    );
+    assert.deepEqual(
+      capabilities.map((item) => item.title),
+      [
+        "Performance & Power",
+        "Suspension & Brakes",
+        "Service & Diagnostics",
+        "Club-Style & Custom Builds",
+        "Engine & Transmission",
+        "Wiring, Lighting & Sound",
+      ],
+    );
   });
 });

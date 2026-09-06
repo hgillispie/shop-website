@@ -46,9 +46,9 @@ export default function AboutPage() {
               Built around the bike.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-bone/70">
-              Independent Harley shop in Taylors — choppers, club-style
-              customs, bagger performance, and V-twin repair. Twenty years of
-              dealership service-department work. Appointment only. No walk-ins.
+              Chopper and custom Harley work is part of the shop — club-style
+              builds, baggers, and the repair that keeps a V-twin on the road.
+              Appointment only.
             </p>
           </div>
         </section>
