@@ -3,7 +3,7 @@ export const SITE_NAME = "Swafford Speed";
 export const TITLE_TEMPLATE = `%s | ${SITE_NAME}`;
 
 /** Root / fallback title. Homepage uses `homeTitle` (same string, via the template). */
-export const defaultTitle = "Harley Custom & Chopper Repair in Upstate SC";
+export const defaultTitle = "Harley Performance and Repair in Upstate SC";
 
 export const defaultDescription =
   "Independent Harley shop in Taylors / Upstate SC. Custom and chopper work, club-style builds, and motorcycle repair. Appointment only — no walk-ins.";

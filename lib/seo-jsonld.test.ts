@@ -7,12 +7,14 @@ import {
   defaultDescription,
   defaultTitle,
   homeDescription,
+  homeTitle,
 } from "../data/seo.ts";
 import { capabilities } from "../data/services.ts";
 
 const metadataCopy = [
   defaultTitle,
   defaultDescription,
+  homeTitle,
   homeDescription,
   aboutTitle,
   aboutDescription,
@@ -20,8 +22,14 @@ const metadataCopy = [
 ].join("\n");
 
 describe("SEO metadata", () => {
-  it("names chopper, custom, and repair work without a street address", () => {
-    assert.match(defaultTitle, /chopper/i);
+  it("leads the home share title with performance and repair", () => {
+    assert.match(homeTitle, /Harley performance and repair/i);
+    assert.match(defaultTitle, /Harley performance and repair/i);
+    assert.doesNotMatch(homeTitle, /chopper/i);
+    assert.doesNotMatch(defaultTitle, /chopper/i);
+  });
+
+  it("keeps chopper and custom language on About and deeper SEO copy", () => {
     assert.match(defaultDescription, /chopper/i);
     assert.match(defaultDescription, /appointment only/i);
     assert.match(aboutTitle, /custom|repair/i);
