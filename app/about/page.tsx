@@ -7,20 +7,20 @@ import { About } from "@/components/sections/About";
 import { ServicesDetail } from "@/components/sections/ServicesDetail";
 import { FAQ } from "@/components/sections/FAQ";
 import { AnalyticsBeacon } from "@/components/AnalyticsBeacon";
+import { StructuredData } from "@/components/StructuredData";
 import { TrackedLink } from "@/components/TrackedLink";
 import { siteConfig } from "@/data/site-config";
+import { aboutDescription, aboutTitle, SITE_NAME } from "@/data/seo";
 import { hasPublicPhoto, shopPhotos } from "@/data/photos";
 
-const TITLE = "About the Shop | Swafford Speed";
-const DESCRIPTION =
-  "Who works on your bike, what Swafford Speed handles, and answers to the questions worth asking before booking a Harley-Davidson build or service in Taylors, SC.";
+const TITLE = `${aboutTitle} | ${SITE_NAME}`;
 
 export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
+  title: aboutTitle,
+  description: aboutDescription,
   openGraph: {
     title: TITLE,
-    description: DESCRIPTION,
+    description: aboutDescription,
     url: "/about",
     siteName: siteConfig.shopName,
     locale: "en_US",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: TITLE,
-    description: DESCRIPTION,
+    description: aboutDescription,
   },
 };
 
@@ -39,6 +39,7 @@ export default function AboutPage() {
   return (
     <>
       <AnalyticsBeacon />
+      <StructuredData />
       <Navbar />
       <main className="flex-1">
         <section className="relative overflow-hidden bg-ink px-5 pt-32 pb-16 text-bone sm:px-6 sm:pt-40">
@@ -61,6 +62,11 @@ export default function AboutPage() {
             <h1 className="display-slant mt-5 text-[3rem] leading-[0.9] sm:text-7xl">
               Built around the bike.
             </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-bone/70">
+              Chopper and custom Harley work is part of the shop — club-style
+              builds, baggers, and the repair that keeps a V-twin on the road.
+              Appointment only.
+            </p>
           </div>
         </section>
 

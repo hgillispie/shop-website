@@ -3,7 +3,8 @@ import { ProductCard } from "@/components/store/ProductCard";
 import { siteConfig } from "@/data/site-config";
 import { getProducts } from "@/lib/shopify/storefront";
 
-const TITLE = `Shop | ${siteConfig.shopName}`;
+const TITLE = "Shop";
+const OG_TITLE = `${TITLE} | ${siteConfig.shopName}`;
 const DESCRIPTION =
   "Official Swafford Speed merch — tees, hoodies, and shop gear from the Harley-Davidson performance shop in Taylors, SC.";
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   openGraph: {
-    title: TITLE,
+    title: OG_TITLE,
     description: DESCRIPTION,
     url: "/store",
     siteName: siteConfig.shopName,
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: TITLE,
+    title: OG_TITLE,
     description: DESCRIPTION,
   },
 };

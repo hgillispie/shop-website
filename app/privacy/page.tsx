@@ -4,7 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
-  title: `Privacy Policy | ${siteConfig.shopName}`,
+  title: "Privacy Policy",
 };
 
 export default function PrivacyPolicyPage() {

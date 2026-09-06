@@ -15,7 +15,7 @@ import {
 } from "@/lib/vcard";
 
 export const metadata: Metadata = {
-  title: `Save Contact | ${siteConfig.shopName}`,
+  title: "Save Contact",
   description:
     "Save Matt Daves / Swafford Speed to your phone. Harley-Davidson performance and custom shop, Taylors, SC.",
   robots: {

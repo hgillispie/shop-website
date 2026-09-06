@@ -27,10 +27,11 @@ export async function generateMetadata({
   });
 
   if (!product) {
-    return { title: `Shop | ${siteConfig.shopName}` };
+    return { title: "Shop" };
   }
 
-  const title = `${product.title} | ${siteConfig.shopName}`;
+  const title = product.title;
+  const ogTitle = `${product.title} | ${siteConfig.shopName}`;
   const description =
     truncatePlainText(product.description) ||
     `${product.title} from ${siteConfig.shopName} — Harley-Davidson performance merch from the shop in ${siteConfig.city}.`;
@@ -40,7 +41,7 @@ export async function generateMetadata({
     title,
     description,
     openGraph: {
-      title,
+      title: ogTitle,
       description,
       url: `/store/products/${product.handle}`,
       siteName: siteConfig.shopName,
@@ -52,7 +53,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: image ? "summary_large_image" : "summary",
-      title,
+      title: ogTitle,
       description,
       images: image ? [image.url] : undefined,
     },
