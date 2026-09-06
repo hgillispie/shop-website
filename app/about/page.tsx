@@ -11,6 +11,7 @@ import { StructuredData } from "@/components/StructuredData";
 import { TrackedLink } from "@/components/TrackedLink";
 import { siteConfig } from "@/data/site-config";
 import { aboutDescription, aboutTitle, SITE_NAME } from "@/data/seo";
+import { hasPublicPhoto, shopPhotos } from "@/data/photos";
 
 const TITLE = `${aboutTitle} | ${SITE_NAME}`;
 
@@ -33,14 +34,30 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
+  const headerPhoto = hasPublicPhoto(shopPhotos.aboutHeader.src);
+
   return (
     <>
       <AnalyticsBeacon />
       <StructuredData />
       <Navbar />
       <main className="flex-1">
-        <section className="bg-ink px-5 pt-32 pb-16 text-bone sm:px-6 sm:pt-40">
-          <div className="mx-auto max-w-6xl">
+        <section className="relative overflow-hidden bg-ink px-5 pt-32 pb-16 text-bone sm:px-6 sm:pt-40">
+          {headerPhoto ? (
+            <>
+              <img
+                src={shopPhotos.aboutHeader.src}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full object-cover object-[center_40%] opacity-40"
+              />
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-ink via-ink/88 to-ink/70"
+                aria-hidden="true"
+              />
+            </>
+          ) : null}
+          <div className="relative mx-auto max-w-6xl">
             <p className="eyebrow text-ember">The shop</p>
             <h1 className="display-slant mt-5 text-[3rem] leading-[0.9] sm:text-7xl">
               Built around the bike.
