@@ -1,8 +1,6 @@
 import { Check } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
-
-const SHOP_PHOTO =
-  "https://cdn.builder.io/api/v1/image/assets%2Ff25f245e49654bde9827409a45007914%2Fcee12a5000a24d0292047a9e0e8181c1";
+import { hasPublicPhoto, shopPhotos } from "@/data/photos";
 
 const POINTS = [
   "Power, suspension, brakes, and controls planned as a complete setup",
@@ -11,30 +9,40 @@ const POINTS = [
 ];
 
 export function About() {
+  const shopPhoto = hasPublicPhoto(shopPhotos.aboutPrimary.src);
+
   return (
     <section
       id="about"
       className="scroll-mt-(--header-h) bg-bone py-20 sm:py-28"
     >
-      <div className="mx-auto grid max-w-6xl gap-12 px-5 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-16">
-        <Reveal className="relative">
-          <img
-            src={SHOP_PHOTO}
-            alt="Harley-Davidson service and performance work inside Swafford Speed"
-            className="aspect-4/5 w-full object-cover"
-            loading="lazy"
-          />
-          <div
-            className="checkers absolute -bottom-4 -right-4 h-24 w-24"
-            style={
-              {
-                "--checker-color": "var(--ink)",
-                "--checker-size": "16px",
-              } as React.CSSProperties
-            }
-            aria-hidden="true"
-          />
-        </Reveal>
+      <div
+        className={
+          shopPhoto
+            ? "mx-auto grid max-w-6xl gap-12 px-5 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-16"
+            : "mx-auto grid max-w-6xl gap-12 px-5 sm:px-6"
+        }
+      >
+        {shopPhoto ? (
+          <Reveal className="relative">
+            <img
+              src={shopPhotos.aboutPrimary.src}
+              alt={shopPhotos.aboutPrimary.alt}
+              className="aspect-4/5 w-full object-cover"
+              loading="lazy"
+            />
+            <div
+              className="checkers absolute -bottom-4 -right-4 h-24 w-24"
+              style={
+                {
+                  "--checker-color": "var(--ink)",
+                  "--checker-size": "16px",
+                } as React.CSSProperties
+              }
+              aria-hidden="true"
+            />
+          </Reveal>
+        ) : null}
 
         <Reveal delay={100}>
           <p className="eyebrow text-flame-deep">Why Swafford Speed</p>
