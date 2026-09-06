@@ -178,7 +178,9 @@ export function IntakeForm() {
             </label>
             <input
               id="bikeYearMakeModel"
-              autoFocus
+              // No autofocus on step 0: this field is in the SSR HTML of `/`,
+              // and the browser scrolls an autofocused control into view —
+              // landing visitors on the booking form instead of the hero.
               className={cn("input input-lg", fieldClass)}
               placeholder="e.g. 1978 Harley-Davidson Shovelhead"
               {...register("bikeYearMakeModel")}
