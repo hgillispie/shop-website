@@ -27,18 +27,17 @@ const geistMono = Geist_Mono({
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-const DEFAULT_TITLE = `${defaultTitle} | ${SITE_NAME}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: DEFAULT_TITLE,
+    default: defaultTitle,
     template: TITLE_TEMPLATE,
   },
   description: defaultDescription,
   keywords: [...keywords],
   openGraph: {
-    title: DEFAULT_TITLE,
+    title: defaultTitle,
     description: defaultDescription,
     url: SITE_URL,
     siteName: SITE_NAME,
@@ -47,7 +46,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: DEFAULT_TITLE,
+    title: defaultTitle,
     description: defaultDescription,
   },
 };
