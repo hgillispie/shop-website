@@ -91,10 +91,17 @@ describe("sendGaEvent", () => {
     ]);
   });
 
-  it("is a no-op when gtag has not loaded yet", () => {
+  it("queues onto dataLayer when gtag has not loaded yet", () => {
     process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID = "G-TEST1234";
+    const dataLayer: unknown[] = [];
     // @ts-expect-error -- window without gtag
-    globalThis.window = {};
-    assert.doesNotThrow(() => sendGaEvent("click_to_call"));
+    globalThis.window = { dataLayer };
+
+    sendGaEvent("view_item", { currency: "USD", value: 10 });
+    assert.equal(dataLayer.length, 1);
+    const queued = dataLayer[0] as { 0: string; 1: string; 2: unknown };
+    assert.equal(queued[0], "event");
+    assert.equal(queued[1], "view_item");
+    assert.deepEqual(queued[2], { currency: "USD", value: 10 });
   });
 });

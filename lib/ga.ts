@@ -36,24 +36,35 @@ export function gaParamsFor(
   return meta;
 }
 
-function getGtag(): GtagFn | undefined {
-  if (typeof window === "undefined") return undefined;
-  const gtag = (window as Window & { gtag?: GtagFn }).gtag;
-  return typeof gtag === "function" ? gtag : undefined;
-}
+type GaWindow = Window & {
+  gtag?: GtagFn;
+  dataLayer?: unknown[];
+};
 
 /**
- * Fire a GA4 event. No-op when the Measurement ID is unset or gtag hasn't
- * loaded yet — the public site must keep working without GA.
+ * Fire a GA4 event. No-op when the Measurement ID is unset — the public site
+ * must keep working without GA. If gtag.js has not finished loading yet,
+ * queue onto dataLayer the same way Google's snippet does so mount-time
+ * events (e.g. view_item) are not dropped.
  */
 export function sendGaEvent(
   name: string,
   params?: Record<string, unknown>,
 ): void {
   if (!getGaMeasurementId()) return;
-  const gtag = getGtag();
-  if (!gtag) return;
-  gtag("event", name, params);
+  if (typeof window === "undefined") return;
+
+  const w = window as GaWindow;
+  if (typeof w.gtag === "function") {
+    w.gtag("event", name, params);
+    return;
+  }
+
+  w.dataLayer = w.dataLayer ?? [];
+  const queue = function () {
+    w.dataLayer!.push(arguments);
+  } as GtagFn;
+  queue("event", name, params);
 }
 
 export function sendGaEcommerceEvent(
