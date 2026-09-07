@@ -63,6 +63,17 @@ export default function PrivacyPolicyPage() {
             </section>
 
             <section>
+              <h2 className="display-caps text-xl text-bone">Website Analytics</h2>
+              <p className="mt-2">
+                We use Google Analytics 4 to understand how visitors use this site and to
+                measure advertising (for example, Google Ads). Google may collect information
+                such as pages viewed, approximate location, and device type using cookies and
+                similar technologies. If you reached us from an ad, that visit may be
+                attributed to the campaign.
+              </p>
+            </section>
+
+            <section>
               <h2 className="display-caps text-xl text-bone">Contact Us</h2>
               <p className="mt-2">
                 Questions about this policy or your information? Contact us at{" "}

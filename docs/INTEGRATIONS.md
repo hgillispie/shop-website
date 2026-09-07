@@ -28,3 +28,6 @@ Paused (`SMS_ENABLED=false`) pending the owner's A2P 10DLC brand registration. C
 
 ## Neon / Vercel Blob
 Neon Postgres via Drizzle — see `PROJECT_CONTEXT.md` for the no-transactions constraint. Vercel Blob stores appointment-intake photos and screenshot-intake images (`lib/storage.ts`).
+
+## Google Analytics 4
+Public-site tagging only (`NEXT_PUBLIC_GA_MEASUREMENT_ID`). `@next/third-parties` loads gtag when that env var is set; otherwise nothing loads. Conversion events (`generate_lead`, `click_to_call`, merch `view_item` / `add_to_cart` / `begin_checkout`) fire from `lib/ga.ts` alongside the first-party analytics beacon — GA is not the admin dashboard source of truth. Checkout/purchase is Shopify-hosted, so this app does not fire `purchase`. Link the GA4 property to Google Ads in Google's UI, not here.
