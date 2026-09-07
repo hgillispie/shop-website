@@ -13,13 +13,11 @@ import { getFeatured } from "@/lib/shopify/featured";
 import { siteConfig } from "@/data/site-config";
 import { homeDescription, homeTitle, SITE_NAME } from "@/data/seo";
 
-const HOME_TITLE = `${homeTitle} | ${SITE_NAME}`;
-
 export const metadata: Metadata = {
-  title: { absolute: HOME_TITLE },
+  title: { absolute: homeTitle },
   description: homeDescription,
   openGraph: {
-    title: HOME_TITLE,
+    title: homeTitle,
     description: homeDescription,
     url: "/",
     siteName: SITE_NAME,
@@ -28,7 +26,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: HOME_TITLE,
+    title: homeTitle,
     description: homeDescription,
   },
 };

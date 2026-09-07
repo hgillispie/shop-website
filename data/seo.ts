@@ -2,15 +2,15 @@ export const SITE_NAME = "Swafford Speed";
 
 export const TITLE_TEMPLATE = `%s | ${SITE_NAME}`;
 
-/** Root / fallback title. Homepage uses `homeTitle` (same string, via the template). */
-export const defaultTitle = "Harley Performance and Repair in Upstate SC";
+/** Brand-led home / root-fallback title. Absolute — do not run through TITLE_TEMPLATE. */
+export const homeTitle = "Swafford Speed | Upstate Harley Service & Performance";
 
-export const defaultDescription =
-  "Independent Harley shop in Taylors / Upstate SC. Custom and chopper work, club-style builds, and motorcycle repair. Appointment only — no walk-ins.";
+export const defaultTitle = homeTitle;
 
-export const homeTitle = defaultTitle;
+export const homeDescription =
+  "Harley performance and repair in Taylors / Upstate SC. Book an appointment on this site for service, tuning, and performance work. Call 864-666-9451.";
 
-export const homeDescription = defaultDescription;
+export const defaultDescription = homeDescription;
 
 export const aboutTitle = "About — Custom Harley & Repair in Taylors";
 

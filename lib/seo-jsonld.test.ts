@@ -9,6 +9,7 @@ import {
   homeDescription,
   homeTitle,
 } from "../data/seo.ts";
+import { siteConfig } from "../data/site-config.ts";
 import { capabilities } from "../data/services.ts";
 
 const metadataCopy = [
@@ -22,16 +23,25 @@ const metadataCopy = [
 ].join("\n");
 
 describe("SEO metadata", () => {
-  it("leads the home share title with performance and repair", () => {
-    assert.match(homeTitle, /Harley performance and repair/i);
-    assert.match(defaultTitle, /Harley performance and repair/i);
+  it("leads the home share title with the shop name", () => {
+    assert.equal(homeTitle, "Swafford Speed | Upstate Harley Service & Performance");
+    assert.equal(defaultTitle, homeTitle);
     assert.doesNotMatch(homeTitle, /chopper/i);
     assert.doesNotMatch(defaultTitle, /chopper/i);
   });
 
+  it("describes home as local Harley performance and repair", () => {
+    assert.match(homeDescription, /Harley performance and repair/i);
+    assert.match(homeDescription, /Upstate SC/i);
+    assert.match(homeDescription, /appointment/i);
+    assert.match(homeDescription, siteConfig.phone);
+    assert.equal(defaultDescription, homeDescription);
+    assert.doesNotMatch(homeDescription, /chopper/i);
+    assert.doesNotMatch(homeDescription, /843/);
+    assert.doesNotMatch(defaultDescription, /843/);
+  });
+
   it("keeps chopper and custom language on About and deeper SEO copy", () => {
-    assert.match(defaultDescription, /chopper/i);
-    assert.match(defaultDescription, /appointment only/i);
     assert.match(aboutTitle, /custom|repair/i);
     assert.match(aboutDescription, /chopper/i);
     assert.match(businessJsonLdDescription, /independent/i);
