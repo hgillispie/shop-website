@@ -34,7 +34,7 @@ describe("SEO metadata", () => {
     assert.match(homeDescription, /Harley performance and repair/i);
     assert.match(homeDescription, /Upstate SC/i);
     assert.match(homeDescription, /appointment/i);
-    assert.match(homeDescription, siteConfig.phone);
+    assert.ok(homeDescription.includes(siteConfig.phone));
     assert.equal(defaultDescription, homeDescription);
     assert.doesNotMatch(homeDescription, /chopper/i);
     assert.doesNotMatch(homeDescription, /843/);
