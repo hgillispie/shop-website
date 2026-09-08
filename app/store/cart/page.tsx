@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/button";
 import { CartLineRow } from "@/components/store/CartLineRow";
+import { CheckoutButton } from "@/components/store/CheckoutButton";
 import { getCartId } from "@/lib/shopify/cart-cookie";
 import { formatMoney } from "@/lib/shopify/money";
 import { getCart } from "@/lib/shopify/storefront";
@@ -40,9 +41,21 @@ export default async function CartPage() {
               </span>
             </div>
             <p className="text-xs text-bone/55">Shipping and tax are calculated at checkout.</p>
-            <ButtonLink href={cart.checkoutUrl} size="lg">
-              Checkout
-            </ButtonLink>
+            <CheckoutButton
+              href={cart.checkoutUrl}
+              currency={cart.cost.subtotalAmount.currencyCode}
+              value={Number(cart.cost.subtotalAmount.amount) || 0}
+              items={cart.lines.map((line) => ({
+                item_id: line.merchandiseId,
+                item_name: line.title,
+                item_variant: line.variantTitle,
+                price:
+                  line.quantity > 0
+                    ? Number(line.linePrice.amount) / line.quantity
+                    : Number(line.linePrice.amount) || 0,
+                quantity: line.quantity,
+              }))}
+            />
             <Link
               href="/store"
               className="eyebrow text-center text-bone/55 transition-colors hover:text-ember"

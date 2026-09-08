@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Geist_Mono, Barlow_Condensed, Inter } from "next/font/google";
 import "./globals.css";
 import {
@@ -8,6 +9,7 @@ import {
   defaultTitle,
   keywords,
 } from "@/data/seo";
+import { getGaMeasurementId } from "@/lib/ga";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -56,6 +58,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaId = getGaMeasurementId();
+
   return (
     <html
       lang="en"
@@ -63,6 +67,7 @@ export default function RootLayout({
       className={`${inter.variable} ${barlowCondensed.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
+      {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
     </html>
   );
 }

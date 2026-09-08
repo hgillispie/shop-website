@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AddToCartForm } from "@/components/store/AddToCartForm";
 import { ProductDetails } from "@/components/store/ProductDetails";
 import { ProductGallery } from "@/components/store/ProductGallery";
+import { ProductViewTracker } from "@/components/store/ProductViewTracker";
 import { siteConfig } from "@/data/site-config";
 import { getProductByHandle } from "@/lib/shopify/storefront";
 
@@ -73,8 +74,16 @@ export default async function ProductPage({
 
   if (!product) notFound();
 
+  const price = Number(product.priceRange.min.amount);
+
   return (
     <main className="mx-auto max-w-5xl px-5 pt-12 pb-24 sm:px-6">
+      <ProductViewTracker
+        itemId={product.handle}
+        itemName={product.title}
+        price={Number.isFinite(price) ? price : 0}
+        currency={product.priceRange.min.currencyCode}
+      />
       <div className="grid gap-10 md:grid-cols-2">
         <ProductGallery images={product.images} title={product.title} />
 

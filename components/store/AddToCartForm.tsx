@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addToCartAction } from "@/app/store/actions";
 import { Button } from "@/components/ui/button";
+import { sendGaEcommerceEvent } from "@/lib/ga";
 import { formatMoney } from "@/lib/shopify/money";
 import type { Product } from "@/lib/shopify/types";
 import {
@@ -36,12 +37,32 @@ export function AddToCartForm({ product }: { product: Product }) {
 
   const hasRealOptions = product.options.some((o) => o.values.length > 1);
 
+  function ecommercePayload() {
+    if (!selectedVariant) return null;
+    const price = Number(selectedVariant.price.amount);
+    return {
+      currency: selectedVariant.price.currencyCode,
+      value: price * quantity,
+      items: [
+        {
+          item_id: product.handle,
+          item_name: product.title,
+          item_variant: selectedVariant.title,
+          price,
+          quantity,
+        },
+      ],
+    };
+  }
+
   function handleAdd() {
     if (!selectedVariant?.availableForSale) return;
     setFeedback(null);
     startTransition(async () => {
       try {
         await addToCartAction(selectedVariant.id, quantity);
+        const payload = ecommercePayload();
+        if (payload) sendGaEcommerceEvent("add_to_cart", payload);
         setFeedback("Added to cart.");
         router.refresh();
       } catch (err) {
@@ -65,6 +86,8 @@ export function AddToCartForm({ product }: { product: Product }) {
     startBuyNowTransition(async () => {
       try {
         const { checkoutUrl } = await addToCartAction(selectedVariant.id, quantity);
+        const payload = ecommercePayload();
+        if (payload) sendGaEcommerceEvent("begin_checkout", payload);
         window.location.href = checkoutUrl;
       } catch (err) {
         setFeedback(err instanceof Error ? err.message : "Couldn't start checkout.");
