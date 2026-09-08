@@ -1,7 +1,7 @@
-/** Public short path. Printed QR encodes this URL, not the Google destination. */
+/** Public short path. Anyone with the URL lands on the Google review form. */
 export const REVIEW_PATH = "/review";
 
-/** Live shop host — same rule as the vCard QR: never a preview or localhost. */
+/** Live shop host — never a preview or localhost. */
 export const CANONICAL_REVIEW_URL = `https://swaffordspeed.com${REVIEW_PATH}`;
 
 /**
@@ -11,13 +11,9 @@ export const CANONICAL_REVIEW_URL = `https://swaffordspeed.com${REVIEW_PATH}`;
 export const GOOGLE_LEAVE_REVIEW_URL =
   "https://g.page/r/CWHtiZtRjnuhEAI/review";
 
-/** Downloadable print assets after deploy. */
-export const REVIEW_QR_PNG_PATH = "/qr/review.png";
-export const REVIEW_QR_SVG_PATH = "/qr/review.svg";
-
 /**
  * Permanent Next.js redirect (`308`, the 301 equivalent that preserves
- * the request method). Change `destination` here to retarget printed QRs.
+ * the request method).
  */
 export const REVIEW_REDIRECT = {
   source: REVIEW_PATH,
