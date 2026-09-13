@@ -29,5 +29,5 @@ Paused (`SMS_ENABLED=false`) pending the owner's A2P 10DLC brand registration. C
 ## Neon / Vercel Blob
 Neon Postgres via Drizzle — see `PROJECT_CONTEXT.md` for the no-transactions constraint. Vercel Blob stores appointment-intake photos and screenshot-intake images (`lib/storage.ts`).
 
-## Google Analytics 4
-Public-site tagging only (`NEXT_PUBLIC_GA_MEASUREMENT_ID`). `@next/third-parties` loads gtag when that env var is set; otherwise nothing loads. Conversion events (`generate_lead`, `click_to_call`, merch `view_item` / `add_to_cart` / `begin_checkout`) fire from `lib/ga.ts` alongside the first-party analytics beacon — GA is not the admin dashboard source of truth. Checkout/purchase is Shopify-hosted, so this app does not fire `purchase`. Link the GA4 property to Google Ads in Google's UI, not here.
+## Google Analytics 4 + Google Ads
+Public-site tagging (`NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_GOOGLE_ADS_ID`). One gtag.js loader (`@next/third-parties` when GA4 is set; the Ads ID if only Ads is set). Both `gtag('config', G-…)` and `gtag('config', AW-…)` run when both vars are set. Conversion events (`generate_lead`, `click_to_call`, merch `view_item` / `add_to_cart` / `begin_checkout`) fire from `lib/ga.ts` alongside the first-party analytics beacon. Successful booking also fires Ads `conversion` when `NEXT_PUBLIC_GOOGLE_ADS_BOOK_CONVERSION_LABEL` is set (`send_to` = `AW-…/label` from the Ads event snippet). Checkout/purchase is Shopify-hosted, so this app does not fire `purchase`.
