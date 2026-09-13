@@ -1,11 +1,11 @@
-import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { getGaMeasurementId, getGoogleAdsId } from "@/lib/ga";
 
 /**
  * One gtag.js loader for GA4 and/or Google Ads. When both IDs are set,
- * `@next/third-parties` still owns the GA4 snippet; we add
- * `gtag('config', 'AW-…')` alongside it so Ads can see its own tag.
+ * `@next/third-parties` still owns the GA4 snippet; a real HTML script
+ * adds `gtag('config', 'AW-…')` so Ads' tag checker can see its own tag
+ * in the document (next/script would bury it in the RSC payload).
  */
 export function GoogleTags() {
   const gaId = getGaMeasurementId();
@@ -17,14 +17,10 @@ export function GoogleTags() {
     <>
       <GoogleAnalytics gaId={loaderId} />
       {adsId && adsId !== loaderId ? (
-        <Script
+        <script
           id="google-ads-gtag-config"
-          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
-            __html: `
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('config', '${adsId}');`,
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('config','${adsId}');`,
           }}
         />
       ) : null}
