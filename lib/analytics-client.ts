@@ -1,4 +1,4 @@
-import { gaEventNameFor, gaParamsFor, sendGaEvent } from "@/lib/ga";
+import { sendPublicTagEvents } from "@/lib/ga";
 
 const SESSION_KEY = "ss_sid";
 
@@ -30,8 +30,7 @@ export type EventName =
 export function track(name: EventName, meta?: Record<string, unknown>) {
   if (typeof window === "undefined") return;
 
-  const gaName = gaEventNameFor(name);
-  if (gaName) sendGaEvent(gaName, gaParamsFor(name, meta));
+  sendPublicTagEvents(name, meta);
 
   const payload = JSON.stringify({
     name,
