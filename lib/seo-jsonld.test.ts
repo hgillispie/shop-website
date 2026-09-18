@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -11,6 +12,8 @@ import {
 } from "../data/seo.ts";
 import { siteConfig } from "../data/site-config.ts";
 import { capabilities } from "../data/services.ts";
+
+const jsonLdSource = readFileSync(new URL("./seo-jsonld.ts", import.meta.url), "utf8");
 
 const metadataCopy = [
   defaultTitle,
@@ -71,5 +74,24 @@ describe("SEO metadata", () => {
         "Wiring, Lighting & Sound",
       ],
     );
+  });
+});
+
+describe("public locality vs private drop-off", () => {
+  it("uses Upstate SC as the public shop city, not Taylors", () => {
+    assert.equal(siteConfig.city, "Upstate, SC");
+    assert.doesNotMatch(siteConfig.city, /Taylors/i);
+  });
+
+  it("keeps the private drop-off address in Taylors", () => {
+    assert.equal(siteConfig.address, "529 E Darby Road, Taylors, SC 29687");
+  });
+
+  it("omits a street city from public JSON-LD and serves Upstate South Carolina", () => {
+    assert.doesNotMatch(jsonLdSource, /addressLocality/);
+    assert.doesNotMatch(jsonLdSource, /streetAddress/);
+    assert.match(jsonLdSource, /addressRegion: "SC"/);
+    assert.match(jsonLdSource, /Upstate South Carolina/);
+    assert.match(jsonLdSource, /"Taylors, SC"/);
   });
 });

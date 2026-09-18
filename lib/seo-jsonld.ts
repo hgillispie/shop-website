@@ -14,9 +14,10 @@ export function buildBusinessJsonLd() {
     url: SITE_URL,
     telephone: siteConfig.phone,
     email: siteConfig.email,
+    // No street address and no city locality — the shop is appointment-only.
+    // Geographic intent is areaServed (Upstate South Carolina + nearby cities).
     address: {
       "@type": "PostalAddress",
-      addressLocality: siteConfig.city.replace(", SC", ""),
       addressRegion: "SC",
       addressCountry: "US",
     },
