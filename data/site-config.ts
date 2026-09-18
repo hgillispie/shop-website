@@ -4,7 +4,9 @@ export const siteConfig = {
   phone: "864-666-9451",
   phoneHref: "tel:+18646669451",
   email: "swaffordspeed@gmail.com",
-  city: "Taylors, SC",
+  // Public footer/contact locality. Not the drop-off city — that stays on
+  // the private `address` field and is only sent after admin approval.
+  city: "Upstate, SC",
   // Only claims already signed off by the owner and live on the site — no
   // review counts, ratings, or job numbers.
   heroPoints: [

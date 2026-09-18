@@ -17,7 +17,7 @@ import {
 export const metadata: Metadata = {
   title: "Save Contact",
   description:
-    "Save Matt Daves / Swafford Speed to your phone. Harley-Davidson performance and custom shop, Taylors, SC.",
+    `Save Matt Daves / Swafford Speed to your phone. Harley-Davidson performance and custom shop, ${siteConfig.city}.`,
   robots: {
     index: false,
     follow: false,

@@ -6,7 +6,7 @@ import { getProducts } from "@/lib/shopify/storefront";
 const TITLE = "Shop";
 const OG_TITLE = `${TITLE} | ${siteConfig.shopName}`;
 const DESCRIPTION =
-  "Official Swafford Speed merch — tees, hoodies, and shop gear from the Harley-Davidson performance shop in Taylors, SC.";
+  `Official Swafford Speed merch — tees, hoodies, and shop gear from the Harley-Davidson performance shop in ${siteConfig.city}.`;
 
 export const metadata: Metadata = {
   title: TITLE,
