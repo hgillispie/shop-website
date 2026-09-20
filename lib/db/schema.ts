@@ -352,9 +352,9 @@ export const serviceInvoices = pgTable("service_invoices", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  // Cosmetic display number (the paper form's "R.O. NUMBER") — same
-  // never-a-lookup-key posture as storeOrders.orderNumber, though invoice
-  // pages are admin-only anyway so it's a lower-stakes convention here.
+  // Cosmetic display number shown to customers as Quote #N or Invoice #N
+  // by stage (same serial — never a second numbering scheme). Admin still
+  // calls this the R.O. number on the form.
   invoiceNumber: serial("invoice_number").notNull(),
   serviceAdvisor: text("service_advisor"),
   // Editable independently of createdAt — the owner may write this up a

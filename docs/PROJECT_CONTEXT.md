@@ -32,7 +32,7 @@ No local table for merch orders — Shopify/Printify own that data entirely.
 
 ## Patterns worth knowing before writing code here
 - Server Actions (co-located `actions.ts`) do all admin CRUD + cart mutations; each checks session explicitly (not just relying on middleware). Route Handlers only for things called from outside this app's React tree (webhooks, public form POST, PDF stream).
-- Email (`lib/email.ts`) all goes through Resend. Two invoice emails + the appointment-confirmation email got a branded HTML redesign (logo + colors `201E1E`/`F58220`/`EC5407`) matching the Shopify checkout's own branding — scoped to just those, not the main site.
+- Email (`lib/email.ts`) all goes through Resend. Appointment confirmation plus repair Quote / Invoice / paid emails use a branded HTML shell (logo + colors `201E1E`/`F58220`/`EC5407`) matching Shopify checkout branding. Customers never see **R.O.** — `not_sent` copy/PDF is **Quote — not paid**; pay-link and paid confirmation are **Invoice**. Admin UI may still say R.O.
 - `lib/invoices/pdf.tsx` (`@react-pdf/renderer`) is unrelated to the email rebrand — intentionally still uses the old logo.
 
 ## If something here seems off or you're not sure

@@ -139,9 +139,9 @@ export async function deleteInvoice(id: string) {
 
 // Deliberately separate from shopify-actions.ts's sendInvoiceToShopify —
 // this doesn't touch paymentStatus, doesn't create a Draft Order, and
-// isn't gated on Shopify at all. It's for the "customer paid in person (or
-// will) but wants a digital copy for their own records" case: render the
-// same invoice as a PDF and email it as an attachment, full stop.
+// isn't gated on Shopify at all. When paymentStatus is still not_sent the
+// customer-facing copy is a Quote (QUOTE — NOT PAID); after a pay link or
+// payment it goes out as an Invoice PDF.
 export async function emailInvoiceCopy(invoiceId: string) {
   await requireSession();
 

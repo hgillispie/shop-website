@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { getServiceInvoiceById } from "@/lib/db/queries";
 import { renderInvoicePdf } from "@/lib/invoices/pdf";
+import {
+  customerDocumentPdfFilename,
+  customerDocumentStage,
+} from "@/lib/invoices/document-stage";
 
 // middleware.ts's "/admin/:path*" matcher already redirects an
 // unauthenticated request to /admin/login — but that's an HTML redirect,
@@ -22,6 +26,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   }
 
   const buffer = await renderInvoicePdf(invoice);
+  const stage = customerDocumentStage({ paymentStatus: invoice.paymentStatus });
+  const filename = customerDocumentPdfFilename(stage, invoice.invoiceNumber);
 
   // "inline", not "attachment" — opens in the browser's own PDF viewer
   // (used as the "Preview PDF" link from the invoice edit page) rather
@@ -31,7 +37,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="invoice-${invoice.invoiceNumber}.pdf"`,
+      "Content-Disposition": `inline; filename="${filename}"`,
     },
   });
 }
