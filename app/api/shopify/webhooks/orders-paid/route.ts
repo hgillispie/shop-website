@@ -56,6 +56,7 @@ export async function POST(request: Request) {
     .update(serviceInvoices)
     .set({
       paymentStatus: "paid",
+      documentStage: "invoice",
       shopifyOrderId: String(payload.id),
       paidAt: new Date(),
       updatedAt: new Date(),

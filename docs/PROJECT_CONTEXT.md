@@ -18,6 +18,7 @@ Next.js 16 App Router + TS + Tailwind v4 + React 19 · Neon Postgres via Drizzle
 - `/`, `/privacy`, `/terms` — marketing/static. `/c.vcf` is the public vCard (`text/vcard`, inline) that Camera/NFC should open directly — do not put a landing page in front of that URL. `/card` is an unlisted print/test page (noindex, robots-disallowed, not in sitemap/nav); do not link it from public pages.
 - `/store`, `/store/products/[handle]`, `/store/cart` — Shopify-backed storefront. **`/store` degrades to an empty-state on API failure that looks identical to "no products" from outside** — if debugging an empty store, check actual content/env vars, not just HTTP status.
 - `/admin/*` — session-gated by `middleware.ts` (cookie + `jose` JWT). Requests inbox, CRM, Kanban board, calendar, analytics, repair invoices (+ PDF stream + print view).
+- `/quote/[token]/approve` — public one-click quote approval (token is hashed at rest; robots-disallowed, noindex).
 - `/api/appointments`, `/api/analytics/pageview` — public POST endpoints.
 - `/api/shopify/webhooks/{orders-paid,products-create}` — HMAC-verified Shopify webhooks.
 - `/api/resend/inbound` — Svix-verified Resend `email.received` webhook (screenshot intake).
@@ -25,14 +26,14 @@ Next.js 16 App Router + TS + Tailwind v4 + React 19 · Neon Postgres via Drizzle
 
 ## Data model (`lib/db/schema.ts`) — three separate trees, not unified
 1. **CRM/booking**: `customers` (health score + Google-review outreach) ← `appointment_requests` / `jobs` (Kanban, including `open_draft`) / `tickets` / `intake_drafts` / `customer_quotes` (verbatim lines for later site use).
-2. **Repair invoices**: `service_invoices` → `..._jobs` → `..._parts_lines`. **Deliberately standalone, no FK to customers/jobs** — real decision, not an oversight.
+2. **Repair invoices**: `service_invoices` (`documentStage` quote|approved|invoice alongside `paymentStatus` not_sent|invoice_sent|paid; hashed approve token + `approvedAt`) → `..._jobs` → `..._parts_lines`. **Deliberately standalone, no FK to customers/jobs** — real decision, not an oversight.
 3. **Ops**: `page_views`, `ip_rules`, `admin_users`.
 
 No local table for merch orders — Shopify/Printify own that data entirely.
 
 ## Patterns worth knowing before writing code here
 - Server Actions (co-located `actions.ts`) do all admin CRUD + cart mutations; each checks session explicitly (not just relying on middleware). Route Handlers only for things called from outside this app's React tree (webhooks, public form POST, PDF stream).
-- Email (`lib/email.ts`) all goes through Resend. Appointment confirmation plus repair Quote / Invoice / paid emails use a branded HTML shell (logo + colors `201E1E`/`F58220`/`EC5407`) matching Shopify checkout branding. Customers never see **R.O.** — `not_sent` copy/PDF is **Quote — not paid**; pay-link and paid confirmation are **Invoice**. Admin UI may still say R.O.
+- Email (`lib/email.ts`) all goes through Resend. Appointment confirmation plus repair Quote / Invoice / paid emails use a branded HTML shell (logo + colors `201E1E`/`F58220`/`EC5407`) matching Shopify checkout branding. Customers never see **R.O.** — quote copy/PDF is **Quote — not paid** with an **Approve this quote** link; pay-link and paid confirmation are **Invoice**. Owner gets a short email when a quote is approved. Admin UI may still say R.O.
 - `lib/invoices/pdf.tsx` (`@react-pdf/renderer`) is unrelated to the email rebrand — intentionally still uses the old logo.
 
 ## If something here seems off or you're not sure

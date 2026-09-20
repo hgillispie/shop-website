@@ -266,9 +266,11 @@ function invoiceVehicle(invoice: Pick<ServiceInvoiceRow, "vehicleYear" | "vehicl
 function renderInvoiceHtml(
   invoice: InvoiceWithJobs,
   payUrl: string | null,
+  approveUrl?: string | null,
 ): string {
   const stage = customerDocumentStage({
     paymentStatus: invoice.paymentStatus,
+    documentStage: invoice.documentStage,
     hasPayUrl: Boolean(payUrl),
   });
   return renderBrandedEmailShell(
@@ -278,6 +280,7 @@ function renderInvoiceHtml(
       payUrl,
       stage,
       shopEmail: siteConfig.email,
+      approveUrl,
     }),
   );
 }
@@ -296,6 +299,7 @@ export async function sendInvoiceRepairEmail(invoice: InvoiceWithJobs, payUrl: s
 
   const stage = customerDocumentStage({
     paymentStatus: invoice.paymentStatus,
+    documentStage: invoice.documentStage,
     hasPayUrl: true,
   });
 
@@ -315,6 +319,7 @@ export async function sendInvoiceRepairEmail(invoice: InvoiceWithJobs, payUrl: s
         vehicle: invoiceVehicle(invoice),
         payUrl,
         stage,
+        approveUrl: null,
       }),
       "",
       `Questions? Call or text ${siteConfig.phone}.`,
@@ -373,12 +378,15 @@ export async function sendInvoicePaidEmail(invoice: ServiceInvoiceRow) {
   });
 }
 
-// PDF copy email — Quote when paymentStatus is not_sent; Invoice (or Paid)
-// once a pay link has gone out or payment landed. Does not itself change
-// paymentStatus. See emailInvoiceCopy in
-// app/admin/(dashboard)/invoices/actions.ts and renderInvoicePdf in
-// lib/invoices/pdf.tsx for the PDF itself.
-export async function sendInvoiceCopyEmail(invoice: InvoiceWithJobs, pdfBuffer: Buffer) {
+// PDF copy email — Quote when still on the quote/approved write-up (and
+// paymentStatus is not_sent); Invoice (or Paid) once a pay link has gone
+// out or payment landed. Does not itself change paymentStatus. See
+// emailInvoiceCopy in app/admin/(dashboard)/invoices/actions.ts.
+export async function sendInvoiceCopyEmail(
+  invoice: InvoiceWithJobs,
+  pdfBuffer: Buffer,
+  options?: { approveUrl?: string | null },
+) {
   const resend = getResendConfigured();
   if (!resend || !invoice.customerEmail) {
     console.info(
@@ -388,7 +396,11 @@ export async function sendInvoiceCopyEmail(invoice: InvoiceWithJobs, pdfBuffer: 
     return;
   }
 
-  const stage = customerDocumentStage({ paymentStatus: invoice.paymentStatus });
+  const stage = customerDocumentStage({
+    paymentStatus: invoice.paymentStatus,
+    documentStage: invoice.documentStage,
+  });
+  const approveUrl = stage === "quote" ? (options?.approveUrl ?? null) : null;
 
   await resend.emails.send({
     from: FROM,
@@ -399,13 +411,14 @@ export async function sendInvoiceCopyEmail(invoice: InvoiceWithJobs, pdfBuffer: 
       shopName: siteConfig.shopName,
       path: "copy",
     }),
-    html: renderInvoiceHtml(invoice, null),
+    html: renderInvoiceHtml(invoice, null, approveUrl),
     text: [
       ...renderInvoiceEmailText({
         invoice,
         vehicle: invoiceVehicle(invoice),
         payUrl: null,
         stage,
+        approveUrl,
       }),
       "",
       `Questions? Call or text ${siteConfig.phone}.`,
@@ -449,6 +462,34 @@ export async function sendOwnerIntakeDraftEmail(input: {
       draft.conversationSummary ? `Summary:\n${draft.conversationSummary}` : null,
       "",
       `Review & approve: ${SITE_URL}/admin/board/${job.id}`,
+    ]
+      .filter((line): line is string => line !== null)
+      .join("\n"),
+  });
+}
+
+export async function sendOwnerQuoteApprovedEmail(invoice: ServiceInvoiceRow) {
+  const resend = getResendConfigured();
+  if (!resend || !OWNER_EMAIL) {
+    console.warn("[email] OWNER_EMAIL or RESEND_API_KEY missing — logging quote approval instead.");
+    console.info("[email] quote approved:", invoice.invoiceNumber, invoice.customerName);
+    return;
+  }
+
+  const vehicle = invoiceVehicle(invoice);
+  await resend.emails.send({
+    from: FROM,
+    to: OWNER_EMAIL,
+    subject: `Quote #${invoice.invoiceNumber} approved by ${invoice.customerName}`,
+    text: [
+      `Quote #${invoice.invoiceNumber} was approved by ${invoice.customerName}.`,
+      "",
+      invoice.customerEmail ? `Email: ${invoice.customerEmail}` : null,
+      invoice.customerPhone ? `Phone: ${invoice.customerPhone}` : null,
+      vehicle ? `Bike: ${vehicle}` : null,
+      invoice.approvedVia ? `Via: ${invoice.approvedVia}` : null,
+      "",
+      `Open invoice: ${SITE_URL}/admin/invoices/${invoice.id}`,
     ]
       .filter((line): line is string => line !== null)
       .join("\n"),

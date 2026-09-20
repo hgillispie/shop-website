@@ -68,6 +68,15 @@ export const invoicePaymentStatusEnum = pgEnum("invoice_payment_status", [
   "paid",
 ]);
 
+// Write-up stage for the same serial invoiceNumber (Quote → Approved →
+// Invoice). paymentStatus still tracks the Shopify send/paid lifecycle;
+// paid display is derived from paymentStatus, not a fourth stored stage.
+export const invoiceDocumentStageEnum = pgEnum("invoice_document_stage", [
+  "quote",
+  "approved",
+  "invoice",
+]);
+
 export const customers = pgTable("customers", {
   id: text("id")
     .primaryKey()
@@ -409,6 +418,16 @@ export const serviceInvoices = pgTable("service_invoices", {
   // the draft into a real paid order. See lib/shopify/admin.ts and
   // app/api/shopify/webhooks/orders-paid/route.ts.
   paymentStatus: invoicePaymentStatusEnum("payment_status").notNull().default("not_sent"),
+  documentStage: invoiceDocumentStageEnum("document_stage").notNull().default("quote"),
+  // SHA-256 hex of the one-click approve token (raw token only lives in
+  // the quote email URL). Unique so lookup is a single equality; NULLs
+  // are allowed for invoices that were never sent as a quote.
+  approveTokenHash: text("approve_token_hash").unique(),
+  approvedAt: timestamp("approved_at", { mode: "date" }),
+  // How approval was recorded — currently "link" from the public approve
+  // route. Kept as free text so an admin/manual path can land later
+  // without another enum migration.
+  approvedVia: text("approved_via"),
   shopifyDraftOrderId: text("shopify_draft_order_id"),
   shopifyInvoiceUrl: text("shopify_invoice_url"),
   shopifyOrderId: text("shopify_order_id"),
@@ -494,6 +513,8 @@ export type PageViewRow = typeof pageViews.$inferSelect;
 export type AnalyticsEventRow = typeof analyticsEvents.$inferSelect;
 export type IpRuleRow = typeof ipRules.$inferSelect;
 export type AdminUserRow = typeof adminUsers.$inferSelect;
+export type InvoiceDocumentStage = (typeof invoiceDocumentStageEnum.enumValues)[number];
+export type InvoicePaymentStatus = (typeof invoicePaymentStatusEnum.enumValues)[number];
 export type ServiceInvoiceRow = typeof serviceInvoices.$inferSelect;
 export type NewServiceInvoiceRow = typeof serviceInvoices.$inferInsert;
 export type ServiceInvoiceJobRow = typeof serviceInvoiceJobs.$inferSelect;

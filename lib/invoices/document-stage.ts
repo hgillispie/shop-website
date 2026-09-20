@@ -1,29 +1,49 @@
 // Customer-facing document stage for the same serial invoiceNumber.
 // Shop staff still talk about repair orders; customers see Quote vs Invoice
 // (Harley parts-counter "quote not paid" stamp — same write-up, different
-// stage word). No second numbering scheme, no extra DB enum: map the
-// existing send paths + paymentStatus.
+// stage word). No second numbering scheme.
 //
-//   sendInvoiceCopyEmail / PDF / print, paymentStatus = not_sent
+// Stored `documentStage` is quote | approved | invoice. `paymentStatus`
+// still tracks Shopify send/paid. Display:
+//
+//   quote / approved + copy/PDF, paymentStatus = not_sent
 //     → Quote — not paid
-//   sendInvoiceRepairEmail (payUrl present) or paymentStatus = invoice_sent
+//   sendInvoiceRepairEmail (payUrl present), paymentStatus = invoice_sent,
+//   or stored documentStage = invoice
 //     → Invoice
 //   sendInvoicePaidEmail / paymentStatus = paid
 //     → Invoice · PAID
 //
 // hasPayUrl wins over a stale in-memory paymentStatus: shopify-actions.ts
 // sends the branded pay email with the pre-update row (still "not_sent").
+// Paid wins over hasPayUrl so a paid row never renders as an unpaid invoice.
 
 export type InvoicePaymentStatus = "not_sent" | "invoice_sent" | "paid";
+export type StoredDocumentStage = "quote" | "approved" | "invoice";
 export type CustomerDocumentStage = "quote" | "invoice" | "paid";
+export type AdminDocumentStage = "quote" | "approved" | "invoice" | "paid";
 
 export function customerDocumentStage(input: {
   paymentStatus: InvoicePaymentStatus;
+  documentStage?: StoredDocumentStage | null;
   hasPayUrl?: boolean;
 }): CustomerDocumentStage {
-  if (input.hasPayUrl) return "invoice";
   if (input.paymentStatus === "paid") return "paid";
+  if (input.hasPayUrl) return "invoice";
   if (input.paymentStatus === "invoice_sent") return "invoice";
+  if (input.documentStage === "invoice") return "invoice";
+  return "quote";
+}
+
+export function adminDocumentStage(input: {
+  paymentStatus: InvoicePaymentStatus;
+  documentStage: StoredDocumentStage;
+}): AdminDocumentStage {
+  if (input.paymentStatus === "paid") return "paid";
+  if (input.paymentStatus === "invoice_sent" || input.documentStage === "invoice") {
+    return "invoice";
+  }
+  if (input.documentStage === "approved") return "approved";
   return "quote";
 }
 
@@ -124,8 +144,9 @@ export function customerDocumentIntro(input: {
   }
 }
 
-export const QUOTE_APPROVE_HINT = "Reply YES to this email to approve the work.";
-export const QUOTE_APPROVE_CTA = "Reply YES to approve";
+export const QUOTE_APPROVE_HINT = "Or reply YES to this email to approve the work.";
+export const QUOTE_APPROVE_CTA = "Approve this quote";
+export const QUOTE_APPROVE_MAILTO_CTA = "Reply YES to approve";
 export const INVOICE_PAY_CTA = "Pay this invoice";
 
 export function quoteApproveMailto(shopEmail: string, invoiceNumber: number): string {
@@ -263,6 +284,7 @@ function renderCta(input: {
   payUrl: string | null;
   invoiceNumber: number;
   shopEmail: string;
+  approveUrl?: string | null;
 }): string {
   const brand = INVOICE_EMAIL_BRAND;
   if (input.payUrl) {
@@ -274,15 +296,19 @@ function renderCta(input: {
   }
 
   if (input.stage === "quote") {
-    const mailto = quoteApproveMailto(input.shopEmail, input.invoiceNumber);
+    const href = input.approveUrl || quoteApproveMailto(input.shopEmail, input.invoiceNumber);
+    const cta = input.approveUrl ? QUOTE_APPROVE_CTA : QUOTE_APPROVE_MAILTO_CTA;
+    const hint = input.approveUrl
+      ? `${QUOTE_APPROVE_HINT} A copy of this quote is attached as a PDF.`
+      : "Reply YES to this email to approve the work. A copy of this quote is attached as a PDF.";
     return `<tr>
           <td align="center" style="padding:22px 32px 4px;">
-            <a href="${escapeHtml(mailto)}" style="display:inline-block;background-color:${brand.dark};color:#ffffff;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;padding:14px 40px;border-radius:999px;">${QUOTE_APPROVE_CTA}</a>
+            <a href="${escapeHtml(href)}" style="display:inline-block;background-color:${brand.dark};color:#ffffff;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;padding:14px 40px;border-radius:999px;">${cta}</a>
           </td>
         </tr>
         <tr>
           <td align="center" style="padding:10px 32px 4px;font-size:12px;color:#888888;">
-            ${escapeHtml(QUOTE_APPROVE_HINT)} A copy of this quote is attached as a PDF.
+            ${escapeHtml(hint)}
           </td>
         </tr>`;
   }
@@ -301,6 +327,7 @@ export function renderInvoiceEmailBody(input: {
   payUrl: string | null;
   stage: CustomerDocumentStage;
   shopEmail: string;
+  approveUrl?: string | null;
 }): string {
   const e = escapeHtml;
   const brand = INVOICE_EMAIL_BRAND;
@@ -334,6 +361,7 @@ export function renderInvoiceEmailBody(input: {
           payUrl: input.payUrl,
           invoiceNumber: input.invoice.invoiceNumber,
           shopEmail: input.shopEmail,
+          approveUrl: input.approveUrl,
         })}`;
 }
 
@@ -377,6 +405,7 @@ export function renderInvoiceEmailText(input: {
   vehicle: string;
   payUrl: string | null;
   stage: CustomerDocumentStage;
+  approveUrl?: string | null;
 }): string[] {
   const labels = customerDocumentLabels(input.stage, input.invoice.invoiceNumber);
   const intro = customerDocumentIntro({
@@ -398,7 +427,13 @@ export function renderInvoiceEmailText(input: {
   const ctaLines = input.payUrl
     ? [`Pay online: ${input.payUrl}`]
     : input.stage === "quote"
-      ? [QUOTE_APPROVE_HINT, "A copy of this quote is attached as a PDF."]
+      ? input.approveUrl
+        ? [
+            `Approve this quote: ${input.approveUrl}`,
+            QUOTE_APPROVE_HINT,
+            "A copy of this quote is attached as a PDF.",
+          ]
+        : ["Reply YES to this email to approve the work.", "A copy of this quote is attached as a PDF."]
       : ["A copy of this invoice is attached as a PDF."];
 
   return [
