@@ -4,6 +4,7 @@ import { describe, it } from "node:test";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  adminDocumentStage,
   customerDocumentEmailSubject,
   customerDocumentIntro,
   customerDocumentLabels,
@@ -52,6 +53,52 @@ describe("customerDocumentStage", () => {
 
   it("treats paid as paid, including copy/PDF", () => {
     assert.equal(customerDocumentStage({ paymentStatus: "paid" }), "paid");
+  });
+
+  it("keeps approved quotes as quotes for the customer until a pay link goes out", () => {
+    assert.equal(
+      customerDocumentStage({ paymentStatus: "not_sent", documentStage: "approved" }),
+      "quote",
+    );
+  });
+
+  it("treats stored documentStage=invoice as an invoice even if payment is still not_sent", () => {
+    assert.equal(
+      customerDocumentStage({ paymentStatus: "not_sent", documentStage: "invoice" }),
+      "invoice",
+    );
+  });
+
+  it("lets paid win over a leftover pay URL", () => {
+    assert.equal(
+      customerDocumentStage({
+        paymentStatus: "paid",
+        documentStage: "invoice",
+        hasPayUrl: true,
+      }),
+      "paid",
+    );
+  });
+});
+
+describe("adminDocumentStage", () => {
+  it("maps quote / approved / invoice / paid for the shop badge", () => {
+    assert.equal(
+      adminDocumentStage({ paymentStatus: "not_sent", documentStage: "quote" }),
+      "quote",
+    );
+    assert.equal(
+      adminDocumentStage({ paymentStatus: "not_sent", documentStage: "approved" }),
+      "approved",
+    );
+    assert.equal(
+      adminDocumentStage({ paymentStatus: "invoice_sent", documentStage: "quote" }),
+      "invoice",
+    );
+    assert.equal(
+      adminDocumentStage({ paymentStatus: "paid", documentStage: "approved" }),
+      "paid",
+    );
   });
 });
 
@@ -141,7 +188,10 @@ describe("customer-facing invoice surfaces have no R.O.", () => {
   const files = [
     "lib/email.ts",
     "lib/invoices/document-stage.ts",
+    "lib/invoices/quote-approve.ts",
+    "lib/invoices/approve-quote.ts",
     "lib/invoices/pdf.tsx",
+    "app/quote/[token]/approve/page.tsx",
     "app/admin/invoices/[id]/print/page.tsx",
     "app/admin/(dashboard)/invoices/shopify-actions.ts",
     "app/admin/(dashboard)/invoices/[id]/pdf/route.ts",
@@ -156,7 +206,41 @@ describe("customer-facing invoice surfaces have no R.O.", () => {
 });
 
 describe("quote vs invoice email bodies", () => {
-  it("stamps the copy path QUOTE — NOT PAID with estimate copy and no Pay button", () => {
+  it("stamps the copy path QUOTE — NOT PAID with an Approve this quote link", () => {
+    const html = renderInvoiceEmailBody({
+      invoice: sampleInvoice,
+      vehicle: "2018 Road King",
+      payUrl: null,
+      stage: "quote",
+      shopEmail: "swaffordspeed@gmail.com",
+      approveUrl: "https://swaffordspeed.com/quote/tok_abc/approve",
+    });
+    const text = renderInvoiceEmailText({
+      invoice: sampleInvoice,
+      vehicle: "2018 Road King",
+      payUrl: null,
+      stage: "quote",
+      approveUrl: "https://swaffordspeed.com/quote/tok_abc/approve",
+    }).join("\n");
+
+    assert.match(html, /QUOTE &middot; #42/);
+    assert.match(html, /QUOTE — NOT PAID/);
+    assert.match(html, /Estimated total/);
+    assert.match(html, /estimate/);
+    assert.match(html, /Approve this quote/);
+    assert.match(html, /https:\/\/swaffordspeed\.com\/quote\/tok_abc\/approve/);
+    assert.match(html, /Or reply YES to this email to approve the work/);
+    assert.doesNotMatch(html, /mailto:/);
+    assert.doesNotMatch(html, /Pay this invoice/);
+    assert.doesNotMatch(html, /recent visit/);
+    assert.doesNotMatch(html, /R\.O\./);
+    assert.match(text, /QUOTE — NOT PAID/);
+    assert.match(text, /Approve this quote: https:\/\/swaffordspeed\.com\/quote\/tok_abc\/approve/);
+    assert.match(text, /Estimated total: \$300\.00/);
+    assert.doesNotMatch(text, /R\.O\./);
+  });
+
+  it("falls back to mailto Reply YES when no approve URL is provided", () => {
     const html = renderInvoiceEmailBody({
       invoice: sampleInvoice,
       vehicle: "2018 Road King",
@@ -164,25 +248,8 @@ describe("quote vs invoice email bodies", () => {
       stage: "quote",
       shopEmail: "swaffordspeed@gmail.com",
     });
-    const text = renderInvoiceEmailText({
-      invoice: sampleInvoice,
-      vehicle: "2018 Road King",
-      payUrl: null,
-      stage: "quote",
-    }).join("\n");
-
-    assert.match(html, /QUOTE &middot; #42/);
-    assert.match(html, /QUOTE — NOT PAID/);
-    assert.match(html, /Estimated total/);
-    assert.match(html, /estimate/);
     assert.match(html, /Reply YES to approve/);
     assert.match(html, /mailto:swaffordspeed@gmail.com/);
-    assert.doesNotMatch(html, /Pay this invoice/);
-    assert.doesNotMatch(html, /recent visit/);
-    assert.doesNotMatch(html, /R\.O\./);
-    assert.match(text, /QUOTE — NOT PAID/);
-    assert.match(text, /Estimated total: \$300\.00/);
-    assert.doesNotMatch(text, /R\.O\./);
   });
 
   it("keeps the pay path as an invoice with Pay this invoice", () => {

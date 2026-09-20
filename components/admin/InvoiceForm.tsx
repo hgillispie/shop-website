@@ -11,11 +11,13 @@ import { computeInvoiceTotals, jobTotalCents } from "@/lib/invoices/totals";
 import type { InvoicePrefill } from "@/lib/invoices/prefill";
 import { formatCents } from "@/lib/store/money";
 import { createInvoice, deleteInvoice, updateInvoice } from "@/app/admin/(dashboard)/invoices/actions";
+import { DocumentStageBadge } from "@/components/admin/DocumentStageBadge";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { adminDocumentStage } from "@/lib/invoices/document-stage";
 
 type ExistingInvoice = ServiceInvoiceRow & {
   jobs: (ServiceInvoiceJobRow & { parts: ServiceInvoicePartsLineRow[] })[];
@@ -375,12 +377,20 @@ export function InvoiceForm({
     <div className="space-y-8 pb-24">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="flex flex-wrap items-center gap-3 text-2xl font-semibold tracking-tight">
             {isEditing ? `Invoice #${invoice.invoiceNumber}` : "New Invoice"}
+            {isEditing ? <DocumentStageBadge stage={adminDocumentStage(invoice)} /> : null}
           </h1>
           <p className="mt-1 text-sm text-muted">
             {isEditing
-              ? `Created ${invoice.createdAt.toLocaleDateString()}`
+              ? [
+                  `Created ${invoice.createdAt.toLocaleDateString()}`,
+                  invoice.approvedAt
+                    ? `Approved ${invoice.approvedAt.toLocaleString()}${invoice.approvedVia ? ` via ${invoice.approvedVia}` : ""}`
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")
               : "Fill in what you know now — jobs and parts can be added as work progresses."}
           </p>
         </div>

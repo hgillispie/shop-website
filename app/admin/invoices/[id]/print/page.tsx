@@ -29,7 +29,10 @@ export default async function InvoicePrintPage({
     invoice.taxAppliesToParts ? "parts" : null,
     invoice.taxAppliesToLabor ? "labor" : null,
   ].filter(Boolean);
-  const stage = customerDocumentStage({ paymentStatus: invoice.paymentStatus });
+  const stage = customerDocumentStage({
+    paymentStatus: invoice.paymentStatus,
+    documentStage: invoice.documentStage,
+  });
   const labels = customerDocumentLabels(stage, invoice.invoiceNumber);
 
   return (

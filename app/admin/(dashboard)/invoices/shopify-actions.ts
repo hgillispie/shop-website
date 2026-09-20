@@ -111,6 +111,7 @@ export async function sendInvoiceToShopify(invoiceId: string) {
     .update(serviceInvoices)
     .set({
       paymentStatus: "invoice_sent",
+      documentStage: "invoice",
       shopifyDraftOrderId: draftOrder.id,
       shopifyInvoiceUrl: invoiceUrl,
       updatedAt: new Date(),

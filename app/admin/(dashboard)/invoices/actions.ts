@@ -9,6 +9,7 @@ import { computeInvoiceTotals } from "@/lib/invoices/totals";
 import { renderInvoicePdf } from "@/lib/invoices/pdf";
 import { sendInvoiceCopyEmail } from "@/lib/email";
 import { invoiceSchema, type InvoiceInput } from "@/lib/validations/invoices";
+import { createApproveToken, hashApproveToken, isQuoteSendPath, quoteApproveUrl } from "@/lib/invoices/quote-approve";
 
 // A Server Action is a POST endpoint in its own right, reachable
 // independent of which page renders its caller — same posture as
@@ -139,9 +140,9 @@ export async function deleteInvoice(id: string) {
 
 // Deliberately separate from shopify-actions.ts's sendInvoiceToShopify —
 // this doesn't touch paymentStatus, doesn't create a Draft Order, and
-// isn't gated on Shopify at all. When paymentStatus is still not_sent the
-// customer-facing copy is a Quote (QUOTE — NOT PAID); after a pay link or
-// payment it goes out as an Invoice PDF.
+// isn't gated on Shopify at all. Quote send mints a one-click approve
+// token and keeps documentStage at quote (or approved if they already
+// clicked). After a pay link, this path goes out as an Invoice PDF.
 export async function emailInvoiceCopy(invoiceId: string) {
   await requireSession();
 
@@ -151,8 +152,30 @@ export async function emailInvoiceCopy(invoiceId: string) {
     throw new Error("Add a customer email to this invoice before emailing a copy.");
   }
 
-  const pdfBuffer = await renderInvoicePdf(invoice);
-  await sendInvoiceCopyEmail(invoice, pdfBuffer);
+  let approveUrl: string | null = null;
+  let staged = invoice;
+
+  if (isQuoteSendPath(invoice)) {
+    const token = createApproveToken();
+    const nextStage = invoice.documentStage === "approved" ? "approved" : "quote";
+    await db
+      .update(serviceInvoices)
+      .set({
+        documentStage: nextStage,
+        approveTokenHash: hashApproveToken(token),
+        updatedAt: new Date(),
+      })
+      .where(eq(serviceInvoices.id, invoiceId));
+
+    staged = { ...invoice, documentStage: nextStage };
+    approveUrl = quoteApproveUrl(
+      token,
+      process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    );
+  }
+
+  const pdfBuffer = await renderInvoicePdf(staged);
+  await sendInvoiceCopyEmail(staged, pdfBuffer, { approveUrl });
 
   return { ok: true };
 }

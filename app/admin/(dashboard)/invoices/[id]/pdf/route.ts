@@ -26,7 +26,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   }
 
   const buffer = await renderInvoicePdf(invoice);
-  const stage = customerDocumentStage({ paymentStatus: invoice.paymentStatus });
+  const stage = customerDocumentStage({
+    paymentStatus: invoice.paymentStatus,
+    documentStage: invoice.documentStage,
+  });
   const filename = customerDocumentPdfFilename(stage, invoice.invoiceNumber);
 
   // "inline", not "attachment" — opens in the browser's own PDF viewer

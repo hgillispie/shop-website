@@ -5,14 +5,13 @@ import { emailInvoiceCopy } from "@/app/admin/(dashboard)/invoices/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ServiceInvoiceRow } from "@/lib/db/schema";
+import { customerDocumentStage } from "@/lib/invoices/document-stage";
 
-// Uses paymentStatus only to pick Quote vs Invoice copy; sending still
-// does not write paymentStatus (that's SendShopifyInvoiceButton's job).
 export function EmailInvoiceCopyButton({ invoice }: { invoice: ServiceInvoiceRow }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
-  const isQuote = invoice.paymentStatus === "not_sent";
+  const isQuote = customerDocumentStage(invoice) === "quote";
 
   function handleSend() {
     setError(null);
@@ -31,11 +30,11 @@ export function EmailInvoiceCopyButton({ invoice }: { invoice: ServiceInvoiceRow
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-foreground">
-            {isQuote ? "Email quote (PDF)" : "Email invoice copy (PDF)"}
+            {isQuote ? "Send quote (PDF)" : "Email invoice copy (PDF)"}
           </p>
           <p className="text-xs text-muted">
             {isQuote
-              ? "Sends an estimate PDF stamped QUOTE — NOT PAID. Doesn't affect payment status."
+              ? "Emails an estimate PDF stamped QUOTE — NOT PAID, with an Approve this quote link. Doesn't create a pay link."
               : "Sends a PDF copy of this invoice. Doesn't affect payment status."}
           </p>
         </div>
