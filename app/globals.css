@@ -190,6 +190,28 @@ body {
   border-color: color-mix(in oklab, var(--ink) 16%, transparent);
 }
 
+/* Same light-surface problem as .input: daisyUI `.checkbox` is
+   `border: var(--border) solid …` with --border as a width, but :root
+   --border is a color, so the shorthand is dropped and unchecked boxes
+   vanish on bone/white admin. Force a visible outline. */
+.admin-shell .checkbox {
+  border-width: 2px;
+  border-style: solid;
+  border-color: color-mix(in oklab, var(--ink) 55%, transparent);
+  background-color: #fff;
+}
+
+.admin-shell .checkbox:checked,
+.admin-shell .checkbox[aria-checked="true"] {
+  background-color: var(--flame);
+  border-color: var(--flame);
+}
+
+.admin-shell .checkbox:focus-visible {
+  outline: 2px solid var(--flame-deep);
+  outline-offset: 2px;
+}
+
 .admin-shell .btn {
   border-radius: 2px;
 }
