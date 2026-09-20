@@ -4,6 +4,10 @@ import { Document, Page, View, Text, Image, StyleSheet, renderToBuffer } from "@
 import { siteConfig } from "@/data/site-config";
 import { formatDateWritten } from "@/lib/invoices/date";
 import { jobPartsTotalCents, jobTotalCents } from "@/lib/invoices/totals";
+import {
+  customerDocumentLabels,
+  customerDocumentStage,
+} from "@/lib/invoices/document-stage";
 import type { ServiceInvoiceWithJobs } from "@/lib/db/queries";
 
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
@@ -158,6 +162,20 @@ const styles = StyleSheet.create({
   grandTotalLabel: { fontSize: 11, fontFamily: "Helvetica-Bold" },
   grandTotalValue: { fontSize: 11, fontFamily: "Helvetica-Bold" },
 
+  stamp: {
+    marginTop: 10,
+    borderWidth: 2,
+    borderColor: "#EC5407",
+    backgroundColor: "#FDF1E7",
+    padding: 8,
+    alignItems: "center",
+  },
+  stampText: {
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+    letterSpacing: 1.6,
+    color: "#EC5407",
+  },
   footer: {
     marginTop: 24,
     borderTopWidth: 1,
@@ -191,9 +209,11 @@ function InvoiceDocument({ invoice }: { invoice: ServiceInvoiceWithJobs }) {
   const vehicle = [invoice.vehicleYear, invoice.vehicleMake, invoice.vehicleModel]
     .filter(Boolean)
     .join(" ");
+  const stage = customerDocumentStage({ paymentStatus: invoice.paymentStatus });
+  const labels = customerDocumentLabels(stage, invoice.invoiceNumber);
 
   return (
-    <Document title={`Invoice ${invoice.invoiceNumber} — ${siteConfig.shopName}`}>
+    <Document title={`${labels.pdfTitle} — ${siteConfig.shopName}`}>
       <Page size="LETTER" style={styles.page}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -205,10 +225,10 @@ function InvoiceDocument({ invoice }: { invoice: ServiceInvoiceWithJobs }) {
             </View>
           </View>
           <View style={styles.headerRight}>
-            <Text style={styles.docTitle}>INVOICE</Text>
+            <Text style={styles.docTitle}>{labels.docTitle}</Text>
             <View style={styles.metaTable}>
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>R.O. NUMBER</Text>
+                <Text style={styles.metaLabel}>{labels.numberLabel}</Text>
                 <Text style={styles.metaValue}>{invoice.invoiceNumber}</Text>
               </View>
               <View style={styles.metaRow}>
@@ -224,6 +244,12 @@ function InvoiceDocument({ invoice }: { invoice: ServiceInvoiceWithJobs }) {
             </View>
           </View>
         </View>
+
+        {labels.banner ? (
+          <View style={styles.stamp}>
+            <Text style={styles.stampText}>{labels.banner}</Text>
+          </View>
+        ) : null}
 
         <View style={styles.panelsRow}>
           <View style={styles.panel}>
@@ -251,7 +277,9 @@ function InvoiceDocument({ invoice }: { invoice: ServiceInvoiceWithJobs }) {
         <View style={styles.jobsBlock}>
           <Text style={styles.jobsHeader}>DESCRIPTION OF SERVICE</Text>
           {invoice.jobs.length === 0 ? (
-            <Text style={styles.noJobs}>No jobs added to this invoice.</Text>
+            <Text style={styles.noJobs}>
+              No jobs added to this {stage === "quote" ? "quote" : "invoice"}.
+            </Text>
           ) : (
             invoice.jobs.map((job, index) => {
               const partsTotal = jobPartsTotalCents(job);
@@ -339,7 +367,7 @@ function InvoiceDocument({ invoice }: { invoice: ServiceInvoiceWithJobs }) {
               </View>
             ) : null}
             <View style={styles.grandTotal}>
-              <Text style={styles.grandTotalLabel}>Total due</Text>
+              <Text style={styles.grandTotalLabel}>{labels.totalLabel}</Text>
               <Text style={styles.grandTotalValue}>{money(invoice.totalDueCents)}</Text>
             </View>
           </View>

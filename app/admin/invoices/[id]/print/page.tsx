@@ -4,6 +4,10 @@ import { siteConfig } from "@/data/site-config";
 import { formatCents } from "@/lib/store/money";
 import { jobPartsTotalCents, jobTotalCents } from "@/lib/invoices/totals";
 import { formatDateWritten } from "@/lib/invoices/date";
+import {
+  customerDocumentLabels,
+  customerDocumentStage,
+} from "@/lib/invoices/document-stage";
 import { PrintButton } from "@/components/admin/PrintButton";
 
 // Deliberately outside app/admin/(dashboard) — this must NOT inherit the
@@ -25,6 +29,8 @@ export default async function InvoicePrintPage({
     invoice.taxAppliesToParts ? "parts" : null,
     invoice.taxAppliesToLabor ? "labor" : null,
   ].filter(Boolean);
+  const stage = customerDocumentStage({ paymentStatus: invoice.paymentStatus });
+  const labels = customerDocumentLabels(stage, invoice.invoiceNumber);
 
   return (
     <div className="min-h-full bg-neutral-100 py-8 print:bg-white print:py-0">
@@ -66,11 +72,11 @@ export default async function InvoicePrintPage({
             </div>
           </div>
           <div className="text-right">
-            <h1 className="text-2xl font-bold tracking-[0.25em]">SERVICE ORDER</h1>
+            <h1 className="text-2xl font-bold tracking-[0.25em]">{labels.docTitle}</h1>
             <table className="mt-2 ml-auto font-mono text-[11px]">
               <tbody>
                 <tr>
-                  <td className="pr-3 text-right text-neutral-500">R.O. NUMBER</td>
+                  <td className="pr-3 text-right text-neutral-500">{labels.numberLabel}</td>
                   <td className="border-b border-black pl-2 font-semibold">
                     {invoice.invoiceNumber}
                   </td>
@@ -87,6 +93,12 @@ export default async function InvoicePrintPage({
             </table>
           </div>
         </header>
+
+        {labels.banner ? (
+          <div className="mt-4 border-2 border-[#EC5407] bg-[#fdf1e7] py-3 text-center text-sm font-bold tracking-[0.2em] text-[#EC5407]">
+            {labels.banner}
+          </div>
+        ) : null}
 
         {/* Customer / Vehicle info */}
         <div className="mt-4 grid grid-cols-2 gap-4">
@@ -117,7 +129,9 @@ export default async function InvoicePrintPage({
             DESCRIPTION OF SERVICE
           </div>
           {invoice.jobs.length === 0 && (
-            <p className="p-4 text-sm text-neutral-500">No jobs added to this invoice yet.</p>
+            <p className="p-4 text-sm text-neutral-500">
+              No jobs added to this {stage === "quote" ? "quote" : "invoice"} yet.
+            </p>
           )}
           {invoice.jobs.map((job, index) => {
             const partsTotal = jobPartsTotalCents(job);
@@ -226,7 +240,7 @@ export default async function InvoicePrintPage({
                 </tr>
               )}
               <tr className="border-t-2 border-black text-base font-bold">
-                <td className="py-1.5">TOTAL DUE</td>
+                <td className="py-1.5">{labels.totalLabel.toUpperCase()}</td>
                 <td className="py-1.5 text-right tabular-nums">
                   {formatCents(invoice.totalDueCents)}
                 </td>

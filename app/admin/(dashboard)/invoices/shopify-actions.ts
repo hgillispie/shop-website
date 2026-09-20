@@ -84,7 +84,7 @@ export async function sendInvoiceToShopify(invoiceId: string) {
 
   const draftOrder = await createDraftOrder({
     email: invoice.customerEmail,
-    note: [`R.O. #${invoice.invoiceNumber}`, vehicle].filter(Boolean).join(" — "),
+    note: [`Invoice #${invoice.invoiceNumber}`, vehicle].filter(Boolean).join(" — "),
     // repair-invoice + invoice:{invoiceNumber} is how the orders/paid webhook
     // tells a paid repair invoice apart from a paid merch order on the same
     // topic — see app/api/shopify/webhooks/orders-paid/route.ts. Draft order
