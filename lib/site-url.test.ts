@@ -9,6 +9,7 @@ import {
   canonicalUrl,
   siteOrigin,
 } from "./site-url.ts";
+import { CANONICAL_SITE_URL } from "./vcard.ts";
 
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
 
@@ -17,6 +18,9 @@ function readRepoFile(relativePath: string): string {
 }
 
 describe("siteOrigin", () => {
+  it("matches the printed vCard apex host", () => {
+    assert.equal(APEX_SITE_URL, CANONICAL_SITE_URL);
+  });
   it("maps www and trailing slashes to the apex shop host", () => {
     assert.equal(siteOrigin("https://www.swaffordspeed.com"), APEX_SITE_URL);
     assert.equal(siteOrigin("https://www.swaffordspeed.com/"), APEX_SITE_URL);
@@ -70,7 +74,11 @@ describe("review redirect stays off the sitemap", () => {
   it("permanently redirects /review to the Google review URL", () => {
     assert.match(nextConfig, /source:\s*["']\/review["']/);
     assert.match(nextConfig, /permanent:\s*true/);
-    assert.ok(nextConfig.includes(GOOGLE_REVIEW_URL));
+    assert.match(nextConfig, /GOOGLE_REVIEW_URL/);
+    assert.equal(
+      GOOGLE_REVIEW_URL,
+      "https://g.page/r/CWHtiZtRjnuhEAI/review",
+    );
   });
 });
 
