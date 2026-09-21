@@ -17,6 +17,16 @@ export const aboutTitle = "About — Custom Harley & Repair in Taylors";
 export const aboutDescription =
   "Who works on your bike at Swafford Speed in Taylors, SC. Custom and chopper work, Harley repair, and builds from vintage through Milwaukee-Eight. Appointment only.";
 
+export const privacyTitle = "Privacy Policy";
+
+export const privacyDescription =
+  "Privacy policy for Swafford Speed. How we collect, use, and retain appointment-request information, SMS consent, and website analytics.";
+
+export const termsTitle = "Terms & Conditions";
+
+export const termsDescription =
+  "Terms for using Swafford Speed, including appointment-only service, SMS messaging related to your request, and how to contact the shop.";
+
 export const keywords = [
   "Harley-Davidson performance shop Taylors SC",
   "custom Harley build Upstate SC",

@@ -2,19 +2,22 @@ import type { Metadata } from "next";
 import { ProductCard } from "@/components/store/ProductCard";
 import { siteConfig } from "@/data/site-config";
 import { getProducts } from "@/lib/shopify/storefront";
+import { canonicalUrl } from "@/lib/site-url";
 
 const TITLE = "Shop";
 const OG_TITLE = `${TITLE} | ${siteConfig.shopName}`;
 const DESCRIPTION =
   `Official Swafford Speed merch — tees, hoodies, and shop gear from the Harley-Davidson performance shop in ${siteConfig.city}.`;
+const STORE_URL = canonicalUrl("/store");
 
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
+  alternates: { canonical: STORE_URL },
   openGraph: {
     title: OG_TITLE,
     description: DESCRIPTION,
-    url: "/store",
+    url: STORE_URL,
     siteName: siteConfig.shopName,
     locale: "en_US",
     type: "website",

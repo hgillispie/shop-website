@@ -9,6 +9,10 @@ import {
   defaultTitle,
   homeDescription,
   homeTitle,
+  privacyDescription,
+  privacyTitle,
+  termsDescription,
+  termsTitle,
 } from "../data/seo.ts";
 import { siteConfig } from "../data/site-config.ts";
 import { capabilities } from "../data/services.ts";
@@ -22,6 +26,10 @@ const metadataCopy = [
   homeDescription,
   aboutTitle,
   aboutDescription,
+  privacyTitle,
+  privacyDescription,
+  termsTitle,
+  termsDescription,
   businessJsonLdDescription,
 ].join("\n");
 
@@ -51,6 +59,15 @@ describe("SEO metadata", () => {
     assert.match(businessJsonLdDescription, /upstate/i);
     assert.doesNotMatch(metadataCopy, /529 E Darby/i);
     assert.doesNotMatch(metadataCopy, /streetAddress/);
+  });
+
+  it("gives privacy and terms their own descriptions, not the homepage copy", () => {
+    assert.notEqual(privacyDescription, homeDescription);
+    assert.notEqual(termsDescription, homeDescription);
+    assert.match(privacyDescription, /privacy policy/i);
+    assert.match(termsDescription, /appointment-only/i);
+    assert.doesNotMatch(privacyDescription, /843/);
+    assert.doesNotMatch(termsDescription, /843/);
   });
 
   it("does not claim dealer status", () => {

@@ -1,9 +1,11 @@
+import { APEX_SITE_URL } from "./site-url";
+
 /** Short public path iPhone Camera / NFC should open. Must end in `.vcf`. */
 export const VCARD_PATH = "/c.vcf";
 export const VCARD_FILENAME = "swafford-speed.vcf";
 
 /** Printed QR / NFC target — the live shop host, not a preview or localhost. */
-export const CANONICAL_SITE_URL = "https://swaffordspeed.com";
+export const CANONICAL_SITE_URL = APEX_SITE_URL;
 export const CANONICAL_VCARD_URL = `${CANONICAL_SITE_URL}${VCARD_PATH}`;
 
 /**
