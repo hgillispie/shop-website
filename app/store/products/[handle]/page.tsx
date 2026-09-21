@@ -6,6 +6,7 @@ import { ProductGallery } from "@/components/store/ProductGallery";
 import { ProductViewTracker } from "@/components/store/ProductViewTracker";
 import { siteConfig } from "@/data/site-config";
 import { getProductByHandle } from "@/lib/shopify/storefront";
+import { canonicalUrl } from "@/lib/site-url";
 
 function truncatePlainText(text: string, maxLength = 160): string {
   const normalized = text.replace(/\s+/g, " ").trim();
@@ -37,14 +38,16 @@ export async function generateMetadata({
     truncatePlainText(product.description) ||
     `${product.title} from ${siteConfig.shopName} — Harley-Davidson performance merch from the shop in ${siteConfig.city}.`;
   const image = product.images[0];
+  const url = canonicalUrl(`/store/products/${product.handle}`);
 
   return {
     title,
     description,
+    alternates: { canonical: url },
     openGraph: {
       title: ogTitle,
       description,
-      url: `/store/products/${product.handle}`,
+      url,
       siteName: siteConfig.shopName,
       locale: "en_US",
       type: "website",

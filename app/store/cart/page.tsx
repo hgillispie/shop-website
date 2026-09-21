@@ -1,10 +1,37 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/button";
 import { CartLineRow } from "@/components/store/CartLineRow";
 import { CheckoutButton } from "@/components/store/CheckoutButton";
+import { siteConfig } from "@/data/site-config";
 import { getCartId } from "@/lib/shopify/cart-cookie";
 import { formatMoney } from "@/lib/shopify/money";
 import { getCart } from "@/lib/shopify/storefront";
+import { canonicalUrl } from "@/lib/site-url";
+
+const TITLE = "Cart";
+const OG_TITLE = `${TITLE} | ${siteConfig.shopName}`;
+const DESCRIPTION = `Your ${siteConfig.shopName} merch cart.`;
+const CART_URL = canonicalUrl("/store/cart");
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: CART_URL },
+  openGraph: {
+    title: OG_TITLE,
+    description: DESCRIPTION,
+    url: CART_URL,
+    siteName: siteConfig.shopName,
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: OG_TITLE,
+    description: DESCRIPTION,
+  },
+};
 
 export default async function CartPage() {
   const cartId = await getCartId();

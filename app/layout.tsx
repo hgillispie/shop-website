@@ -9,6 +9,7 @@ import {
   keywords,
 } from "@/data/seo";
 import { GoogleTags } from "@/components/GoogleTags";
+import { siteOrigin } from "@/lib/site-url";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,7 +28,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = siteOrigin();
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -37,10 +38,11 @@ export const metadata: Metadata = {
   },
   description: defaultDescription,
   keywords: [...keywords],
+  // Do not set alternates.canonical or openGraph.url here — they would leak
+  // the homepage URL onto /privacy, /terms, and other pages that only set title.
   openGraph: {
     title: defaultTitle,
     description: defaultDescription,
-    url: SITE_URL,
     siteName: SITE_NAME,
     locale: "en_US",
     type: "website",

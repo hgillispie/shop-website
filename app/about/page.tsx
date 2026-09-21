@@ -12,16 +12,19 @@ import { TrackedLink } from "@/components/TrackedLink";
 import { siteConfig } from "@/data/site-config";
 import { aboutDescription, aboutTitle, SITE_NAME } from "@/data/seo";
 import { hasPublicPhoto, shopPhotos } from "@/data/photos";
+import { canonicalUrl } from "@/lib/site-url";
 
 const TITLE = `${aboutTitle} | ${SITE_NAME}`;
+const ABOUT_URL = canonicalUrl("/about");
 
 export const metadata: Metadata = {
   title: aboutTitle,
   description: aboutDescription,
+  alternates: { canonical: ABOUT_URL },
   openGraph: {
     title: TITLE,
     description: aboutDescription,
-    url: "/about",
+    url: ABOUT_URL,
     siteName: siteConfig.shopName,
     locale: "en_US",
     type: "website",

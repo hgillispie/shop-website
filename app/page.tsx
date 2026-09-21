@@ -12,14 +12,18 @@ import { StructuredData } from "@/components/StructuredData";
 import { getFeatured } from "@/lib/shopify/featured";
 import { siteConfig } from "@/data/site-config";
 import { homeDescription, homeTitle, SITE_NAME } from "@/data/seo";
+import { canonicalUrl } from "@/lib/site-url";
+
+const HOME_URL = canonicalUrl("/");
 
 export const metadata: Metadata = {
   title: { absolute: homeTitle },
   description: homeDescription,
+  alternates: { canonical: HOME_URL },
   openGraph: {
     title: homeTitle,
     description: homeDescription,
-    url: "/",
+    url: HOME_URL,
     siteName: SITE_NAME,
     locale: "en_US",
     type: "website",

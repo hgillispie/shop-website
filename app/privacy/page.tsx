@@ -1,10 +1,30 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/data/site-config";
+import { privacyDescription, privacyTitle, SITE_NAME } from "@/data/seo";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { canonicalUrl } from "@/lib/site-url";
+
+const TITLE = `${privacyTitle} | ${SITE_NAME}`;
+const PRIVACY_URL = canonicalUrl("/privacy");
 
 export const metadata: Metadata = {
-  title: "Privacy Policy",
+  title: privacyTitle,
+  description: privacyDescription,
+  alternates: { canonical: PRIVACY_URL },
+  openGraph: {
+    title: TITLE,
+    description: privacyDescription,
+    url: PRIVACY_URL,
+    siteName: SITE_NAME,
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: TITLE,
+    description: privacyDescription,
+  },
 };
 
 export default function PrivacyPolicyPage() {

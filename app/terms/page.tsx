@@ -1,10 +1,30 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/data/site-config";
+import { termsDescription, termsTitle, SITE_NAME } from "@/data/seo";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { canonicalUrl } from "@/lib/site-url";
+
+const TITLE = `${termsTitle} | ${SITE_NAME}`;
+const TERMS_URL = canonicalUrl("/terms");
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions",
+  title: termsTitle,
+  description: termsDescription,
+  alternates: { canonical: TERMS_URL },
+  openGraph: {
+    title: TITLE,
+    description: termsDescription,
+    url: TERMS_URL,
+    siteName: SITE_NAME,
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: TITLE,
+    description: termsDescription,
+  },
 };
 
 export default function TermsPage() {

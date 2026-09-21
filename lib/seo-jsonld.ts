@@ -2,8 +2,9 @@ import { siteConfig } from "../data/site-config";
 import { capabilities } from "../data/services";
 import { faqs } from "../data/faq";
 import { businessJsonLdDescription } from "../data/seo";
+import { siteOrigin } from "./site-url";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = siteOrigin();
 
 export function buildBusinessJsonLd() {
   return {
