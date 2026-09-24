@@ -24,11 +24,12 @@ export const siteConfig = {
   // Real drop-off address — sent only in the private approval email/SMS,
   // never rendered on a public page (owner doesn't want walk-ins).
   address: "529 E Darby Road, Taylors, SC 29687",
-  // Handles, not titles — Shopify handles survive a rename and these two have
-  // already drifted: `evo-pocket-tee` now shows as "Swafford Speed V-Twin
-  // Pocket Tee", and `flash-pocket-tee` shows as "Bagger Pocket Tee".
+  // Handles, not titles — Shopify handles survive a rename. The hero card
+  // labeled Featured is the Ride Em hoodie. The "New!" banner stays the
+  // Bagger tee so the hoodie is not repeated in both slots. V-Twin remains
+  // in the catalog and the shop strip.
   featured: {
-    hero: "evo-pocket-tee",
+    hero: "ride-em-dont-hide-em-heavyweight-hooded-sweatshirt",
     banner: "flash-pocket-tee",
   },
   // Root-relative so these work correctly from any route, not just "/".
