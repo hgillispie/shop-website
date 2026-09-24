@@ -22,7 +22,7 @@ export function ProductBanner({ product }: { product: Product | null }) {
               New!
             </span>
             <p className="display-caps text-4xl sm:text-5xl">
-              {product?.title ?? "Bagger Pocket Tee"}
+              {product?.title ?? "RIDE EM DONT HIDE EM Heavyweight Hooded Sweatshirt"}
             </p>
             {product && (
               <p className="text-lg font-semibold">
