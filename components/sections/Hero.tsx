@@ -95,7 +95,7 @@ function FeaturedTee({ product }: { product: Product | null }) {
         <div>
           <p className="eyebrow text-ember">Featured</p>
           <p className="display-caps mt-1.5 text-xl">
-            {product?.title ?? "RIDE EM DONT HIDE EM Heavyweight Hooded Sweatshirt"}
+            {product?.title ?? "V-Twin Pocket Tee"}
           </p>
         </div>
         {product && (
