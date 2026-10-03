@@ -25,11 +25,10 @@ export const siteConfig = {
   // never rendered on a public page (owner doesn't want walk-ins).
   address: "529 E Darby Road, Taylors, SC 29687",
   // Handles, not titles — Shopify handles survive a rename. The hero card
-  // labeled Featured is the Ride Em hoodie. The "New!" banner stays the
-  // Bagger tee so the hoodie is not repeated in both slots. V-Twin remains
-  // in the catalog and the shop strip.
+  // labeled Featured is the V-Twin tee. The "New!" banner stays the Bagger
+  // tee. Leave the Ride Em hoodie out of both slots while it is drafted.
   featured: {
-    hero: "ride-em-dont-hide-em-heavyweight-hooded-sweatshirt",
+    hero: "evo-pocket-tee",
     banner: "flash-pocket-tee",
   },
   // Root-relative so these work correctly from any route, not just "/".
